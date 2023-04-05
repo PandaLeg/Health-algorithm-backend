@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize-typescript';
 import * as process from 'process';
 import { User } from '../modules/user/models/user.entity';
 import { Patient } from '../modules/patient/models/patient.entity';
+import { UserRoles } from '../modules/user_role/models/user-roles.entity';
+import { Role } from '../modules/role/models/role.entity';
 
 export const databaseProviders = [
   {
@@ -16,7 +18,7 @@ export const databaseProviders = [
         database: process.env.POSTGRES_DB,
       });
 
-      sequelize.addModels([User, Patient]);
+      sequelize.addModels([User, Patient, Role, UserRoles]);
       await sequelize.sync();
       return sequelize;
     },
