@@ -10,7 +10,7 @@ export class UserService {
   }
 
   async getById(id: string) {
-    const user = await this.userRepo.findByPk(id);
+    const user: User | null = await this.userRepo.findByPk(id);
 
     if (!user) {
       throw new BadRequestException('User not found');
