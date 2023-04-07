@@ -23,11 +23,13 @@ export class Patient extends Model<Patient> {
 
   @Column({
     type: DataType.STRING(30),
+    allowNull: false,
   })
   firstName: string;
 
   @Column({
     type: DataType.STRING(30),
+    allowNull: false,
   })
   lastName: string;
 }

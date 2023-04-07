@@ -6,7 +6,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.entity';
-import { UserRoles } from '../../user_role/models/user-roles.entity';
+import { UserRole } from '../../user-role/models/user-roles.entity';
 
 @Table({ tableName: 'roles' })
 export class Role extends Model<Role> {
@@ -24,6 +24,6 @@ export class Role extends Model<Role> {
   })
   name: string;
 
-  @BelongsToMany(() => User, () => UserRoles)
+  @BelongsToMany(() => User, () => UserRole)
   users: User[];
 }

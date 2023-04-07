@@ -8,7 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { Patient } from '../../patient/models/patient.entity';
-import { UserRoles } from '../../user_role/models/user-roles.entity';
+import { UserRole } from '../../user-role/models/user-roles.entity';
 import { Role } from '../../role/models/role.entity';
 
 @Table({ tableName: 'users' })
@@ -50,6 +50,6 @@ export class User extends Model<User> {
   @HasOne(() => Patient)
   patient: Patient;
 
-  @BelongsToMany(() => Role, () => UserRoles)
+  @BelongsToMany(() => Role, () => UserRole)
   roles: Role[];
 }

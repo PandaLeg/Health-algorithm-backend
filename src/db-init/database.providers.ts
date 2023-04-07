@@ -2,8 +2,12 @@ import { Sequelize } from 'sequelize-typescript';
 import * as process from 'process';
 import { User } from '../modules/user/models/user.entity';
 import { Patient } from '../modules/patient/models/patient.entity';
-import { UserRoles } from '../modules/user_role/models/user-roles.entity';
+import { UserRole } from '../modules/user-role/models/user-roles.entity';
 import { Role } from '../modules/role/models/role.entity';
+import { Doctor } from '../modules/doctor/models/doctor.entity';
+import { Specialty } from '../modules/specialty/models/specialty.entity';
+import { CategoryDoctor } from '../modules/category-doctor/models/category-doctor.entity';
+import { DoctorSpecialty } from '../modules/doctor-specialty/models/doctor-specialty.entity';
 
 export const databaseProviders = [
   {
@@ -18,7 +22,16 @@ export const databaseProviders = [
         database: process.env.POSTGRES_DB,
       });
 
-      sequelize.addModels([User, Patient, Role, UserRoles]);
+      sequelize.addModels([
+        User,
+        Patient,
+        Doctor,
+        Role,
+        UserRole,
+        Specialty,
+        DoctorSpecialty,
+        CategoryDoctor,
+      ]);
       await sequelize.sync();
       return sequelize;
     },

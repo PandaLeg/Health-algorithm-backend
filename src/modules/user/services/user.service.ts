@@ -6,12 +6,14 @@ import { PatientService } from '../../patient/services/patient.service';
 import { Op } from 'sequelize';
 import { RoleType } from '../../role/enums/role-type.enum';
 import { Role } from '../../role/models/role.entity';
+import { DoctorService } from '../../doctor/services/doctor.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject('USERS_REPOSITORY') private userRepo: typeof User,
     private readonly patientService: PatientService,
+    private readonly doctorService: DoctorService,
     private readonly roleService: RoleService,
   ) {}
 

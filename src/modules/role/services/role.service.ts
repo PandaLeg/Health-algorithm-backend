@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Role } from '../models/role.entity';
 
 @Injectable()
