@@ -11,8 +11,15 @@ import { Patient } from '../../patient/models/patient.entity';
 import { UserRole } from '../../user-role/models/user-roles.entity';
 import { Role } from '../../role/models/role.entity';
 
+interface UserAttrs {
+  phone: string;
+  password: string;
+  email: string;
+  city: string;
+}
+
 @Table({ tableName: 'users' })
-export class User extends Model<User> {
+export class User extends Model<User, UserAttrs> {
   @Column({
     type: DataType.UUID,
     primaryKey: true,

@@ -39,7 +39,7 @@ export class Doctor extends Model<Doctor> {
 
   @Column({
     type: DataType.STRING(30),
-    defaultValue: null,
+    allowNull: false,
   })
   surname: string;
 

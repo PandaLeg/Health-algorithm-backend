@@ -7,6 +7,8 @@ import { Op } from 'sequelize';
 import { RoleType } from '../../role/enums/role-type.enum';
 import { Role } from '../../role/models/role.entity';
 import { DoctorService } from '../../doctor/services/doctor.service';
+import { SpecialtyCategory } from '../../doctor/interfaces/specialty-category.interface';
+import { Doctor } from '../../doctor/models/doctor.entity';
 
 @Injectable()
 export class UserService {
@@ -34,7 +36,7 @@ export class UserService {
   }
 
   async createUser(userDto: CreateUserDto): Promise<string> {
-    const user: User = await this.userRepo.build({
+    const user: User = this.userRepo.build({
       phone: userDto.phone,
       password: userDto.password,
       email: userDto.email,
@@ -46,9 +48,25 @@ export class UserService {
     switch (userDto.type) {
       case 'patient':
         role = await this.roleService.getRoleByValue(RoleType.PATIENT_ROLE);
-        await user.save();
 
+        await user.save();
         await this.patientService.createPatient(user.id, userDto.patient);
+        break;
+      case 'doctor':
+        role = await this.roleService.getRoleByValue(RoleType.DOCTOR_ROLE);
+        const doctor: Doctor = this.doctorService.buildDoctor(userDto.doctor);
+        const additionalInfoDoctor: SpecialtyCategory =
+          await this.doctorService.findSpecialtiesAndCategory(
+            userDto.doctor.categoryId,
+            userDto.doctor.specialties,
+          );
+
+        await user.save();
+        await this.doctorService.createDoctor(
+          doctor,
+          user.id,
+          additionalInfoDoctor,
+        );
         break;
     }
 
