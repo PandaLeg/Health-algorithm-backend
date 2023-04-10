@@ -10,6 +10,8 @@ import { DataTypes } from 'sequelize';
 import { Patient } from '../../patient/models/patient.entity';
 import { UserRole } from '../../user-role/models/user-roles.entity';
 import { Role } from '../../role/models/role.entity';
+import { Doctor } from '../../doctor/models/doctor.entity';
+import { Clinic } from '../../clinic/models/clinic.entity';
 
 interface UserAttrs {
   phone: string;
@@ -56,6 +58,12 @@ export class User extends Model<User, UserAttrs> {
 
   @HasOne(() => Patient)
   patient: Patient;
+
+  @HasOne(() => Doctor)
+  doctor: Doctor;
+
+  @HasOne(() => Clinic)
+  clinic: Clinic;
 
   @BelongsToMany(() => Role, () => UserRole)
   roles: Role[];

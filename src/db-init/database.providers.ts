@@ -8,6 +8,10 @@ import { Doctor } from '../modules/doctor/models/doctor.entity';
 import { Specialty } from '../modules/specialty/models/specialty.entity';
 import { CategoryDoctor } from '../modules/category-doctor/models/category-doctor.entity';
 import { DoctorSpecialty } from '../modules/doctor-specialty/models/doctor-specialty.entity';
+import { Clinic } from '../modules/clinic/models/clinic.entity';
+import { Appeal } from '../modules/appeal/models/appeal.entity';
+import { AppealType } from '../modules/appeal-type/models/appeal-type.entity';
+import { ClinicAppeal } from '../admin/modules/clinic-appeal/models/clinic-appeal.entity';
 
 export const databaseProviders = [
   {
@@ -26,11 +30,15 @@ export const databaseProviders = [
         User,
         Patient,
         Doctor,
+        Clinic,
         Role,
         UserRole,
         Specialty,
         DoctorSpecialty,
         CategoryDoctor,
+        Appeal,
+        AppealType,
+        ClinicAppeal
       ]);
       await sequelize.sync();
       return sequelize;
