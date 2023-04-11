@@ -22,7 +22,7 @@ export class Doctor extends Model<Doctor> {
   })
   userId: string;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { onDelete: 'CASCADE' })
   user: User;
 
   @Column({

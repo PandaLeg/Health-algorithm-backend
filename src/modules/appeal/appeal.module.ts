@@ -6,5 +6,6 @@ import { appealProviders } from './appeal.providers';
 @Module({
   controllers: [AppealController],
   providers: [AppealService, ...appealProviders],
+  exports: [AppealService],
 })
 export class AppealModule {}

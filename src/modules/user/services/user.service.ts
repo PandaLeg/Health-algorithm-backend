@@ -9,6 +9,7 @@ import { Role } from '../../role/models/role.entity';
 import { DoctorService } from '../../doctor/services/doctor.service';
 import { SpecialtyCategory } from '../../doctor/interfaces/specialty-category.interface';
 import { Doctor } from '../../doctor/models/doctor.entity';
+import { ClinicService } from '../../clinic/services/clinic.service';
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
     @Inject('USERS_REPOSITORY') private userRepo: typeof User,
     private readonly patientService: PatientService,
     private readonly doctorService: DoctorService,
+    private readonly clinicService: ClinicService,
     private readonly roleService: RoleService,
   ) {}
 
@@ -35,7 +37,7 @@ export class UserService {
     return {};
   }
 
-  async createUser(userDto: CreateUserDto): Promise<string> {
+  async createUser(userDto: CreateUserDto) {
     const user: User = this.userRepo.build({
       phone: userDto.phone,
       password: userDto.password,
@@ -68,18 +70,24 @@ export class UserService {
           additionalInfoDoctor,
         );
         break;
+      case 'clinic':
+        role = await this.roleService.getRoleByValue(RoleType.CLINIC_ROLE);
+
+        await user.save();
+        await this.clinicService.createClinic(user.id, userDto.clinic);
+        break;
     }
 
     await user.$set('roles', [role.id]);
-
-    return 'User created successfully';
   }
 
-  async checkUserExists(phone: string, email: string) {
-    return await this.userRepo.findOne({
+  async checkUserExists(phone: string, email: string): Promise<boolean> {
+    const user: User | null = await this.userRepo.findOne({
       where: {
         [Op.or]: [{ phone }, { email }],
       },
     });
+
+    return !!user;
   }
 }

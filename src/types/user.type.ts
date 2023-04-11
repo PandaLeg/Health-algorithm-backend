@@ -1,1 +1,1 @@
-export type UserType = 'patient' | 'doctor';
+export type UserType = 'patient' | 'doctor' | 'clinic';

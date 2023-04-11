@@ -11,7 +11,7 @@ import { DoctorSpecialty } from '../modules/doctor-specialty/models/doctor-speci
 import { Clinic } from '../modules/clinic/models/clinic.entity';
 import { Appeal } from '../modules/appeal/models/appeal.entity';
 import { AppealType } from '../modules/appeal-type/models/appeal-type.entity';
-import { ClinicAppeal } from '../admin/modules/clinic-appeal/models/clinic-appeal.entity';
+import { ClinicAppeal } from '../modules/admin/modules/clinic-appeal/models/clinic-appeal.entity';
 
 export const databaseProviders = [
   {

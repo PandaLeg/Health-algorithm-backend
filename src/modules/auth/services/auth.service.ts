@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
-import { User } from '../../user/models/user.entity';
 import { UserService } from '../../user/services/user.service';
 import * as bcrypt from 'bcrypt';
 
@@ -8,13 +7,13 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
-  async registration(userDto: CreateUserDto) {
-    const userFromDb: User | null = await this.userService.checkUserExists(
+  async registration(userDto: CreateUserDto): Promise<string> {
+    const userExists: boolean = await this.userService.checkUserExists(
       userDto.phone,
       userDto.email,
     );
 
-    if (userFromDb) {
+    if (userExists) {
       throw new BadRequestException('User already exists');
     }
 
@@ -22,11 +21,11 @@ export class AuthService {
     const hashSalt: string = await bcrypt.genSalt(saltRounds);
     const hashPassword: string = await bcrypt.hash(userDto.password, hashSalt);
 
-    const message: string = await this.userService.createUser({
+    await this.userService.createUser({
       ...userDto,
       password: hashPassword,
     });
 
-    return message;
+    return 'User created successfully';
   }
 }

@@ -18,7 +18,7 @@ export class Clinic extends Model<Clinic> {
   })
   userId: string;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { onDelete: 'CASCADE' })
   user: User;
 
   @Column({

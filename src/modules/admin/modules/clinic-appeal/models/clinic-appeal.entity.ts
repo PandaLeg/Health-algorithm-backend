@@ -6,7 +6,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { Appeal } from '../../../../modules/appeal/models/appeal.entity';
+import { Appeal } from '../../../../appeal/models/appeal.entity';
 
 @Table({ tableName: 'clinic_appeals' })
 export class ClinicAppeal extends Model<ClinicAppeal> {
@@ -18,8 +18,8 @@ export class ClinicAppeal extends Model<ClinicAppeal> {
   })
   appealId: string;
 
-  @BelongsTo(() => Appeal)
-  requestType: Appeal;
+  @BelongsTo(() => Appeal, { onDelete: 'CASCADE' })
+  appeal: Appeal;
 
   @Column({
     type: DataType.STRING(15),

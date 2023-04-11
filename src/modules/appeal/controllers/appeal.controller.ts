@@ -1,4 +1,4 @@
 import { Controller } from '@nestjs/common';
 
-@Controller('requests')
+@Controller('appeals')
 export class AppealController {}

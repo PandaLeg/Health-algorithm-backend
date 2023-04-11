@@ -3,8 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
 import { DatabaseModule } from './db-init/database.module';
 import { UserModule } from './modules/user/user.module';
-import { AdminModule } from './admin/admin.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { RouterModule } from '@nestjs/core';
+import * as path from 'path';
+import { AdminAppealModule } from './modules/admin/modules/appeal/admin-appeal.module';
 
 @Module({
   imports: [
@@ -13,10 +15,12 @@ import { RouterModule } from '@nestjs/core';
     }),
     DatabaseModule,
     UserModule,
+    AdminModule,
     RouterModule.register([
       {
         path: 'admin',
         module: AdminModule,
+        children: [AdminAppealModule],
       },
     ]),
   ],
