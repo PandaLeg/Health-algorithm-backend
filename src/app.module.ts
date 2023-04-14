@@ -5,7 +5,6 @@ import { DatabaseModule } from './db-init/database.module';
 import { UserModule } from './modules/user/user.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { RouterModule } from '@nestjs/core';
-import * as path from 'path';
 import { AdminAppealModule } from './modules/admin/modules/appeal/admin-appeal.module';
 
 @Module({

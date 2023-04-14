@@ -1,7 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { UserService } from '../../user/services/user.service';
 import * as bcrypt from 'bcrypt';
+import { BadRequestException } from '../../../exceptions/bad-request.exception';
+import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +16,10 @@ export class AuthService {
     );
 
     if (userExists) {
-      throw new BadRequestException('User already exists');
+      throw new BadRequestException(
+        'User already exists',
+        ErrorCodes.INVALID_VALIDATION,
+      );
     }
 
     const saltRounds = 10;
