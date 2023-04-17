@@ -1,8 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Specialty } from '../models/specialty.entity';
 import { Op } from 'sequelize';
 
@@ -12,18 +8,21 @@ export class SpecialtyService {
     @Inject('SPECIALTY_REPOSITORY') private specialtyRepo: typeof Specialty,
   ) {}
 
-  async getByIds(specialties: { id: number }[]) {
+  async getByIds(specialties: { id: number }[]): Promise<Specialty[]> {
     const specialtiesIds: Specialty[] = await this.specialtyRepo.findAll({
       where: {
         [Op.or]: [...specialties],
       },
-      attributes: ['id'],
     });
 
-    if (!specialtiesIds.length) {
-      throw new InternalServerErrorException('Internal server error');
-    }
-
     return specialtiesIds;
+  }
+
+  async findAll(): Promise<Specialty[]> {
+    const specialties: Specialty[] = await this.specialtyRepo.findAll({
+      attributes: ['id', 'name'],
+    });
+
+    return specialties;
   }
 }

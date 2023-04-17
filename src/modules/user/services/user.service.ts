@@ -57,7 +57,7 @@ export class UserService {
       case 'doctor':
         role = await this.roleService.getRoleByValue(RoleType.DOCTOR_ROLE);
         const doctor: Doctor = this.doctorService.buildDoctor(userDto.doctor);
-        const additionalInfoDoctor: SpecialtyCategory =
+        const specialtyCategoryDoctor: SpecialtyCategory =
           await this.doctorService.findSpecialtiesAndCategory(
             userDto.doctor.categoryId,
             userDto.doctor.specialties,
@@ -67,7 +67,7 @@ export class UserService {
         await this.doctorService.createDoctor(
           doctor,
           user.id,
-          additionalInfoDoctor,
+          specialtyCategoryDoctor,
         );
         break;
       case 'clinic':

@@ -22,4 +22,12 @@ export class CategoryDoctorService {
 
     return category;
   }
+
+  async findAll(): Promise<CategoryDoctor[]> {
+    const categories = await this.categoryDoctorRepo.findAll({
+      attributes: ['id', 'name'],
+    });
+
+    return categories;
+  }
 }

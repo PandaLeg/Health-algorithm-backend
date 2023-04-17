@@ -1,4 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Doctor } from '../models/doctor.entity';
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { CategoryDoctorService } from '../../category-doctor/services/category-doctor.service';
@@ -15,7 +19,7 @@ export class DoctorService {
     private readonly specialtyService: SpecialtyService,
   ) {}
 
-  buildDoctor(dto: CreateDoctorDto) {
+  buildDoctor(dto: CreateDoctorDto): Doctor {
     return this.doctorRepo.build({
       firstName: dto.firstName,
       lastName: dto.lastName,
@@ -37,12 +41,19 @@ export class DoctorService {
       }),
     );
 
-    const specialtiesIds: Specialty[] = await this.specialtyService.getByIds(
+    const specialtiesFromDb: Specialty[] = await this.specialtyService.getByIds(
       parseSpecialties,
     );
 
+    if (
+      !specialtiesFromDb.length ||
+      specialtiesFromDb.length !== specialties.length
+    ) {
+      throw new InternalServerErrorException('Internal server error');
+    }
+
     return {
-      specialties: specialtiesIds,
+      specialties,
       categoryId: category.id,
     };
   }
@@ -50,16 +61,27 @@ export class DoctorService {
   async createDoctor(
     doctor: Doctor,
     userId: string,
-    additionalInfoDoctor: SpecialtyCategory,
+    specialtyCategoryDoctor: SpecialtyCategory,
   ) {
     doctor.userId = userId;
-    doctor.categoryId = additionalInfoDoctor.categoryId;
-
-    const specialties: number[] = additionalInfoDoctor.specialties.map(
-      (el: Specialty) => el.id,
-    );
+    doctor.categoryId = specialtyCategoryDoctor.categoryId;
 
     await doctor.save();
-    await doctor.$set('specialties', specialties);
+    await doctor.$set('specialties', specialtyCategoryDoctor.specialties);
+  }
+
+  async findAllCategoriesSpecialties() {
+    const specialties: Specialty[] = await this.specialtyService.findAll();
+    const categories: CategoryDoctor[] =
+      await this.categoryDoctorService.findAll();
+
+    if (!specialties.length || !categories.length) {
+      throw new InternalServerErrorException('Internal server error');
+    }
+
+    return {
+      specialties,
+      categories,
+    };
   }
 }
