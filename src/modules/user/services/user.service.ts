@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../models/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { RoleService } from '../../role/services/role.service';
@@ -10,6 +10,7 @@ import { DoctorService } from '../../doctor/services/doctor.service';
 import { SpecialtyCategory } from '../../doctor/interfaces/specialty-category.interface';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicService } from '../../clinic/services/clinic.service';
+import { UserProp } from '../../../types/user.type';
 
 @Injectable()
 export class UserService {
@@ -27,14 +28,21 @@ export class UserService {
     });
   }
 
-  async getById(id: string) {
+  async findById(id: string): Promise<User | null> {
     const user: User | null = await this.userRepo.findByPk(id);
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    return user;
+  }
 
-    return {};
+  async findOne(key: UserProp, value: string): Promise<User | null> {
+    const user: User | null = await this.userRepo.findOne({
+      where: {
+        [key]: value,
+      },
+      include: [Role],
+    });
+
+    return user;
   }
 
   async createUser(userDto: CreateUserDto) {

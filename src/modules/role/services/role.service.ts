@@ -17,7 +17,7 @@ export class RoleService {
     });
 
     if (!role) {
-      throw new InternalServerErrorException('Internal server error');
+      throw new InternalServerErrorException();
     }
 
     return role;

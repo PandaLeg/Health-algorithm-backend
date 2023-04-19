@@ -1,10 +1,10 @@
 import {
   BelongsToMany,
   Column,
-  DataType,
+  DataType, HasMany,
   HasOne,
   Model,
-  Table,
+  Table
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { Patient } from '../../patient/models/patient.entity';
@@ -12,6 +12,7 @@ import { UserRole } from '../../user-role/models/user-roles.entity';
 import { Role } from '../../role/models/role.entity';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { Clinic } from '../../clinic/models/clinic.entity';
+import { Token } from '../../auth/models/token.entity';
 
 interface UserAttrs {
   phone: string;
@@ -67,4 +68,7 @@ export class User extends Model<User, UserAttrs> {
 
   @BelongsToMany(() => Role, () => UserRole)
   roles: Role[];
+
+  @HasMany(() => Token)
+  tokens: Token[];
 }
