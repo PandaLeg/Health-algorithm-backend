@@ -29,7 +29,9 @@ export class UserService {
   }
 
   async findById(id: string): Promise<User | null> {
-    const user: User | null = await this.userRepo.findByPk(id);
+    const user: User | null = await this.userRepo.findByPk(id, {
+      include: [Role],
+    });
 
     return user;
   }

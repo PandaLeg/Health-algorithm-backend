@@ -6,6 +6,7 @@ import { TokenInfo } from '../interfaces/token-info.interface';
 import { Token } from '../models/token.entity';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 import { JwtService } from '@nestjs/jwt';
+import * as process from 'process';
 
 @Injectable()
 export class TokenService {
@@ -16,7 +17,18 @@ export class TokenService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async generateAndSaveTokens(user: User): Promise<AuthResponse> {
+  async findOneByToken(refreshToken: string) {
+    const token: Token = await this.tokenRepo.findOne({
+      where: { refreshToken },
+    });
+
+    return token;
+  }
+
+  async generateAndSaveTokens(
+    user: User,
+    refreshToken: Token | null,
+  ): Promise<AuthResponse> {
     const roles: string[] = user.roles.map((role) => role.name);
     const userPayload: UserPayload = {
       id: user.id,
@@ -24,7 +36,7 @@ export class TokenService {
       roles,
     };
     const tokens: TokenInfo = await this.generateTokens(userPayload);
-    await this.saveTokens(user.id, tokens.refreshToken);
+    await this.saveTokens(user.id, tokens.refreshToken, refreshToken);
 
     return {
       user: userPayload,
@@ -56,7 +68,11 @@ export class TokenService {
     };
   }
 
-  async saveTokens(userId: string, refreshToken: string) {
+  async saveTokens(
+    userId: string,
+    refreshToken: string,
+    oldToken: Token | null,
+  ) {
     const tokens: Token[] = await this.tokenRepo.findAll({
       where: {
         userId,
@@ -67,14 +83,30 @@ export class TokenService {
 
     if (tokens.length === this.MAX_SESSIONS_COUNT) {
       for (const token of tokens) {
-        await this.removeToken(token.id);
+        const isExpired: boolean = moment().isAfter(token.expiresIn);
+        if (isExpired) {
+          await this.removeToken(token.id);
+        }
       }
     }
 
-    await this.tokenRepo.create({
-      userId,
-      refreshToken,
-      expiresIn,
+    if (oldToken) {
+      oldToken.refreshToken = refreshToken;
+      oldToken.expiresIn = expiresIn;
+
+      await oldToken.save();
+    } else {
+      await this.tokenRepo.create({
+        userId,
+        refreshToken,
+        expiresIn,
+      });
+    }
+  }
+
+  async validateToken(refreshToken: string) {
+    return await this.jwtService.verifyAsync(refreshToken, {
+      secret: process.env.JWT_REFRESH,
     });
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { UserService } from '../../user/services/user.service';
 import * as bcrypt from 'bcrypt';
@@ -8,6 +8,8 @@ import { UserCredentialsDto } from '../dto/user-credentials.dto';
 import { User } from '../../user/models/user.entity';
 import { TokenService } from './token.service';
 import { AuthResponse } from '../interfaces/auth-response.interface';
+import { UserPayload } from '../interfaces/user-payload.interface';
+import { Token } from '../models/token.entity';
 
 @Injectable()
 export class AuthService {
@@ -66,6 +68,16 @@ export class AuthService {
       );
     }
 
-    return this.tokenService.generateAndSaveTokens(user);
+    return this.tokenService.generateAndSaveTokens(user, null);
+  }
+
+  async refresh(user: UserPayload, refreshToken: Token): Promise<AuthResponse> {
+    const userFromDb: User | null = await this.userService.findById(user.id);
+
+    if (!userFromDb) {
+      throw new UnauthorizedException();
+    }
+
+    return this.tokenService.generateAndSaveTokens(userFromDb, refreshToken);
   }
 }

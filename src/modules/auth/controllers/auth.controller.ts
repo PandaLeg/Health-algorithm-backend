@@ -1,4 +1,15 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseFilters } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Put,
+  Req,
+  Res,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { AuthService } from '../services/auth.service';
 import { ValidationCreateUserPipe } from '../pipes/validation-create-user.pipe';
@@ -6,7 +17,10 @@ import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { UserCredentialsDto } from '../dto/user-credentials.dto';
 import { ValidationCredentialsUserPipe } from '../pipes/validation-credentials-user.pipe';
 import { AuthResponse } from '../interfaces/auth-response.interface';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { AuthRefreshGuard } from '../guards/auth-refresh.guard';
+import { UserPayload } from '../interfaces/user-payload.interface';
+import { Token } from '../models/token.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -23,6 +37,31 @@ export class AuthController {
     const authInfo: AuthResponse = await this.authService.login(
       userCredentials,
     );
+    const ageCookie: number = 30 * 24 * 60 * 60 * 1000;
+
+    res.cookie('refreshToken', authInfo.tokens.refreshToken, {
+      maxAge: ageCookie,
+      httpOnly: true,
+    });
+
+    return res.json({
+      user: authInfo.user,
+      accessToken: authInfo.tokens.accessToken,
+    });
+  }
+
+  @UseGuards(AuthRefreshGuard)
+  @UseFilters(new HttpExceptionFilter())
+  @Put('/refresh')
+  async refresh(@Req() req: Request, @Res() res: Response) {
+    const user: UserPayload = req.body.user;
+    const tokenFromDb: Token = req.body.tokenFromDb;
+
+    const authInfo: AuthResponse = await this.authService.refresh(
+      user,
+      tokenFromDb,
+    );
+
     const ageCookie: number = 30 * 24 * 60 * 60 * 1000;
 
     res.cookie('refreshToken', authInfo.tokens.refreshToken, {
