@@ -17,8 +17,8 @@ export class TokenService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async findOneByToken(refreshToken: string) {
-    const token: Token = await this.tokenRepo.findOne({
+  async findOneByToken(refreshToken: string): Promise<Token | null> {
+    const token: Token | null = await this.tokenRepo.findOne({
       where: { refreshToken },
     });
 
@@ -104,9 +104,9 @@ export class TokenService {
     }
   }
 
-  async validateToken(refreshToken: string) {
-    return await this.jwtService.verifyAsync(refreshToken, {
-      secret: process.env.JWT_REFRESH,
+  async validateToken(token: string, secretKey: string) {
+    return await this.jwtService.verifyAsync(token, {
+      secret: secretKey,
     });
   }
 

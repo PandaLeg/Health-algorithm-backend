@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Post,
@@ -21,10 +22,19 @@ import { Request, Response } from 'express';
 import { AuthRefreshGuard } from '../guards/auth-refresh.guard';
 import { UserPayload } from '../interfaces/user-payload.interface';
 import { Token } from '../models/token.entity';
+import { AuthAccessGuard } from '../guards/auth-access.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('/registration')
+  @UseFilters(new HttpExceptionFilter())
+  async registration(
+    @Body(new ValidationCreateUserPipe()) userDto: CreateUserDto,
+  ) {
+    return this.authService.registration(userDto);
+  }
 
   @HttpCode(HttpStatus.OK)
   @Post('/login')
@@ -75,11 +85,11 @@ export class AuthController {
     });
   }
 
-  @Post('/registration')
+  @UseGuards(AuthAccessGuard)
   @UseFilters(new HttpExceptionFilter())
-  async registration(
-    @Body(new ValidationCreateUserPipe()) userDto: CreateUserDto,
-  ) {
-    return this.authService.registration(userDto);
+  @Delete('/logout')
+  async logout(@Req() req: Request) {
+    const refreshToken = req.cookies.refreshToken;
+    return this.authService.logout(refreshToken);
   }
 }

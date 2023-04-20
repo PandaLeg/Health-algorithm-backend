@@ -4,36 +4,37 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { TokenService } from '../services/token.service';
 import { Request } from 'express';
+import { TokenService } from '../services/token.service';
 
 @Injectable()
-export class AuthRefreshGuard implements CanActivate {
+export class AuthAccessGuard implements CanActivate {
   constructor(private readonly tokenService: TokenService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const refreshToken = request.cookies.refreshToken;
+    const token = this.extractTokenFromHeader(request);
 
-    const tokenFromDb = await this.tokenService.findOneByToken(refreshToken);
-
-    if (!tokenFromDb) {
+    if (!token) {
       throw new UnauthorizedException();
     }
 
     try {
       const payload = await this.tokenService.validateToken(
-        refreshToken,
-        process.env.JWT_REFRESH,
+        token,
+        process.env.JWT_ACCESS,
       );
 
-      request.body['user'] = { ...payload };
-      request.body['tokenFromDb'] = tokenFromDb;
+      request.body['authPayload'] = { ...payload };
     } catch (err) {
-      await this.tokenService.removeToken(tokenFromDb.id);
       throw new UnauthorizedException();
     }
 
     return true;
+  }
+
+  extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

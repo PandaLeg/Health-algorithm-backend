@@ -80,4 +80,18 @@ export class AuthService {
 
     return this.tokenService.generateAndSaveTokens(userFromDb, refreshToken);
   }
+
+  async logout(refreshToken: string): Promise<string> {
+    const token: Token | null = await this.tokenService.findOneByToken(
+      refreshToken,
+    );
+
+    if (!token) {
+      throw new UnauthorizedException();
+    }
+
+    await this.tokenService.removeToken(token.id);
+
+    return 'Removed successfully';
+  }
 }
