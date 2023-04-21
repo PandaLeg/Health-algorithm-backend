@@ -15,6 +15,10 @@ export class AuthRefreshGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const refreshToken = request.cookies.refreshToken;
 
+    if (!refreshToken) {
+      throw new UnauthorizedException();
+    }
+
     const tokenFromDb = await this.tokenService.findOneByToken(refreshToken);
 
     if (!tokenFromDb) {

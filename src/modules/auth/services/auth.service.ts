@@ -10,6 +10,7 @@ import { TokenService } from './token.service';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 import { UserPayload } from '../interfaces/user-payload.interface';
 import { Token } from '../models/token.entity';
+import { NotFoundException } from '../../../exceptions/not-found.exception';
 
 @Injectable()
 export class AuthService {
@@ -87,7 +88,7 @@ export class AuthService {
     );
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
     }
 
     await this.tokenService.removeToken(token.id);

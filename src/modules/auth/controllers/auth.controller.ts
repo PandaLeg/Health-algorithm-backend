@@ -23,6 +23,8 @@ import { AuthRefreshGuard } from '../guards/auth-refresh.guard';
 import { UserPayload } from '../interfaces/user-payload.interface';
 import { Token } from '../models/token.entity';
 import { AuthAccessGuard } from '../guards/auth-access.guard';
+import { NotFoundException } from '../../../exceptions/not-found.exception';
+import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -90,6 +92,11 @@ export class AuthController {
   @Delete('/logout')
   async logout(@Req() req: Request) {
     const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
+    }
+
     return this.authService.logout(refreshToken);
   }
 }
