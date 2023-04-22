@@ -57,6 +57,17 @@ export class User extends Model<User, UserAttrs> {
   })
   city: string;
 
+  @Column({
+    type: DataType.STRING(30),
+  })
+  activationCode: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  isActivated: boolean;
+
   @HasOne(() => Patient)
   patient: Patient;
 

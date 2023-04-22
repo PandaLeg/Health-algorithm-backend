@@ -1,11 +1,16 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Put,
+  Redirect,
   Req,
   Res,
   UseFilters,
@@ -25,6 +30,8 @@ import { Token } from '../models/token.entity';
 import { AuthAccessGuard } from '../guards/auth-access.guard';
 import { NotFoundException } from '../../../exceptions/not-found.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import * as process from 'process';
+import { Activation } from '../interfaces/activation.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -98,5 +105,31 @@ export class AuthController {
     }
 
     return this.authService.logout(refreshToken);
+  }
+
+  @Get('/activate/:code')
+  @Redirect()
+  async activate(@Param('code') code: string) {
+    const info: Activation = await this.authService.activate(code);
+
+    const path = info.isActivated
+      ? '/verify-email'
+      : '/verify-email?email=' + info.email + '&code=' + ErrorCodes.NOT_FOUND;
+
+    return {
+      url: process.env.CLIENT_URL + path,
+    };
+  }
+
+  @Patch('/send-confirmation-by-email')
+  @UseFilters(new HttpExceptionFilter())
+  async sendConfirmationByEmail(@Body('email') email: string) {
+    if (!email) {
+      throw new BadRequestException({
+        message: 'Validation failed',
+        errorCode: ErrorCodes.INVALID_VALIDATION,
+      });
+    }
+    return this.authService.sendConfirmationByEmail(email);
   }
 }

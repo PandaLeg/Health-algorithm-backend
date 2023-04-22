@@ -47,7 +47,7 @@ export class UserService {
     return user;
   }
 
-  async createUser(userDto: CreateUserDto) {
+  async createUser(userDto: CreateUserDto): Promise<User> {
     const user: User = this.userRepo.build({
       phone: userDto.phone,
       password: userDto.password,
@@ -89,6 +89,8 @@ export class UserService {
     }
 
     await user.$set('roles', [role.id]);
+
+    return user;
   }
 
   async checkUserExists(phone: string, email: string): Promise<boolean> {

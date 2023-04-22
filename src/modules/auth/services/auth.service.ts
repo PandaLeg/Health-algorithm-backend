@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { UserService } from '../../user/services/user.service';
 import * as bcrypt from 'bcrypt';
+import * as cryptoRandomString from 'crypto-random-string';
 import { BadRequestException } from '../../../exceptions/bad-request.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import { UserCredentialsDto } from '../dto/user-credentials.dto';
@@ -11,12 +12,15 @@ import { AuthResponse } from '../interfaces/auth-response.interface';
 import { UserPayload } from '../interfaces/user-payload.interface';
 import { Token } from '../models/token.entity';
 import { NotFoundException } from '../../../exceptions/not-found.exception';
+import { MailService } from './mail.service';
+import { Activation } from '../interfaces/activation.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly tokenService: TokenService,
+    private readonly mailService: MailService,
   ) {}
 
   async registration(userDto: CreateUserDto): Promise<string> {
@@ -36,10 +40,19 @@ export class AuthService {
     const hashSalt: string = await bcrypt.genSalt(saltRounds);
     const hashPassword: string = await bcrypt.hash(userDto.password, hashSalt);
 
-    await this.userService.createUser({
+    const user: User = await this.userService.createUser({
       ...userDto,
       password: hashPassword,
     });
+
+    const activationCode: string = cryptoRandomString({
+      length: 30,
+      type: 'url-safe',
+    });
+    await this.mailService.sendActivationCode(user.email, activationCode);
+
+    user.activationCode = activationCode;
+    await user.save();
 
     return 'User created successfully';
   }
@@ -94,5 +107,41 @@ export class AuthService {
     await this.tokenService.removeToken(token.id);
 
     return 'Removed successfully';
+  }
+
+  async activate(code: string): Promise<Activation> {
+    const user: User | null = await this.userService.findOne(
+      'activationCode',
+      code,
+    );
+
+    if (!user || user.isActivated) {
+      return { email: user.email, isActivated: false };
+    }
+
+    user.isActivated = true;
+    await user.save();
+
+    return { isActivated: true };
+  }
+
+  async sendConfirmationByEmail(email: string) {
+    const user: User | null = await this.userService.findOne('email', email);
+
+    if (!user || user.isActivated) {
+      throw new BadRequestException(
+        'Wrong email or account is already activated',
+        ErrorCodes.USER_ALREADY_ACTIVATED,
+      );
+    }
+
+    const activationCode: string = cryptoRandomString({
+      length: 30,
+      type: 'url-safe',
+    });
+    await this.mailService.sendActivationCode(user.email, activationCode);
+
+    user.activationCode = activationCode;
+    await user.save();
   }
 }
