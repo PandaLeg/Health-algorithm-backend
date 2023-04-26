@@ -1,10 +1,11 @@
 import {
   BelongsToMany,
   Column,
-  DataType, HasMany,
+  DataType,
+  HasMany,
   HasOne,
   Model,
-  Table
+  Table,
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { Patient } from '../../patient/models/patient.entity';
@@ -64,6 +65,7 @@ export class User extends Model<User, UserAttrs> {
 
   @Column({
     type: DataType.BOOLEAN,
+    allowNull: false,
     defaultValue: false,
   })
   isActivated: boolean;

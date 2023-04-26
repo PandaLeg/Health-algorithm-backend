@@ -33,11 +33,9 @@ export class TokenService {
     const userPayload: UserPayload = {
       id: user.id,
       email: user.email,
-    };
-    const tokens: TokenInfo = await this.generateTokens({
-      ...userPayload,
       roles,
-    });
+    };
+    const tokens: TokenInfo = await this.generateTokens(userPayload);
     await this.saveTokens(user.id, tokens.refreshToken, refreshToken);
 
     return {

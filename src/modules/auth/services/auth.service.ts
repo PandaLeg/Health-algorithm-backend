@@ -14,6 +14,7 @@ import { Token } from '../models/token.entity';
 import { NotFoundException } from '../../../exceptions/not-found.exception';
 import { MailService } from './mail.service';
 import { Activation } from '../interfaces/activation.interface';
+import hashPassword from '../../../utils/hashPassword';
 
 @Injectable()
 export class AuthService {
@@ -36,13 +37,11 @@ export class AuthService {
       );
     }
 
-    const saltRounds = 10;
-    const hashSalt: string = await bcrypt.genSalt(saltRounds);
-    const hashPassword: string = await bcrypt.hash(userDto.password, hashSalt);
+    const hashedPassword: string = await hashPassword(userDto.password);
 
     const user: User = await this.userService.createUser({
       ...userDto,
-      password: hashPassword,
+      password: hashedPassword,
     });
 
     const activationCode: string = cryptoRandomString({
