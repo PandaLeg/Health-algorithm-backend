@@ -1,20 +1,22 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   HttpCode,
-  HttpStatus,
+  HttpStatus, InternalServerErrorException,
   Param,
+  ParseFilePipeBuilder,
   Patch,
   Post,
   Put,
   Redirect,
   Req,
   Res,
+  UploadedFile,
   UseFilters,
   UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { AuthService } from '../services/auth.service';
@@ -32,6 +34,9 @@ import { NotFoundException } from '../../../exceptions/not-found.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import * as process from 'process';
 import { Activation } from '../interfaces/activation.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ParseIntDoctorPipe } from '../pipes/parse-int-doctor.pipe';
+import { BadRequestException } from '../../../exceptions/bad-request.exception';
 
 @Controller('auth')
 export class AuthController {
@@ -39,10 +44,28 @@ export class AuthController {
 
   @Post('/registration')
   @UseFilters(new HttpExceptionFilter())
+  @UseInterceptors(FileInterceptor('image'))
   async registration(
-    @Body(new ValidationCreateUserPipe()) userDto: CreateUserDto,
+    @Body(new ValidationCreateUserPipe(), new ParseIntDoctorPipe())
+    userDto: CreateUserDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: 'image/jpeg' })
+        .addMaxSizeValidator({ maxSize: 5242880 })
+        .build({
+          fileIsRequired: false,
+          exceptionFactory: (error) => {
+            console.log(error);
+            return new BadRequestException(
+              'Image incorrect',
+              ErrorCodes.IMAGE_INCORRECT,
+            );
+          },
+        }),
+    )
+    image?: Express.Multer.File,
   ) {
-    return this.authService.registration(userDto);
+    return this.authService.registration(userDto, image);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -125,10 +148,10 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   async sendConfirmationByEmail(@Body('email') email: string) {
     if (!email) {
-      throw new BadRequestException({
-        message: 'Validation failed',
-        errorCode: ErrorCodes.INVALID_VALIDATION,
-      });
+      throw new BadRequestException(
+        'Validation failed',
+        ErrorCodes.INVALID_VALIDATION,
+      );
     }
     return this.authService.sendConfirmationByEmail(email);
   }

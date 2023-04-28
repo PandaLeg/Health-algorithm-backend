@@ -7,6 +7,7 @@ import { RoleModule } from '../role/role.module';
 import { AuthModule } from '../auth/auth.module';
 import { DoctorModule } from '../doctor/doctor.module';
 import { ClinicModule } from '../clinic/clinic.module';
+import { FileModule } from '../file/file.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ClinicModule } from '../clinic/clinic.module';
     ClinicModule,
     RoleModule,
     forwardRef(() => AuthModule),
+    FileModule,
   ],
   controllers: [UserController],
   providers: [...userProviders, UserService],

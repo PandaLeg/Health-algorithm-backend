@@ -11,6 +11,7 @@ import { SpecialtyCategory } from '../../doctor/interfaces/specialty-category.in
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicService } from '../../clinic/services/clinic.service';
 import { UserProp } from '../../../types/user.type';
+import { FileService } from '../../file/file.service';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,7 @@ export class UserService {
     private readonly doctorService: DoctorService,
     private readonly clinicService: ClinicService,
     private readonly roleService: RoleService,
+    private readonly fileService: FileService,
   ) {}
 
   async getAll() {
@@ -47,7 +49,10 @@ export class UserService {
     return user;
   }
 
-  async createUser(userDto: CreateUserDto): Promise<User> {
+  async createUser(
+    userDto: CreateUserDto,
+    image?: Express.Multer.File,
+  ): Promise<User> {
     const user: User = this.userRepo.build({
       phone: userDto.phone,
       password: userDto.password,
@@ -73,6 +78,10 @@ export class UserService {
             userDto.doctor.specialties,
           );
 
+        if (image) {
+          await this.writeAndSaveAvatar(image, user);
+        }
+
         await user.save();
         await this.doctorService.createDoctor(
           doctor,
@@ -83,6 +92,10 @@ export class UserService {
       case 'clinic':
         role = await this.roleService.getRoleByValue(RoleType.CLINIC_ROLE);
 
+        if (image) {
+          await this.writeAndSaveAvatar(image, user);
+        }
+
         await user.save();
         await this.clinicService.createClinic(user.id, userDto.clinic);
         break;
@@ -91,6 +104,11 @@ export class UserService {
     await user.$set('roles', [role.id]);
 
     return user;
+  }
+
+  async writeAndSaveAvatar(image: Express.Multer.File, user: User) {
+    const filename: string = await this.fileService.createFile(image);
+    user.avatar = filename;
   }
 
   async checkUserExists(phone: string, email: string): Promise<boolean> {

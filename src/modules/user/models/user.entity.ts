@@ -20,6 +20,7 @@ interface UserAttrs {
   password: string;
   email: string;
   city: string;
+  avatar: string;
 }
 
 @Table({ tableName: 'users' })
@@ -57,6 +58,11 @@ export class User extends Model<User, UserAttrs> {
     allowNull: false,
   })
   city: string;
+
+  @Column({
+    type: DataType.STRING(100),
+  })
+  avatar: string;
 
   @Column({
     type: DataType.STRING(30),

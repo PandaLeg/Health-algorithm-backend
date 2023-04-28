@@ -1,27 +1,30 @@
-import { IsArray, IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform, TransformFnParams } from 'class-transformer';
 
 export class CreateDoctorDto {
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   firstName: string;
 
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   lastName: string;
 
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   surname: string;
 
-  @IsInt()
   @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   experience: number;
 
-  @IsInt()
   @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   categoryId: number;
 
-  @IsArray()
   @IsNotEmpty()
   specialties: number[];
 }

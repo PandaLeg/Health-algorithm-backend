@@ -24,7 +24,10 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  async registration(userDto: CreateUserDto): Promise<string> {
+  async registration(
+    userDto: CreateUserDto,
+    image?: Express.Multer.File,
+  ): Promise<string> {
     const userExists: boolean = await this.userService.checkUserExists(
       userDto.phone,
       userDto.email,
@@ -39,10 +42,13 @@ export class AuthService {
 
     const hashedPassword: string = await hashPassword(userDto.password);
 
-    const user: User = await this.userService.createUser({
-      ...userDto,
-      password: hashedPassword,
-    });
+    const user: User = await this.userService.createUser(
+      {
+        ...userDto,
+        password: hashedPassword,
+      },
+      image,
+    );
 
     const activationCode: string = cryptoRandomString({
       length: 30,
