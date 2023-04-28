@@ -23,6 +23,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
     }
 
+    if (status === HttpStatus.UNAUTHORIZED) {
+      return response.json({
+        message: 'Unauthorized',
+      });
+    }
+
     return response.json({
       message: 'Internal server error',
     });

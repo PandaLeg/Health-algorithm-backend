@@ -1,5 +1,5 @@
-import { Sequelize } from 'sequelize-typescript';
 import * as process from 'process';
+import { Sequelize } from 'sequelize-typescript';
 import { User } from '../modules/user/models/user.entity';
 import { Patient } from '../modules/patient/models/patient.entity';
 import { UserRole } from '../modules/user-role/models/user-roles.entity';
@@ -12,6 +12,7 @@ import { Clinic } from '../modules/clinic/models/clinic.entity';
 import { Appeal } from '../modules/appeal/models/appeal.entity';
 import { AppealType } from '../modules/appeal-type/models/appeal-type.entity';
 import { ClinicAppeal } from '../modules/admin/modules/clinic-appeal/models/clinic-appeal.entity';
+import { Token } from '../modules/auth/models/token.entity';
 
 export const databaseProviders = [
   {
@@ -33,12 +34,13 @@ export const databaseProviders = [
         Clinic,
         Role,
         UserRole,
+        Token,
         Specialty,
         DoctorSpecialty,
         CategoryDoctor,
         Appeal,
         AppealType,
-        ClinicAppeal
+        ClinicAppeal,
       ]);
       await sequelize.sync();
       return sequelize;

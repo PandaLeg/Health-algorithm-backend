@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../models/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { RoleService } from '../../role/services/role.service';
@@ -10,6 +10,8 @@ import { DoctorService } from '../../doctor/services/doctor.service';
 import { SpecialtyCategory } from '../../doctor/interfaces/specialty-category.interface';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicService } from '../../clinic/services/clinic.service';
+import { UserProp } from '../../../types/user.type';
+import { FileService } from '../../file/file.service';
 
 @Injectable()
 export class UserService {
@@ -19,6 +21,7 @@ export class UserService {
     private readonly doctorService: DoctorService,
     private readonly clinicService: ClinicService,
     private readonly roleService: RoleService,
+    private readonly fileService: FileService,
   ) {}
 
   async getAll() {
@@ -27,17 +30,29 @@ export class UserService {
     });
   }
 
-  async getById(id: string) {
-    const user: User | null = await this.userRepo.findByPk(id);
+  async findById(id: string): Promise<User | null> {
+    const user: User | null = await this.userRepo.findByPk(id, {
+      include: [Role],
+    });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return {};
+    return user;
   }
 
-  async createUser(userDto: CreateUserDto) {
+  async findOne(key: UserProp, value: string): Promise<User | null> {
+    const user: User | null = await this.userRepo.findOne({
+      where: {
+        [key]: value,
+      },
+      include: [Role],
+    });
+
+    return user;
+  }
+
+  async createUser(
+    userDto: CreateUserDto,
+    image?: Express.Multer.File,
+  ): Promise<User> {
     const user: User = this.userRepo.build({
       phone: userDto.phone,
       password: userDto.password,
@@ -63,6 +78,10 @@ export class UserService {
             userDto.doctor.specialties,
           );
 
+        if (image) {
+          await this.writeAndSaveAvatar(image, user);
+        }
+
         await user.save();
         await this.doctorService.createDoctor(
           doctor,
@@ -73,12 +92,23 @@ export class UserService {
       case 'clinic':
         role = await this.roleService.getRoleByValue(RoleType.CLINIC_ROLE);
 
+        if (image) {
+          await this.writeAndSaveAvatar(image, user);
+        }
+
         await user.save();
         await this.clinicService.createClinic(user.id, userDto.clinic);
         break;
     }
 
     await user.$set('roles', [role.id]);
+
+    return user;
+  }
+
+  async writeAndSaveAvatar(image: Express.Multer.File, user: User) {
+    const filename: string = await this.fileService.createFile(image);
+    user.avatar = filename;
   }
 
   async checkUserExists(phone: string, email: string): Promise<boolean> {

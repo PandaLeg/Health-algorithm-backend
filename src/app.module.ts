@@ -6,6 +6,8 @@ import { UserModule } from './modules/user/user.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { RouterModule } from '@nestjs/core';
 import { AdminAppealModule } from './modules/admin/modules/appeal/admin-appeal.module';
+import * as path from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
@@ -22,6 +24,9 @@ import { AdminAppealModule } from './modules/admin/modules/appeal/admin-appeal.m
         children: [AdminAppealModule],
       },
     ]),
+    ServeStaticModule.forRoot({
+      rootPath: path.resolve(__dirname, 'static'),
+    }),
   ],
   controllers: [],
   providers: [],

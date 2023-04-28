@@ -2,6 +2,7 @@ import {
   BelongsToMany,
   Column,
   DataType,
+  HasMany,
   HasOne,
   Model,
   Table,
@@ -12,12 +13,14 @@ import { UserRole } from '../../user-role/models/user-roles.entity';
 import { Role } from '../../role/models/role.entity';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { Clinic } from '../../clinic/models/clinic.entity';
+import { Token } from '../../auth/models/token.entity';
 
 interface UserAttrs {
   phone: string;
   password: string;
   email: string;
   city: string;
+  avatar: string;
 }
 
 @Table({ tableName: 'users' })
@@ -56,6 +59,23 @@ export class User extends Model<User, UserAttrs> {
   })
   city: string;
 
+  @Column({
+    type: DataType.STRING(100),
+  })
+  avatar: string;
+
+  @Column({
+    type: DataType.STRING(30),
+  })
+  activationCode: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  isActivated: boolean;
+
   @HasOne(() => Patient)
   patient: Patient;
 
@@ -67,4 +87,7 @@ export class User extends Model<User, UserAttrs> {
 
   @BelongsToMany(() => Role, () => UserRole)
   roles: Role[];
+
+  @HasMany(() => Token)
+  tokens: Token[];
 }

@@ -5,6 +5,7 @@ import { CreateClinicDto } from '../../clinic/dto/create-clinic.dto';
 import {
   IsEmail,
   IsNotEmpty,
+  IsPhoneNumber,
   IsString,
   MaxLength,
   MinLength,
@@ -12,12 +13,13 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { ContainType } from '../../auth/validators/contain-type.validator';
 
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
+  @IsPhoneNumber('UA')
   phone: string;
 
   @IsString()
@@ -32,6 +34,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   city: string;
 
   @IsString()

@@ -49,7 +49,7 @@ export class DoctorService {
       !specialtiesFromDb.length ||
       specialtiesFromDb.length !== specialties.length
     ) {
-      throw new InternalServerErrorException('Internal server error');
+      throw new InternalServerErrorException();
     }
 
     return {
@@ -76,7 +76,7 @@ export class DoctorService {
       await this.categoryDoctorService.findAll();
 
     if (!specialties.length || !categories.length) {
-      throw new InternalServerErrorException('Internal server error');
+      throw new InternalServerErrorException();
     }
 
     return {
