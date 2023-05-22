@@ -4,7 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpStatus, InternalServerErrorException,
+  HttpStatus,
   Param,
   ParseFilePipeBuilder,
   Patch,
@@ -16,7 +16,7 @@ import {
   UploadedFile,
   UseFilters,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { AuthService } from '../services/auth.service';
@@ -54,8 +54,7 @@ export class AuthController {
         .addMaxSizeValidator({ maxSize: 5242880 })
         .build({
           fileIsRequired: false,
-          exceptionFactory: (error) => {
-            console.log(error);
+          exceptionFactory: () => {
             return new BadRequestException(
               'Image incorrect',
               ErrorCodes.IMAGE_INCORRECT,
