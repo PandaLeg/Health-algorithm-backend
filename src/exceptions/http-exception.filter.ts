@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { ErrorCodes } from './error-codes.enum';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -17,10 +18,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response.status(status);
 
     if (status === HttpStatus.BAD_REQUEST || status === HttpStatus.NOT_FOUND) {
-      return response.json({
-        message: exception.response.message,
-        errorCode: exception.response.errorCode,
-      });
+      const errorResponse = {
+        message: exception.response?.message ?? 'Validation failed',
+        errorCode:
+          exception.response?.errorCode ?? ErrorCodes.INVALID_VALIDATION,
+      };
+
+      return response.json(errorResponse);
     }
 
     if (status === HttpStatus.UNAUTHORIZED) {
