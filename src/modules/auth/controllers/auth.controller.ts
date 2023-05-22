@@ -37,6 +37,7 @@ import { Activation } from '../interfaces/activation.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseIntDoctorPipe } from '../pipes/parse-int-doctor.pipe';
 import { BadRequestException } from '../../../exceptions/bad-request.exception';
+import { UserEmailDto } from '../dto/user-email.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -145,13 +146,17 @@ export class AuthController {
 
   @Patch('/send-confirmation-by-email')
   @UseFilters(new HttpExceptionFilter())
-  async sendConfirmationByEmail(@Body('email') email: string) {
-    if (!email) {
-      throw new BadRequestException(
-        'Validation failed',
-        ErrorCodes.INVALID_VALIDATION,
-      );
-    }
+  async sendConfirmationByEmail(
+    @Body('email', new ValidationCredentialsUserPipe()) email: UserEmailDto,
+  ) {
     return this.authService.sendConfirmationByEmail(email);
+  }
+
+  @Patch('/send-reset-code')
+  @UseFilters(new HttpExceptionFilter())
+  async sendResetCode(
+    @Body(new ValidationCredentialsUserPipe()) user: UserEmailDto,
+  ) {
+    return this.authService.sendResetCode(user);
   }
 }

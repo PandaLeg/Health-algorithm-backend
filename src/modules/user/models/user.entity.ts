@@ -76,6 +76,16 @@ export class User extends Model<User, UserAttrs> {
   })
   isActivated: boolean;
 
+  @Column({
+    type: DataType.STRING(100),
+  })
+  resetCode: string;
+
+  @Column({
+    type: DataType.DATE,
+  })
+  resetCodeExpired: string;
+
   @HasOne(() => Patient)
   patient: Patient;
 
