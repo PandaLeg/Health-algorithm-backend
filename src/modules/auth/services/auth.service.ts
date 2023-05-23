@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { UserService } from '../../user/services/user.service';
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
@@ -17,6 +17,8 @@ import { MailService } from './mail.service';
 import { Activation } from '../interfaces/activation.interface';
 import hashPassword from '../../../utils/hashPassword';
 import { UserEmailDto } from '../dto/user-email.dto';
+import { UserResetDto } from '../dto/user-reset.dto';
+import { MultipleUserProps } from '../../../types/user.type';
 
 @Injectable()
 export class AuthService {
@@ -157,7 +159,7 @@ export class AuthService {
     return 'The activation code was sent successfully';
   }
 
-  async sendResetCode(user: UserEmailDto) {
+  async sendResetCode(user: UserEmailDto): Promise<string> {
     const userFromDb: User | null = await this.userService.findOne(
       'email',
       user.email,
@@ -188,5 +190,40 @@ export class AuthService {
     await userFromDb.save();
 
     return 'The reset code was sent successfully';
+  }
+
+  async resetPassword(user: UserResetDto): Promise<string> {
+    const fields: MultipleUserProps[] = [
+      { id: user.id },
+      { resetCode: user.code },
+    ];
+    const userFromDb: User | null =
+      await this.userService.findOneByMultipleFields(fields);
+
+    if (!userFromDb) {
+      throw new BadRequestException(
+        'Data incorrect',
+        ErrorCodes.DATA_INCORRECT,
+      );
+    }
+
+    const isExpired = moment().isAfter(userFromDb.resetCodeExpired);
+
+    if (isExpired) {
+      throw new BadRequestException(
+        'Reset code is expired',
+        ErrorCodes.RESET_CODE_IS_EXPIRED,
+      );
+    }
+
+    const hashedPassword: string = await hashPassword(user.password);
+
+    userFromDb.password = hashedPassword;
+    userFromDb.resetCode = null;
+    userFromDb.resetCodeExpired = null;
+
+    await userFromDb.save();
+
+    return 'Password changed';
   }
 }

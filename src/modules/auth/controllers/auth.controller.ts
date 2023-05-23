@@ -18,7 +18,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { AuthService } from '../services/auth.service';
 import { ValidationCreateUserPipe } from '../pipes/validation-create-user.pipe';
 import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
@@ -38,6 +38,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseIntDoctorPipe } from '../pipes/parse-int-doctor.pipe';
 import { BadRequestException } from '../../../exceptions/bad-request.exception';
 import { UserEmailDto } from '../dto/user-email.dto';
+import { UserResetDto } from '../dto/user-reset.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -158,5 +159,13 @@ export class AuthController {
     @Body(new ValidationCredentialsUserPipe()) user: UserEmailDto,
   ) {
     return this.authService.sendResetCode(user);
+  }
+
+  @Patch('/reset-password')
+  @UseFilters(new HttpExceptionFilter())
+  async resetPassword(
+    @Body(new ValidationCredentialsUserPipe()) user: UserResetDto,
+  ) {
+    return this.authService.resetPassword(user);
   }
 }
