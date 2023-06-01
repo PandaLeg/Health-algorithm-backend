@@ -1,7 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { UserService } from '../../user/services/user.service';
 import * as bcrypt from 'bcrypt';
+import * as moment from 'moment';
 import * as cryptoRandomString from 'crypto-random-string';
 import { BadRequestException } from '../../../exceptions/bad-request.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
@@ -15,6 +16,9 @@ import { NotFoundException } from '../../../exceptions/not-found.exception';
 import { MailService } from './mail.service';
 import { Activation } from '../interfaces/activation.interface';
 import hashPassword from '../../../utils/hashPassword';
+import { UserEmailDto } from '../dto/user-email.dto';
+import { UserResetDto } from '../dto/user-reset.dto';
+import { MultipleUserProps } from '../../../types/user.type';
 
 @Injectable()
 export class AuthService {
@@ -111,7 +115,7 @@ export class AuthService {
 
     await this.tokenService.removeToken(token.id);
 
-    return 'Removed successfully';
+    return 'Logout successfully';
   }
 
   async activate(code: string): Promise<Activation> {
@@ -130,10 +134,13 @@ export class AuthService {
     return { isActivated: true };
   }
 
-  async sendConfirmationByEmail(email: string) {
-    const user: User | null = await this.userService.findOne('email', email);
+  async sendConfirmationByEmail(user: UserEmailDto) {
+    const userFromDb: User | null = await this.userService.findOne(
+      'email',
+      user.email,
+    );
 
-    if (!user || user.isActivated) {
+    if (!userFromDb || userFromDb.isActivated) {
       throw new BadRequestException(
         'Wrong email or account is already activated',
         ErrorCodes.USER_ALREADY_ACTIVATED,
@@ -144,9 +151,79 @@ export class AuthService {
       length: 30,
       type: 'url-safe',
     });
-    await this.mailService.sendActivationCode(user.email, activationCode);
+    await this.mailService.sendActivationCode(userFromDb.email, activationCode);
 
-    user.activationCode = activationCode;
-    await user.save();
+    userFromDb.activationCode = activationCode;
+    await userFromDb.save();
+
+    return 'The activation code was sent successfully';
+  }
+
+  async sendResetCode(user: UserEmailDto): Promise<string> {
+    const userFromDb: User | null = await this.userService.findOne(
+      'email',
+      user.email,
+    );
+
+    if (!userFromDb) {
+      throw new BadRequestException(
+        'Data incorrect',
+        ErrorCodes.DATA_INCORRECT,
+      );
+    }
+
+    const resetCode: string = cryptoRandomString({
+      length: 80,
+      type: 'url-safe',
+    });
+    const codeExpired = moment().add(1, 'h').toString();
+
+    await this.mailService.sendResetCode(
+      userFromDb.email,
+      userFromDb.id,
+      resetCode,
+    );
+
+    userFromDb.resetCode = resetCode;
+    userFromDb.resetCodeExpired = codeExpired;
+
+    await userFromDb.save();
+
+    return 'The reset code was sent successfully';
+  }
+
+  async resetPassword(user: UserResetDto): Promise<string> {
+    const fields: MultipleUserProps[] = [
+      { id: user.id },
+      { resetCode: user.code },
+    ];
+    const userFromDb: User | null =
+      await this.userService.findOneByMultipleFields(fields);
+
+    if (!userFromDb) {
+      throw new BadRequestException(
+        'Data incorrect',
+        ErrorCodes.DATA_INCORRECT,
+      );
+    }
+
+    const isExpired = moment().isAfter(userFromDb.resetCodeExpired);
+
+    if (isExpired) {
+      throw new BadRequestException(
+        'Reset code is expired',
+        ErrorCodes.RESET_CODE_IS_EXPIRED,
+      );
+    }
+
+    const hashedPassword: string = await hashPassword(user.password);
+
+    userFromDb.password = hashedPassword;
+    userFromDb.resetCode = null;
+    userFromDb.resetCodeExpired = null;
+
+    await userFromDb.save();
+
+    return 'Password changed';
   }
 }

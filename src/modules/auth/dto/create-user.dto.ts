@@ -14,7 +14,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
-import { ContainType } from '../../auth/validators/contain-type.validator';
+import { ContainType } from '../validators/contain-type.validator';
 
 export class CreateUserDto {
   @IsString()

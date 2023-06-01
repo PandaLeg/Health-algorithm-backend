@@ -18,7 +18,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { AuthService } from '../services/auth.service';
 import { ValidationCreateUserPipe } from '../pipes/validation-create-user.pipe';
 import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
@@ -37,6 +37,8 @@ import { Activation } from '../interfaces/activation.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseIntDoctorPipe } from '../pipes/parse-int-doctor.pipe';
 import { BadRequestException } from '../../../exceptions/bad-request.exception';
+import { UserEmailDto } from '../dto/user-email.dto';
+import { UserResetDto } from '../dto/user-reset.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -145,13 +147,25 @@ export class AuthController {
 
   @Patch('/send-confirmation-by-email')
   @UseFilters(new HttpExceptionFilter())
-  async sendConfirmationByEmail(@Body('email') email: string) {
-    if (!email) {
-      throw new BadRequestException(
-        'Validation failed',
-        ErrorCodes.INVALID_VALIDATION,
-      );
-    }
+  async sendConfirmationByEmail(
+    @Body('email', new ValidationCredentialsUserPipe()) email: UserEmailDto,
+  ) {
     return this.authService.sendConfirmationByEmail(email);
+  }
+
+  @Patch('/send-reset-code')
+  @UseFilters(new HttpExceptionFilter())
+  async sendResetCode(
+    @Body(new ValidationCredentialsUserPipe()) user: UserEmailDto,
+  ) {
+    return this.authService.sendResetCode(user);
+  }
+
+  @Patch('/reset-password')
+  @UseFilters(new HttpExceptionFilter())
+  async resetPassword(
+    @Body(new ValidationCredentialsUserPipe()) user: UserResetDto,
+  ) {
+    return this.authService.resetPassword(user);
   }
 }

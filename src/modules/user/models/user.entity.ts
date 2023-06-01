@@ -15,16 +15,8 @@ import { Doctor } from '../../doctor/models/doctor.entity';
 import { Clinic } from '../../clinic/models/clinic.entity';
 import { Token } from '../../auth/models/token.entity';
 
-interface UserAttrs {
-  phone: string;
-  password: string;
-  email: string;
-  city: string;
-  avatar: string;
-}
-
 @Table({ tableName: 'users' })
-export class User extends Model<User, UserAttrs> {
+export class User extends Model<User> {
   @Column({
     type: DataType.UUID,
     primaryKey: true,
@@ -75,6 +67,16 @@ export class User extends Model<User, UserAttrs> {
     defaultValue: false,
   })
   isActivated: boolean;
+
+  @Column({
+    type: DataType.STRING(100),
+  })
+  resetCode: string;
+
+  @Column({
+    type: DataType.DATE,
+  })
+  resetCodeExpired: string;
 
   @HasOne(() => Patient)
   patient: Patient;

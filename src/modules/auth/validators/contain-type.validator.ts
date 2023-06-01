@@ -13,7 +13,7 @@ export class ContainType implements ValidatorConstraintInterface {
 
   validate(
     value: UserType,
-    validationArguments?: ValidationArguments,
+    arg?: ValidationArguments,
   ): Promise<boolean> | boolean {
     return value === 'patient' || value === 'doctor' || value === 'clinic';
   }

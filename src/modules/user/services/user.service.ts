@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../models/user.entity';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserDto } from '../../auth/dto/create-user.dto';
 import { RoleService } from '../../role/services/role.service';
 import { PatientService } from '../../patient/services/patient.service';
 import { Op } from 'sequelize';
@@ -10,7 +10,7 @@ import { DoctorService } from '../../doctor/services/doctor.service';
 import { SpecialtyCategory } from '../../doctor/interfaces/specialty-category.interface';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicService } from '../../clinic/services/clinic.service';
-import { UserProp } from '../../../types/user.type';
+import { MultipleUserProps, UserProp } from '../../../types/user.type';
 import { FileService } from '../../file/file.service';
 
 @Injectable()
@@ -42,6 +42,19 @@ export class UserService {
     const user: User | null = await this.userRepo.findOne({
       where: {
         [key]: value,
+      },
+      include: [Role],
+    });
+
+    return user;
+  }
+
+  async findOneByMultipleFields(
+    fields: MultipleUserProps[],
+  ): Promise<User | null> {
+    const user: User | null = await this.userRepo.findOne({
+      where: {
+        [Op.and]: fields,
       },
       include: [Role],
     });

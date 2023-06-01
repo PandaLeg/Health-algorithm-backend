@@ -21,4 +21,21 @@ export class MailService {
                  </div>`,
     });
   }
+
+  async sendResetCode(to: string, id: string, resetCode: string) {
+    const url: string =
+      process.env.CLIENT_URL + `/reset-password/${id}?code=${resetCode}`;
+
+    await this.transporter.sendMail({
+      from: String(process.env.SMTP_EMAIL),
+      to,
+      subject: 'Reset password on the HealthAlgorithm',
+      html: `
+                <div>
+                    <h1>Reset Password</h1>
+                    <p>To reset your password, follow the link below and follow the instruction</p>
+                    <a>${url}</a>
+                 </div>`,
+    });
+  }
 }

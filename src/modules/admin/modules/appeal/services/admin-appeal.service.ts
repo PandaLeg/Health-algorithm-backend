@@ -6,7 +6,7 @@ import { ClinicAppealService } from '../../clinic-appeal/services/clinic-appeal.
 import { AppealTypeService } from '../../../../appeal-type/services/appeal-type.service';
 import { AppealService } from '../../../../appeal/services/appeal.service';
 import { AppealType } from '../../../../appeal-type/models/appeal-type.entity';
-import { CreateUserDto } from '../../../../user/dto/create-user.dto';
+import { CreateUserDto } from '../../../../auth/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { ClinicAppeal } from '../../clinic-appeal/models/clinic-appeal.entity';
 
