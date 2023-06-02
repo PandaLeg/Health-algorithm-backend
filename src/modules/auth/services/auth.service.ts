@@ -54,14 +54,16 @@ export class AuthService {
       image,
     );
 
-    const activationCode: string = cryptoRandomString({
-      length: 30,
-      type: 'url-safe',
-    });
-    await this.mailService.sendActivationCode(user.email, activationCode);
+    if (userDto.type === 'patient') {
+      const activationCode: string = cryptoRandomString({
+        length: 30,
+        type: 'url-safe',
+      });
+      await this.mailService.sendActivationCode(user.email, activationCode);
 
-    user.activationCode = activationCode;
-    await user.save();
+      user.activationCode = activationCode;
+      await user.save();
+    }
 
     return 'User created successfully';
   }
@@ -88,6 +90,13 @@ export class AuthService {
       throw new BadRequestException(
         'Incorrect phone or password',
         ErrorCodes.INCORRECT_PHONE_PASSWORD,
+      );
+    }
+
+    if (!user.confirmed) {
+      throw new BadRequestException(
+        'User not verified',
+        ErrorCodes.USER_NOT_VERIFIED,
       );
     }
 

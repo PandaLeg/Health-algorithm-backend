@@ -78,6 +78,13 @@ export class User extends Model<User> {
   })
   resetCodeExpired: string;
 
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  confirmed: boolean;
+
   @HasOne(() => Patient)
   patient: Patient;
 

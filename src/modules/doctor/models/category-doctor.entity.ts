@@ -1,5 +1,5 @@
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
-import { Doctor } from '../../doctor/models/doctor.entity';
+import { Doctor } from './doctor.entity';
 
 @Table({ tableName: 'categories_doctor' })
 export class CategoryDoctor extends Model<CategoryDoctor> {

@@ -79,6 +79,7 @@ export class UserService {
       case 'patient':
         role = await this.roleService.getRoleByValue(RoleType.PATIENT_ROLE);
 
+        user.confirmed = true;
         await user.save();
         await this.patientService.createPatient(user.id, userDto.patient);
         break;

@@ -1,4 +1,4 @@
-import { DoctorSpecialty } from './models/doctor-specialty.entity';
+import { DoctorSpecialty } from '../doctor/models/doctor-specialty.entity';
 
 export const doctorSpecialtyProviders = [
   {
