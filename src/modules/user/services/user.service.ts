@@ -12,6 +12,9 @@ import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicService } from '../../clinic/services/clinic.service';
 import { MultipleUserProps, UserProp } from '../../../types/user.type';
 import { FileService } from '../../file/file.service';
+import { BadRequestException } from '../../../exceptions/bad-request.exception';
+import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { Clinic } from '../../clinic/models/clinic.entity';
 
 @Injectable()
 export class UserService {
@@ -70,12 +73,11 @@ export class UserService {
       phone: userDto.phone,
       password: userDto.password,
       email: userDto.email,
-      city: userDto.city,
     });
 
     let role: Role;
 
-    switch (userDto.type) {
+    switch (userDto.type.trim()) {
       case 'patient':
         role = await this.roleService.getRoleByValue(RoleType.PATIENT_ROLE);
 
@@ -104,6 +106,16 @@ export class UserService {
         );
         break;
       case 'clinic':
+        const clinicExists: Clinic | null =
+          await this.clinicService.getClinicByName(userDto.clinic.name);
+
+        if (clinicExists) {
+          throw new BadRequestException(
+            'Clinic already exists',
+            ErrorCodes.INVALID_VALIDATION,
+          );
+        }
+
         role = await this.roleService.getRoleByValue(RoleType.CLINIC_ROLE);
 
         if (image) {

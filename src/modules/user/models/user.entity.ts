@@ -46,12 +46,6 @@ export class User extends Model<User> {
   email: string;
 
   @Column({
-    type: DataType.STRING(30),
-    allowNull: false,
-  })
-  city: string;
-
-  @Column({
     type: DataType.STRING(100),
   })
   avatar: string;

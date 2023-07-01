@@ -13,6 +13,7 @@ export class PatientService {
       userId,
       firstName: dto.firstName,
       lastName: dto.lastName,
+      city: dto.city,
     });
   }
 }

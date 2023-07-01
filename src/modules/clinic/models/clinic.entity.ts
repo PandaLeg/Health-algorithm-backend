@@ -3,10 +3,12 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.entity';
+import { ClinicLocation } from './clinic-location.entity';
 
 @Table({ tableName: 'clinics' })
 export class Clinic extends Model<Clinic> {
@@ -18,12 +20,15 @@ export class Clinic extends Model<Clinic> {
   })
   userId: string;
 
-  @BelongsTo(() => User, { onDelete: 'CASCADE' })
-  user: User;
-
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
   })
   name: string;
+
+  @BelongsTo(() => User, { onDelete: 'CASCADE' })
+  user: User;
+
+  @HasMany(() => ClinicLocation)
+  locations: ClinicLocation[];
 }

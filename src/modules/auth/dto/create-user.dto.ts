@@ -13,7 +13,7 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { Transform, TransformFnParams, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { ContainType } from '../validators/contain-type.validator';
 
 export class CreateUserDto {
@@ -31,11 +31,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => value?.trim())
-  city: string;
 
   @IsString()
   @IsNotEmpty()

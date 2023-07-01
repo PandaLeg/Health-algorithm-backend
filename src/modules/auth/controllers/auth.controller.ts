@@ -39,6 +39,7 @@ import { ParseIntDoctorPipe } from '../pipes/parse-int-doctor.pipe';
 import { BadRequestException } from '../../../exceptions/bad-request.exception';
 import { UserEmailDto } from '../dto/user-email.dto';
 import { UserResetDto } from '../dto/user-reset.dto';
+import { ParseJsonUserPipe } from '../pipes/parse-json-user.pipe';
 
 @Controller('auth')
 export class AuthController {
@@ -48,7 +49,11 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   @UseInterceptors(FileInterceptor('image'))
   async registration(
-    @Body(new ValidationCreateUserPipe(), new ParseIntDoctorPipe())
+    @Body(
+      new ParseJsonUserPipe(),
+      new ValidationCreateUserPipe(),
+      new ParseIntDoctorPipe(),
+    )
     userDto: CreateUserDto,
     @UploadedFile(
       new ParseFilePipeBuilder()

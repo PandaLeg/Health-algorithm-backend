@@ -32,4 +32,10 @@ export class Patient extends Model<Patient> {
     allowNull: false,
   })
   lastName: string;
+
+  @Column({
+    type: DataType.STRING(30),
+    allowNull: false,
+  })
+  city: string;
 }
