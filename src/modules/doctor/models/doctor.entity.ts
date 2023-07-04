@@ -47,7 +47,6 @@ export class Doctor extends Model<Doctor> {
 
   @Column({
     type: DataType.DATE,
-    allowNull: false,
   })
   dateOfBirth: string;
 

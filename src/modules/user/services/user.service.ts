@@ -15,6 +15,7 @@ import { FileService } from '../../file/file.service';
 import { BadRequestException } from '../../../exceptions/bad-request.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import { Clinic } from '../../clinic/models/clinic.entity';
+import { ClinicDoctorService } from '../../clinic-doctor/services/clinic-doctor.service';
 
 @Injectable()
 export class UserService {
@@ -25,6 +26,7 @@ export class UserService {
     private readonly clinicService: ClinicService,
     private readonly roleService: RoleService,
     private readonly fileService: FileService,
+    private readonly clinicDoctorService: ClinicDoctorService,
   ) {}
 
   async getAll() {
@@ -104,10 +106,36 @@ export class UserService {
           user.id,
           specialtyCategoryDoctor,
         );
+
+        const locations = userDto.doctor.locations;
+
+        for (let i = 0; i < locations.length; i++) {
+          const location = locations[i];
+
+          if (location.addresses.length === 1) {
+            await this.clinicDoctorService.create(
+              location.clinicId,
+              user.id,
+              location.addresses[0],
+            );
+          } else {
+            for (let j = 0; j < location.addresses.length; j++) {
+              const addressId: string = location.addresses[j];
+
+              await this.clinicDoctorService.create(
+                location.clinicId,
+                user.id,
+                addressId,
+              );
+            }
+          }
+        }
+
         break;
       case 'clinic':
-        const clinicExists: Clinic | null =
-          await this.clinicService.getClinicByName(userDto.clinic.name);
+        const clinicExists: Clinic | null = await this.clinicService.getByName(
+          userDto.clinic.name,
+        );
 
         if (clinicExists) {
           throw new BadRequestException(

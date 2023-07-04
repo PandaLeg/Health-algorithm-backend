@@ -8,6 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 import { DoctorModule } from '../doctor/doctor.module';
 import { ClinicModule } from '../clinic/clinic.module';
 import { FileModule } from '../file/file.module';
+import { ClinicDoctorModule } from '../clinic-doctor/clinic-doctor.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { FileModule } from '../file/file.module';
     RoleModule,
     forwardRef(() => AuthModule),
     FileModule,
+    ClinicDoctorModule,
   ],
   controllers: [UserController],
   providers: [...userProviders, UserService],

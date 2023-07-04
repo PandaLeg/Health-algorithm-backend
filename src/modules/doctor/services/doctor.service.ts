@@ -27,6 +27,7 @@ export class DoctorService {
       firstName: dto.firstName,
       lastName: dto.lastName,
       surname: dto.surname,
+      dateOfBirth: dto.dateOfBirth,
       experience: dto.experience,
     });
   }

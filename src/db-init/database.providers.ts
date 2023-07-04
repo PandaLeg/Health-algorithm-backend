@@ -15,6 +15,7 @@ import { Token } from '../modules/auth/models/token.entity';
 import { DescriptionDoctor } from '../modules/doctor/models/description-doctor.entity';
 import { ClinicLocation } from '../modules/clinic/models/clinic-location.entity';
 import { LocationAddress } from '../modules/clinic/models/location-address.entity';
+import { ClinicDoctor } from '../modules/clinic-doctor/models/clinic-doctor.entity';
 
 export const databaseProviders = [
   {
@@ -43,6 +44,7 @@ export const databaseProviders = [
         DescriptionDoctor,
         ClinicLocation,
         LocationAddress,
+        ClinicDoctor,
         Appeal,
         AppealType,
       ]);
