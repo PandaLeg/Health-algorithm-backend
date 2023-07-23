@@ -5,11 +5,11 @@ import {
 } from '@nestjs/common';
 import { Doctor } from '../models/doctor.entity';
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
-import { CategoryDoctorService } from '../../category-doctor/services/category-doctor.service';
-import { CategoryDoctor } from '../../category-doctor/models/category-doctor.entity';
-import { SpecialtyService } from '../../specialty/services/specialty.service';
+import { CategoryDoctorService } from './category-doctor.service';
+import { CategoryDoctor } from '../models/category-doctor.entity';
+import { SpecialtyService } from './specialty.service';
 import { SpecialtyCategory } from '../interfaces/specialty-category.interface';
-import { Specialty } from '../../specialty/models/specialty.entity';
+import { Specialty } from '../models/specialty.entity';
 import { User } from '../../user/models/user.entity';
 import { IDoctorResponse } from '../interfaces/doctor-response.interface';
 import { IDoctor } from '../interfaces/doctor.interface';
@@ -17,7 +17,7 @@ import { IDoctor } from '../interfaces/doctor.interface';
 @Injectable()
 export class DoctorService {
   constructor(
-    @Inject('DOCTORS_REPOSITORY') private doctorRepo: typeof Doctor,
+    @Inject('DOCTOR_REPOSITORY') private doctorRepo: typeof Doctor,
     private readonly categoryDoctorService: CategoryDoctorService,
     private readonly specialtyService: SpecialtyService,
   ) {}
@@ -27,6 +27,7 @@ export class DoctorService {
       firstName: dto.firstName,
       lastName: dto.lastName,
       surname: dto.surname,
+      dateOfBirth: dto.dateOfBirth,
       experience: dto.experience,
     });
   }

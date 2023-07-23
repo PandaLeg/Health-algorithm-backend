@@ -5,14 +5,17 @@ import { Patient } from '../modules/patient/models/patient.entity';
 import { UserRole } from '../modules/user-role/models/user-roles.entity';
 import { Role } from '../modules/role/models/role.entity';
 import { Doctor } from '../modules/doctor/models/doctor.entity';
-import { Specialty } from '../modules/specialty/models/specialty.entity';
-import { CategoryDoctor } from '../modules/category-doctor/models/category-doctor.entity';
-import { DoctorSpecialty } from '../modules/doctor-specialty/models/doctor-specialty.entity';
+import { Specialty } from '../modules/doctor/models/specialty.entity';
+import { CategoryDoctor } from '../modules/doctor/models/category-doctor.entity';
+import { DoctorSpecialty } from '../modules/doctor/models/doctor-specialty.entity';
 import { Clinic } from '../modules/clinic/models/clinic.entity';
 import { Appeal } from '../modules/appeal/models/appeal.entity';
 import { AppealType } from '../modules/appeal-type/models/appeal-type.entity';
-import { ClinicAppeal } from '../modules/admin/modules/clinic-appeal/models/clinic-appeal.entity';
 import { Token } from '../modules/auth/models/token.entity';
+import { DescriptionDoctor } from '../modules/doctor/models/description-doctor.entity';
+import { ClinicLocation } from '../modules/clinic/models/clinic-location.entity';
+import { LocationAddress } from '../modules/clinic/models/location-address.entity';
+import { ClinicDoctor } from '../modules/clinic-doctor/models/clinic-doctor.entity';
 
 export const databaseProviders = [
   {
@@ -38,9 +41,12 @@ export const databaseProviders = [
         Specialty,
         DoctorSpecialty,
         CategoryDoctor,
+        DescriptionDoctor,
+        ClinicLocation,
+        LocationAddress,
+        ClinicDoctor,
         Appeal,
         AppealType,
-        ClinicAppeal,
       ]);
       await sequelize.sync();
       return sequelize;

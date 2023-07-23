@@ -1,16 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Transform, TransformFnParams } from 'class-transformer';
 
-export class CreatePatientDto {
+export class QueryClinicDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  firstName: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => value?.trim())
-  lastName: string;
+  name: string;
 
   @IsString()
   @IsNotEmpty()

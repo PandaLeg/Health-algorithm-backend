@@ -5,8 +5,8 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { Doctor } from '../../doctor/models/doctor.entity';
-import { Specialty } from '../../specialty/models/specialty.entity';
+import { Doctor } from './doctor.entity';
+import { Specialty } from './specialty.entity';
 
 @Table({ tableName: 'doctor_specialties', createdAt: false, updatedAt: false })
 export class DoctorSpecialty extends Model<DoctorSpecialty> {

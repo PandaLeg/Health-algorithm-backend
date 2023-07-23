@@ -1,6 +1,7 @@
 export enum ErrorCodes {
   INVALID_VALIDATION = 'invalid_validation',
   INCORRECT_PHONE_PASSWORD = 'incorrect_phone_password',
+  USER_NOT_VERIFIED = 'user_not_verified',
   NOT_FOUND = 'not_found',
   ACTIVATION_CODE_INCORRECT = 'activation_code_incorrect',
   USER_ALREADY_ACTIVATED = 'user_already_activated',

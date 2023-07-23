@@ -46,12 +46,6 @@ export class User extends Model<User> {
   email: string;
 
   @Column({
-    type: DataType.STRING(30),
-    allowNull: false,
-  })
-  city: string;
-
-  @Column({
     type: DataType.STRING(100),
   })
   avatar: string;
@@ -77,6 +71,13 @@ export class User extends Model<User> {
     type: DataType.DATE,
   })
   resetCodeExpired: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  confirmed: boolean;
 
   @HasOne(() => Patient)
   patient: Patient;

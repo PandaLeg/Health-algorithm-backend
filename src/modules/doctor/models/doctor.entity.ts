@@ -4,13 +4,15 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasOne,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.entity';
-import { CategoryDoctor } from '../../category-doctor/models/category-doctor.entity';
-import { DoctorSpecialty } from '../../doctor-specialty/models/doctor-specialty.entity';
-import { Specialty } from '../../specialty/models/specialty.entity';
+import { CategoryDoctor } from './category-doctor.entity';
+import { DoctorSpecialty } from './doctor-specialty.entity';
+import { Specialty } from './specialty.entity';
+import { DescriptionDoctor } from './description-doctor.entity';
 
 @Table({ tableName: 'doctors' })
 export class Doctor extends Model<Doctor> {
@@ -44,6 +46,11 @@ export class Doctor extends Model<Doctor> {
   surname: string;
 
   @Column({
+    type: DataType.DATE,
+  })
+  dateOfBirth: string;
+
+  @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
@@ -60,4 +67,7 @@ export class Doctor extends Model<Doctor> {
 
   @BelongsToMany(() => Specialty, () => DoctorSpecialty)
   specialties: Specialty[];
+
+  @HasOne(() => DescriptionDoctor)
+  description: DescriptionDoctor;
 }

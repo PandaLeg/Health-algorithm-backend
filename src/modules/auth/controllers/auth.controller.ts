@@ -23,7 +23,7 @@ import { AuthService } from '../services/auth.service';
 import { ValidationCreateUserPipe } from '../pipes/validation-create-user.pipe';
 import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { UserCredentialsDto } from '../dto/user-credentials.dto';
-import { ValidationCredentialsUserPipe } from '../pipes/validation-credentials-user.pipe';
+import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 import { Request, Response } from 'express';
 import { AuthRefreshGuard } from '../guards/auth-refresh.guard';
@@ -39,6 +39,7 @@ import { ParseIntDoctorPipe } from '../pipes/parse-int-doctor.pipe';
 import { BadRequestException } from '../../../exceptions/bad-request.exception';
 import { UserEmailDto } from '../dto/user-email.dto';
 import { UserResetDto } from '../dto/user-reset.dto';
+import { ParseJsonUserPipe } from '../pipes/parse-json-user.pipe';
 
 @Controller('auth')
 export class AuthController {
@@ -48,7 +49,11 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   @UseInterceptors(FileInterceptor('image'))
   async registration(
-    @Body(new ValidationCreateUserPipe(), new ParseIntDoctorPipe())
+    @Body(
+      new ParseJsonUserPipe(),
+      new ValidationCreateUserPipe(),
+      new ParseIntDoctorPipe(),
+    )
     userDto: CreateUserDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
@@ -74,7 +79,7 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   async login(
     @Res() res: Response,
-    @Body(new ValidationCredentialsUserPipe())
+    @Body(new GeneralValidationPipe())
     userCredentials: UserCredentialsDto,
   ) {
     const authInfo: AuthResponse = await this.authService.login(
@@ -148,24 +153,20 @@ export class AuthController {
   @Patch('/send-confirmation-by-email')
   @UseFilters(new HttpExceptionFilter())
   async sendConfirmationByEmail(
-    @Body('email', new ValidationCredentialsUserPipe()) email: UserEmailDto,
+    @Body('email', new GeneralValidationPipe()) email: UserEmailDto,
   ) {
     return this.authService.sendConfirmationByEmail(email);
   }
 
   @Patch('/send-reset-code')
   @UseFilters(new HttpExceptionFilter())
-  async sendResetCode(
-    @Body(new ValidationCredentialsUserPipe()) user: UserEmailDto,
-  ) {
+  async sendResetCode(@Body(new GeneralValidationPipe()) user: UserEmailDto) {
     return this.authService.sendResetCode(user);
   }
 
   @Patch('/reset-password')
   @UseFilters(new HttpExceptionFilter())
-  async resetPassword(
-    @Body(new ValidationCredentialsUserPipe()) user: UserResetDto,
-  ) {
+  async resetPassword(@Body(new GeneralValidationPipe()) user: UserResetDto) {
     return this.authService.resetPassword(user);
   }
 }

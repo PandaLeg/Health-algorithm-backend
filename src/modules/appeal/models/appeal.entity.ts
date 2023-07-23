@@ -3,13 +3,11 @@ import {
   Column,
   DataType,
   ForeignKey,
-  HasOne,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { AppealType } from '../../appeal-type/models/appeal-type.entity';
 import { DataTypes } from 'sequelize';
-import { ClinicAppeal } from '../../admin/modules/clinic-appeal/models/clinic-appeal.entity';
 
 @Table({ tableName: 'appeals' })
 export class Appeal extends Model<Appeal> {
@@ -29,7 +27,4 @@ export class Appeal extends Model<Appeal> {
 
   @BelongsTo(() => AppealType)
   appealType: AppealType;
-
-  @HasOne(() => ClinicAppeal)
-  clinicAppeal: ClinicAppeal;
 }
