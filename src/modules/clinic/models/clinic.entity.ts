@@ -9,6 +9,7 @@ import {
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.entity';
 import { ClinicLocation } from './clinic-location.entity';
+import { ClinicSchedule } from './clinic-schedule.entity';
 
 @Table({ tableName: 'clinics' })
 export class Clinic extends Model<Clinic> {
@@ -31,4 +32,7 @@ export class Clinic extends Model<Clinic> {
 
   @HasMany(() => ClinicLocation)
   locations: ClinicLocation[];
+
+  @HasMany(() => ClinicSchedule)
+  schedules: ClinicSchedule[];
 }

@@ -16,6 +16,8 @@ import { DescriptionDoctor } from '../modules/doctor/models/description-doctor.e
 import { ClinicLocation } from '../modules/clinic/models/clinic-location.entity';
 import { LocationAddress } from '../modules/clinic/models/location-address.entity';
 import { ClinicDoctor } from '../modules/clinic-doctor/models/clinic-doctor.entity';
+import { WeekDay } from '../modules/week-day/models/week-day.entity';
+import { ClinicSchedule } from '../modules/clinic/models/clinic-schedule.entity';
 
 export const databaseProviders = [
   {
@@ -45,8 +47,10 @@ export const databaseProviders = [
         ClinicLocation,
         LocationAddress,
         ClinicDoctor,
+        ClinicSchedule,
         Appeal,
         AppealType,
+        WeekDay,
       ]);
       await sequelize.sync();
       return sequelize;

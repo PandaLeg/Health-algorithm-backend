@@ -3,11 +3,13 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { ClinicLocation } from './clinic-location.entity';
+import { ClinicSchedule } from './clinic-schedule.entity';
 
 @Table({ tableName: 'location_addresses' })
 export class LocationAddress extends Model<LocationAddress> {
@@ -34,4 +36,7 @@ export class LocationAddress extends Model<LocationAddress> {
 
   @BelongsTo(() => ClinicLocation, { onDelete: 'CASCADE' })
   location: ClinicLocation;
+
+  @HasMany(() => ClinicSchedule)
+  schedules: ClinicSchedule;
 }

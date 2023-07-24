@@ -8,6 +8,7 @@ import { RouterModule } from '@nestjs/core';
 import { AdminAppealModule } from './modules/admin/modules/appeal/admin-appeal.module';
 import * as path from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { WeekDayModule } from './modules/week-day/week-day.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     DatabaseModule,
     UserModule,
     AdminModule,
+    WeekDayModule,
     RouterModule.register([
       {
         path: 'admin',

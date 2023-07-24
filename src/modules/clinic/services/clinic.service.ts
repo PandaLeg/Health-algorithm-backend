@@ -9,6 +9,8 @@ import { ClinicLocation } from '../models/clinic-location.entity';
 import { LocationAddressService } from './location-address.service';
 import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
 import { LocationAddress } from '../models/location-address.entity';
+import { ClinicScheduleService } from './clinic-schedule.service';
+import { ClinicAddressDto } from '../dto/clinic-address.dto';
 
 @Injectable()
 export class ClinicService {
@@ -17,6 +19,7 @@ export class ClinicService {
     @Inject('SEQUELIZE') private sequelize: Sequelize,
     private readonly clinicLocationService: ClinicLocationService,
     private readonly locationAddressService: LocationAddressService,
+    private readonly clinicScheduleService: ClinicScheduleService,
   ) {}
 
   async getByName(name: string): Promise<Clinic | null> {
@@ -43,17 +46,45 @@ export class ClinicService {
         );
 
       if (location.addresses.length === 1) {
-        await this.locationAddressService.createAddress(
+        const firstAddress = location.addresses[0];
+
+        await this.createAddressAndSchedule(
           clinicLocation.id,
-          location.addresses[0],
+          clinic.userId,
+          firstAddress,
         );
       } else {
         for (const address of location.addresses) {
-          await this.locationAddressService.createAddress(
+          await this.createAddressAndSchedule(
             clinicLocation.id,
+            clinic.userId,
             address,
           );
         }
+      }
+    }
+  }
+
+  async createAddressAndSchedule(
+    clinicLocationId: string,
+    userId: string,
+    address: ClinicAddressDto,
+  ) {
+    const newAddress = await this.locationAddressService.createAddress(
+      clinicLocationId,
+      address.name,
+    );
+
+    for (const scheduleClinic of address.scheduleClinic) {
+      const weekDays: number[] = scheduleClinic.weekDays;
+
+      for (const weekDayId of weekDays) {
+        await this.clinicScheduleService.createSchedule(
+          userId,
+          newAddress.id,
+          scheduleClinic,
+          weekDayId,
+        );
       }
     }
   }
