@@ -29,7 +29,7 @@ export class LocationAddressService {
   }
 
   async createAddress(locationId: string, address: string) {
-    await this.locationAddressRepo.create({
+    return await this.locationAddressRepo.create({
       locationId,
       address,
     });

@@ -1,16 +1,16 @@
 import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
-import { ClinicPlaceDto } from './clinic-place.dto';
+import { ClinicAddressDto } from './clinic-address.dto';
 
-export class CreateClinicDto {
+export class ClinicPlaceDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  name: string;
+  city: string;
 
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => ClinicPlaceDto)
-  locations: ClinicPlaceDto[];
+  @Type(() => ClinicAddressDto)
+  addresses: ClinicAddressDto[];
 }

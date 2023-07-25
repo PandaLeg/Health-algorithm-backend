@@ -5,6 +5,7 @@ import { clinicProviders } from './clinic.providers';
 import { DatabaseModule } from '../../db-init/database.module';
 import { ClinicLocationService } from './services/clinic-location.service';
 import { LocationAddressService } from './services/location-address.service';
+import { ClinicScheduleService } from './services/clinic-schedule.service';
 
 @Module({
   imports: [DatabaseModule],
@@ -13,6 +14,7 @@ import { LocationAddressService } from './services/location-address.service';
     ClinicService,
     ClinicLocationService,
     LocationAddressService,
+    ClinicScheduleService,
     ...clinicProviders,
   ],
   exports: [ClinicService],
