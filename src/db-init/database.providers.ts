@@ -18,6 +18,9 @@ import { LocationAddress } from '../modules/clinic/models/location-address.entit
 import { ClinicDoctor } from '../modules/clinic-doctor/models/clinic-doctor.entity';
 import { WeekDay } from '../modules/week-day/models/week-day.entity';
 import { ClinicSchedule } from '../modules/clinic/models/clinic-schedule.entity';
+import { Convenience } from '../modules/clinic/models/convenience.entity';
+import { ClinicConvenience } from '../modules/clinic/models/clinic-convenience.entity';
+import { ClinicType } from '../modules/clinic/models/clinic-type.entity';
 
 export const databaseProviders = [
   {
@@ -48,6 +51,9 @@ export const databaseProviders = [
         LocationAddress,
         ClinicDoctor,
         ClinicSchedule,
+        Convenience,
+        ClinicConvenience,
+        ClinicType,
         Appeal,
         AppealType,
         WeekDay,

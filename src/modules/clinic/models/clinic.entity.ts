@@ -1,15 +1,18 @@
 import {
-  BelongsTo,
+  BelongsTo, BelongsToMany,
   Column,
   DataType,
   ForeignKey,
   HasMany,
   Model,
-  Table,
+  Table
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.entity';
 import { ClinicLocation } from './clinic-location.entity';
 import { ClinicSchedule } from './clinic-schedule.entity';
+import { ClinicType } from './clinic-type.entity';
+import { ClinicConvenience } from './clinic-convenience.entity';
+import { Convenience } from './convenience.entity';
 
 @Table({ tableName: 'clinics' })
 export class Clinic extends Model<Clinic> {
@@ -27,6 +30,19 @@ export class Clinic extends Model<Clinic> {
   })
   name: string;
 
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
+  description: string;
+
+  @ForeignKey(() => ClinicType)
+  @Column({
+    type: DataType.NUMBER,
+    allowNull: false,
+  })
+  clinicTypeId: number;
+
   @BelongsTo(() => User, { onDelete: 'CASCADE' })
   user: User;
 
@@ -35,4 +51,10 @@ export class Clinic extends Model<Clinic> {
 
   @HasMany(() => ClinicSchedule)
   schedules: ClinicSchedule[];
+
+  @BelongsTo(() => ClinicType)
+  clinicTypes: ClinicType[];
+
+  @BelongsToMany(() => Convenience, () => ClinicConvenience)
+  conveniences: Convenience[];
 }

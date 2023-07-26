@@ -11,6 +11,7 @@ import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
 import { LocationAddress } from '../models/location-address.entity';
 import { ClinicScheduleService } from './clinic-schedule.service';
 import { ClinicAddressDto } from '../dto/clinic-address.dto';
+import { ClinicConvenienceService } from './clinic-convenience.service';
 
 @Injectable()
 export class ClinicService {
@@ -20,6 +21,7 @@ export class ClinicService {
     private readonly clinicLocationService: ClinicLocationService,
     private readonly locationAddressService: LocationAddressService,
     private readonly clinicScheduleService: ClinicScheduleService,
+    private readonly clinicConvenienceService: ClinicConvenienceService,
   ) {}
 
   async getByName(name: string): Promise<Clinic | null> {
@@ -36,7 +38,18 @@ export class ClinicService {
     const clinic: Clinic = await this.clinicRepo.create({
       userId,
       name: dto.name,
+      description: dto.description,
+      clinicTypeId: dto.clinicType,
     });
+
+    if (dto.conveniences.length) {
+      for (const convenienceId of dto.conveniences) {
+        await this.clinicConvenienceService.create(
+          convenienceId,
+          clinic.userId,
+        );
+      }
+    }
 
     for (const location of dto.locations) {
       const clinicLocation: ClinicLocation =
@@ -46,7 +59,7 @@ export class ClinicService {
         );
 
       if (location.addresses.length === 1) {
-        const firstAddress = location.addresses[0];
+        const firstAddress: ClinicAddressDto = location.addresses[0];
 
         await this.createAddressAndSchedule(
           clinicLocation.id,
@@ -70,10 +83,11 @@ export class ClinicService {
     userId: string,
     address: ClinicAddressDto,
   ) {
-    const newAddress = await this.locationAddressService.createAddress(
-      clinicLocationId,
-      address.name,
-    );
+    const newAddress: LocationAddress =
+      await this.locationAddressService.createAddress(
+        clinicLocationId,
+        address.name,
+      );
 
     for (const scheduleClinic of address.scheduleClinic) {
       const weekDays: number[] = scheduleClinic.weekDays;

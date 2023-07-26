@@ -3,7 +3,7 @@ import { WeekDayService } from '../services/week-day.service';
 import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { WeekDay } from '../models/week-day.entity';
 
-@Controller('week-day')
+@Controller('week-days')
 export class WeekDayController {
   constructor(private readonly weekDayService: WeekDayService) {}
 

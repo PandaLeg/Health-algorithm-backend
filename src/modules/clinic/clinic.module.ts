@@ -6,15 +6,23 @@ import { DatabaseModule } from '../../db-init/database.module';
 import { ClinicLocationService } from './services/clinic-location.service';
 import { LocationAddressService } from './services/location-address.service';
 import { ClinicScheduleService } from './services/clinic-schedule.service';
+import { ConvenienceController } from './controllers/convenience.controller';
+import { ConvenienceService } from './services/convenience.service';
+import { ClinicTypeController } from './controllers/clinic-type.controller';
+import { ClinicTypeService } from './services/clinic-type.service';
+import { ClinicConvenienceService } from './services/clinic-convenience.service';
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [ClinicController],
+  controllers: [ClinicController, ConvenienceController, ClinicTypeController],
   providers: [
     ClinicService,
     ClinicLocationService,
     LocationAddressService,
     ClinicScheduleService,
+    ConvenienceService,
+    ClinicConvenienceService,
+    ClinicTypeService,
     ...clinicProviders,
   ],
   exports: [ClinicService],
