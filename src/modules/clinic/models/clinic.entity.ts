@@ -1,11 +1,12 @@
 import {
-  BelongsTo, BelongsToMany,
+  BelongsTo,
+  BelongsToMany,
   Column,
   DataType,
   ForeignKey,
   HasMany,
   Model,
-  Table
+  Table,
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.entity';
 import { ClinicLocation } from './clinic-location.entity';
@@ -53,7 +54,7 @@ export class Clinic extends Model<Clinic> {
   schedules: ClinicSchedule[];
 
   @BelongsTo(() => ClinicType)
-  clinicTypes: ClinicType[];
+  clinicType: ClinicType;
 
   @BelongsToMany(() => Convenience, () => ClinicConvenience)
   conveniences: Convenience[];

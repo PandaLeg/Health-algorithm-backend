@@ -12,6 +12,10 @@ import { LocationAddress } from '../models/location-address.entity';
 import { ClinicScheduleService } from './clinic-schedule.service';
 import { ClinicAddressDto } from '../dto/clinic-address.dto';
 import { ClinicConvenienceService } from './clinic-convenience.service';
+import { ClinicByCity } from '../interfaces/clinic-by-city.interface';
+import { User } from '../../user/models/user.entity';
+import { ClinicType } from '../models/clinic-type.entity';
+import { ClinicByCityResponse } from '../interfaces/clinic-by-city-response.interface';
 
 @Injectable()
 export class ClinicService {
@@ -32,6 +36,39 @@ export class ClinicService {
     });
 
     return clinic;
+  }
+
+  async getAllByCity(
+    page: number,
+    perPage: number,
+    city: string,
+  ): Promise<ClinicByCityResponse> {
+    const clinicsFromDb = await this.clinicRepo.findAndCountAll({
+      limit: perPage,
+      offset: page,
+      distinct: true,
+      order: [['userId', 'DESC']],
+      include: [
+        { model: ClinicLocation, where: { city } },
+        { model: User, attributes: ['avatar'] },
+        { model: ClinicType, attributes: ['name'] },
+      ],
+    });
+
+    const totalPages = Math.ceil(clinicsFromDb.count / perPage);
+
+    const clinics: ClinicByCity[] = clinicsFromDb.rows.map((el) => ({
+      clinicId: el.userId,
+      name: el.name,
+      description: el.description,
+      avatar: el.user.avatar,
+      type: el.clinicType.name,
+    }));
+
+    return {
+      clinics,
+      totalPages,
+    };
   }
 
   async createClinic(userId: string, dto: CreateClinicDto) {
@@ -103,7 +140,7 @@ export class ClinicService {
     }
   }
 
-  async getAllByCity(name: string, city: string) {
+  async getAllByCityAndName(name: string, city: string) {
     const query = `
     SELECT c."userId" as "clinicId", c.name
     FROM clinics as c 
