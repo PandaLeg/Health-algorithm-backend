@@ -11,10 +11,16 @@ import { ConvenienceService } from './services/convenience.service';
 import { ClinicTypeController } from './controllers/clinic-type.controller';
 import { ClinicTypeService } from './services/clinic-type.service';
 import { ClinicConvenienceService } from './services/clinic-convenience.service';
+import { LocationAddressController } from './controllers/location-address.controller';
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [ClinicController, ConvenienceController, ClinicTypeController],
+  controllers: [
+    ClinicController,
+    ConvenienceController,
+    ClinicTypeController,
+    LocationAddressController,
+  ],
   providers: [
     ClinicService,
     ClinicLocationService,

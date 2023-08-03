@@ -7,7 +7,6 @@ import { QueryTypes } from 'sequelize';
 import { ClinicLocationService } from './clinic-location.service';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { LocationAddressService } from './location-address.service';
-import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
 import { LocationAddress } from '../models/location-address.entity';
 import { ClinicScheduleService } from './clinic-schedule.service';
 import { ClinicAddressDto } from '../dto/clinic-address.dto';
@@ -15,7 +14,7 @@ import { ClinicConvenienceService } from './clinic-convenience.service';
 import { ClinicByCity } from '../interfaces/clinic-by-city.interface';
 import { User } from '../../user/models/user.entity';
 import { ClinicType } from '../models/clinic-type.entity';
-import { ClinicByCityResponse } from '../interfaces/clinic-by-city-response.interface';
+import { ClinicByCityPage } from '../interfaces/clinic-by-city-page.interface';
 
 @Injectable()
 export class ClinicService {
@@ -42,14 +41,22 @@ export class ClinicService {
     page: number,
     perPage: number,
     city: string,
-  ): Promise<ClinicByCityResponse> {
+  ): Promise<ClinicByCityPage> {
+    city = city.toLowerCase();
+
     const clinicsFromDb = await this.clinicRepo.findAndCountAll({
       limit: perPage,
       offset: page,
       distinct: true,
       order: [['userId', 'DESC']],
       include: [
-        { model: ClinicLocation, where: { city } },
+        {
+          model: ClinicLocation,
+          where: this.sequelize.where(
+            this.sequelize.fn('lower', this.sequelize.col('city')),
+            city,
+          ),
+        },
         { model: User, attributes: ['avatar'] },
         { model: ClinicType, attributes: ['name'] },
       ],
@@ -69,6 +76,32 @@ export class ClinicService {
       clinics,
       totalPages,
     };
+  }
+
+  async getByIdAndCity(id: string, city: string): Promise<ClinicByCity> {
+    const clinicFromDb: Clinic = await this.clinicRepo.findOne({
+      where: { userId: id },
+      include: [
+        { model: User, attributes: ['avatar'] },
+        { model: ClinicType, attributes: ['name'] },
+      ],
+    });
+
+    const location: ClinicLocation =
+      await this.clinicLocationService.getByClinicIdAndCity(
+        clinicFromDb.userId,
+        city,
+      );
+
+    const clinic: ClinicByCity = {
+      clinicId: clinicFromDb.userId,
+      name: clinicFromDb.name,
+      description: clinicFromDb.description,
+      avatar: clinicFromDb.user.avatar,
+      type: clinicFromDb.clinicType.name,
+    };
+
+    return clinic;
   }
 
   async createClinic(userId: string, dto: CreateClinicDto) {
@@ -155,23 +188,5 @@ export class ClinicService {
     );
 
     return clinics;
-  }
-
-  async getAddressesByCityAndClinic(
-    clinicId: string,
-    city: string,
-  ): Promise<ClinicAddressInfo[]> {
-    const location: ClinicLocation | null =
-      await this.clinicLocationService.getByClinicIdAndCity(clinicId, city);
-
-    const addresses: LocationAddress[] =
-      await this.locationAddressService.getAllByLocation(location.id);
-
-    return addresses.map((el): ClinicAddressInfo => {
-      return {
-        id: el.id,
-        address: el.address,
-      };
-    });
   }
 }
