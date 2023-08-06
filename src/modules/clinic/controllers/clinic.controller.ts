@@ -11,8 +11,9 @@ import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { ClinicInfo } from '../interfaces/clinic-info.interface';
 import { QueryClinicDto } from '../dto/query-clinic.dto';
 import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
-import { ClinicByCityPage } from '../interfaces/clinic-by-city-page.interface';
-import { ClinicByCity } from '../interfaces/clinic-by-city.interface';
+import { ClinicCardInfoPage } from '../interfaces/clinic-card-info-page.interface';
+import { ClinicCardInfo } from '../interfaces/clinic-card-info.interface';
+import { ClinicFullInfo } from '../interfaces/clinic-full-info.interface';
 
 @Controller('clinics')
 export class ClinicController {
@@ -35,7 +36,7 @@ export class ClinicController {
     @Query('city') city: string,
     @Query('page', ParseIntPipe) page: number,
     @Query('perPage', ParseIntPipe) perPage: number,
-  ): Promise<ClinicByCityPage> {
+  ): Promise<ClinicCardInfoPage> {
     return this.clinicService.getAllByCity(page, perPage, city);
   }
 
@@ -44,7 +45,17 @@ export class ClinicController {
   async getByCityAndName(
     @Param('id') id: string,
     @Query('city') city: string,
-  ): Promise<ClinicByCity> {
+  ): Promise<ClinicCardInfo> {
     return this.clinicService.getByIdAndCity(id, city);
+  }
+
+  @UseFilters(new HttpExceptionFilter())
+  @Get('/:id/full-info')
+  async getFullInfoClinic(
+    @Param('id') id: string,
+    @Query('city') city: string,
+    @Query('address') addressId: string,
+  ): Promise<ClinicFullInfo> {
+    return this.clinicService.getFullInfoClinic(id, city, addressId);
   }
 }

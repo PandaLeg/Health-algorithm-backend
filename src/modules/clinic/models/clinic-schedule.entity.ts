@@ -52,4 +52,7 @@ export class ClinicSchedule extends Model<ClinicSchedule> {
 
   @BelongsTo(() => LocationAddress, { onDelete: 'CASCADE' })
   locationAddress: LocationAddress;
+
+  @BelongsTo(() => WeekDay)
+  weekDay: WeekDay;
 }

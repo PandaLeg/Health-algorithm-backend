@@ -1,7 +1,9 @@
-export interface ClinicByCity {
+export interface ClinicCardInfo {
   clinicId: string;
   name: string;
   description: string;
   avatar: string;
   type: string;
+  city: string;
+  addressId: string;
 }

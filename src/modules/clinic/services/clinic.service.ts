@@ -11,10 +11,13 @@ import { LocationAddress } from '../models/location-address.entity';
 import { ClinicScheduleService } from './clinic-schedule.service';
 import { ClinicAddressDto } from '../dto/clinic-address.dto';
 import { ClinicConvenienceService } from './clinic-convenience.service';
-import { ClinicByCity } from '../interfaces/clinic-by-city.interface';
+import { ClinicCardInfo } from '../interfaces/clinic-card-info.interface';
 import { User } from '../../user/models/user.entity';
 import { ClinicType } from '../models/clinic-type.entity';
-import { ClinicByCityPage } from '../interfaces/clinic-by-city-page.interface';
+import { ClinicCardInfoPage } from '../interfaces/clinic-card-info-page.interface';
+import { ClinicFullInfo } from '../interfaces/clinic-full-info.interface';
+import { ClinicSchedule } from '../models/clinic-schedule.entity';
+import { ScheduleClinic } from '../interfaces/schedule-clinic.interface';
 
 @Injectable()
 export class ClinicService {
@@ -41,7 +44,7 @@ export class ClinicService {
     page: number,
     perPage: number,
     city: string,
-  ): Promise<ClinicByCityPage> {
+  ): Promise<ClinicCardInfoPage> {
     city = city.toLowerCase();
 
     const clinicsFromDb = await this.clinicRepo.findAndCountAll({
@@ -63,14 +66,25 @@ export class ClinicService {
     });
 
     const totalPages = Math.ceil(clinicsFromDb.count / perPage);
+    const clinics: ClinicCardInfo[] = [];
 
-    const clinics: ClinicByCity[] = clinicsFromDb.rows.map((el) => ({
-      clinicId: el.userId,
-      name: el.name,
-      description: el.description,
-      avatar: el.user.avatar,
-      type: el.clinicType.name,
-    }));
+    for (const el of clinicsFromDb.rows) {
+      const locationId: string = el.locations[0].id;
+      const address: LocationAddress =
+        await this.locationAddressService.getFirstByLocation(locationId);
+
+      const clinic = {
+        clinicId: el.userId,
+        name: el.name,
+        description: el.description,
+        avatar: el.user.avatar,
+        type: el.clinicType.name,
+        city: city.toLowerCase(),
+        addressId: address.id,
+      };
+
+      clinics.push(clinic);
+    }
 
     return {
       clinics,
@@ -78,7 +92,7 @@ export class ClinicService {
     };
   }
 
-  async getByIdAndCity(id: string, city: string): Promise<ClinicByCity> {
+  async getByIdAndCity(id: string, city: string): Promise<ClinicCardInfo> {
     const clinicFromDb: Clinic = await this.clinicRepo.findOne({
       where: { userId: id },
       include: [
@@ -93,12 +107,16 @@ export class ClinicService {
         city,
       );
 
-    const clinic: ClinicByCity = {
+    const addressId: string = location.addresses[0].id;
+
+    const clinic: ClinicCardInfo = {
       clinicId: clinicFromDb.userId,
       name: clinicFromDb.name,
       description: clinicFromDb.description,
       avatar: clinicFromDb.user.avatar,
       type: clinicFromDb.clinicType.name,
+      city: location.city.toLowerCase(),
+      addressId,
     };
 
     return clinic;
@@ -188,5 +206,81 @@ export class ClinicService {
     );
 
     return clinics;
+  }
+
+  async getFullInfoClinic(id: string, city: string, addressId: string) {
+    const clinicFromDb: Clinic = await this.clinicRepo.findOne({
+      where: { userId: id },
+      include: [
+        { model: User, attributes: ['avatar'] },
+        { model: ClinicType, attributes: ['name'] },
+      ],
+    });
+
+    const location: ClinicLocation =
+      await this.clinicLocationService.getByClinicIdAndCity(
+        clinicFromDb.userId,
+        city,
+      );
+
+    const addressFromDb: LocationAddress =
+      await this.locationAddressService.getByIdWithSchedule(addressId);
+
+    const newSchedules: ScheduleClinic[] = [];
+    for (let i = 0; i < addressFromDb.schedules.length; i++) {
+      const schedule = addressFromDb.schedules[i];
+      const hasSchedule = newSchedules.some(
+        (el) => el.from === schedule.from && el.to === schedule.to,
+      );
+
+      if (hasSchedule) {
+        continue;
+      }
+
+      const lastColonFrom = schedule.from.lastIndexOf(':');
+      const lastColonTo = schedule.to.lastIndexOf(':');
+
+      const from = schedule.from.substring(0, lastColonFrom);
+      const to = schedule.to.substring(0, lastColonTo);
+
+      const newSchedule: ScheduleClinic = {
+        from: schedule.from,
+        to: schedule.to,
+        time: from + '-' + to,
+        weekDays: [],
+        dayType: schedule.dayType,
+        weekDayId: schedule.weekDayId,
+      };
+
+      const scheduleFromDb: ClinicSchedule[] =
+        await this.clinicScheduleService.getByAddressAndTime(
+          addressId,
+          schedule.from,
+          schedule.to,
+        );
+
+      for (let j = 0; j < scheduleFromDb.length; j++) {
+        const clinicSchedule = scheduleFromDb[j];
+        const weekDay = clinicSchedule.weekDay.name;
+
+        newSchedule.weekDays.push(weekDay);
+      }
+
+      newSchedules.push(newSchedule);
+    }
+
+    const clinic: ClinicFullInfo = {
+      clinicId: clinicFromDb.userId,
+      name: clinicFromDb.name,
+      description: clinicFromDb.description,
+      avatar: clinicFromDb.user.avatar,
+      type: clinicFromDb.clinicType.name,
+      city: location.city,
+      addressId: addressFromDb.id,
+      address: addressFromDb.address,
+      schedule: newSchedules,
+    };
+
+    return clinic;
   }
 }

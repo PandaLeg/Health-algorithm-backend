@@ -38,5 +38,5 @@ export class LocationAddress extends Model<LocationAddress> {
   location: ClinicLocation;
 
   @HasMany(() => ClinicSchedule)
-  schedules: ClinicSchedule;
+  schedules: ClinicSchedule[];
 }

@@ -5,12 +5,14 @@ import {
 } from '@nestjs/common';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class ClinicLocationService {
   constructor(
     @Inject('CLINIC_LOCATION_REPOSITORY')
     private clinicLocationRepo: typeof ClinicLocation,
+    @Inject('SEQUELIZE') private sequelize: Sequelize,
   ) {}
 
   async getByClinicIdAndCity(
@@ -20,7 +22,13 @@ export class ClinicLocationService {
     const location: ClinicLocation | null =
       await this.clinicLocationRepo.findOne({
         where: {
-          [Op.and]: [{ clinicId }, { city }],
+          [Op.and]: [
+            { clinicId },
+            this.sequelize.where(
+              this.sequelize.fn('lower', this.sequelize.col('city')),
+              city,
+            ),
+          ],
         },
       });
 

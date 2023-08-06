@@ -7,6 +7,7 @@ import { LocationAddress } from '../models/location-address.entity';
 import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { ClinicLocationService } from './clinic-location.service';
+import { ClinicSchedule } from '../models/clinic-schedule.entity';
 
 @Injectable()
 export class LocationAddressService {
@@ -30,6 +31,41 @@ export class LocationAddressService {
     }
 
     return addresses;
+  }
+
+  async getByIdWithSchedule(id: string): Promise<LocationAddress> {
+    const address: LocationAddress = await this.locationAddressRepo.findByPk(
+      id,
+      {
+        include: [
+          {
+            model: ClinicSchedule,
+            attributes: ['dayType', 'from', 'to', 'weekDayId'],
+          },
+        ],
+      },
+    );
+
+    if (!address) {
+      throw new InternalServerErrorException();
+    }
+
+    return address;
+  }
+
+  async getFirstByLocation(locationId: string) {
+    const address: LocationAddress | null =
+      await this.locationAddressRepo.findOne({
+        where: {
+          locationId,
+        },
+      });
+
+    if (!address) {
+      throw new InternalServerErrorException();
+    }
+
+    return address;
   }
 
   async createAddress(locationId: string, address: string) {
