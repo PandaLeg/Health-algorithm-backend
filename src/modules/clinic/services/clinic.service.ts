@@ -18,6 +18,8 @@ import { ClinicCardInfoPage } from '../interfaces/clinic-card-info-page.interfac
 import { ClinicFullInfo } from '../interfaces/clinic-full-info.interface';
 import { ClinicSchedule } from '../models/clinic-schedule.entity';
 import { ScheduleClinic } from '../interfaces/schedule-clinic.interface';
+import { NotFoundException } from '../../../exceptions/not-found.exception';
+import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 
 @Injectable()
 export class ClinicService {
@@ -217,6 +219,10 @@ export class ClinicService {
       ],
     });
 
+    if (!clinicFromDb) {
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
+    }
+
     const location: ClinicLocation =
       await this.clinicLocationService.getByClinicIdAndCity(
         clinicFromDb.userId,
@@ -226,10 +232,87 @@ export class ClinicService {
     const addressFromDb: LocationAddress =
       await this.locationAddressService.getByIdWithSchedule(addressId);
 
-    const newSchedules: ScheduleClinic[] = [];
-    for (let i = 0; i < addressFromDb.schedules.length; i++) {
-      const schedule = addressFromDb.schedules[i];
-      const hasSchedule = newSchedules.some(
+    const newSchedules: ScheduleClinic[] = await this.formScheduleForClinic(
+      addressFromDb.schedules,
+      addressId,
+    );
+
+    const clinic: ClinicFullInfo = {
+      clinicId: clinicFromDb.userId,
+      name: clinicFromDb.name,
+      description: clinicFromDb.description,
+      avatar: clinicFromDb.user.avatar,
+      type: clinicFromDb.clinicType.name,
+      city: location.city,
+      addressId: addressFromDb.id,
+      address: addressFromDb.address,
+      schedule: newSchedules,
+    };
+
+    return clinic;
+  }
+
+  async getFullInfoClinics(
+    id: string,
+    city: string,
+    addressId: string,
+    page: number,
+    perPage: number,
+  ) {
+    const clinicFromDb: Clinic = await this.clinicRepo.findByPk(id);
+
+    if (!clinicFromDb) {
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
+    }
+
+    const location: ClinicLocation =
+      await this.clinicLocationService.getByClinicIdAndCity(
+        clinicFromDb.userId,
+        city,
+      );
+
+    const addressesFromDb =
+      await this.locationAddressService.getAllByLocationWithSchedule(
+        location.id,
+        addressId,
+        page,
+        perPage,
+      );
+
+    const clinics = [];
+
+    const totalPages = Math.ceil(addressesFromDb.count / perPage);
+
+    for (const addressFromDb of addressesFromDb.rows) {
+      const schedule: ScheduleClinic[] = await this.formScheduleForClinic(
+        addressFromDb.schedules,
+        addressId,
+      );
+
+      const clinicInfo = {
+        addressId: addressFromDb.id,
+        address: addressFromDb.address,
+        schedule,
+      };
+
+      clinics.push(clinicInfo);
+    }
+
+    return {
+      clinics,
+      totalPages,
+    };
+  }
+
+  async formScheduleForClinic(
+    clinicSchedule: ClinicSchedule[],
+    addressId: string,
+  ): Promise<ScheduleClinic[]> {
+    const newClinicSchedule: ScheduleClinic[] = [];
+
+    for (let i = 0; i < clinicSchedule.length; i++) {
+      const schedule = clinicSchedule[i];
+      const hasSchedule = newClinicSchedule.some(
         (el) => el.from === schedule.from && el.to === schedule.to,
       );
 
@@ -266,21 +349,9 @@ export class ClinicService {
         newSchedule.weekDays.push(weekDay);
       }
 
-      newSchedules.push(newSchedule);
+      newClinicSchedule.push(newSchedule);
     }
 
-    const clinic: ClinicFullInfo = {
-      clinicId: clinicFromDb.userId,
-      name: clinicFromDb.name,
-      description: clinicFromDb.description,
-      avatar: clinicFromDb.user.avatar,
-      type: clinicFromDb.clinicType.name,
-      city: location.city,
-      addressId: addressFromDb.id,
-      address: addressFromDb.address,
-      schedule: newSchedules,
-    };
-
-    return clinic;
+    return newClinicSchedule;
   }
 }

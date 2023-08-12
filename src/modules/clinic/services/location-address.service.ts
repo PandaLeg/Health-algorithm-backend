@@ -8,6 +8,7 @@ import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { ClinicLocationService } from './clinic-location.service';
 import { ClinicSchedule } from '../models/clinic-schedule.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class LocationAddressService {
@@ -92,5 +93,39 @@ export class LocationAddressService {
         address: el.address,
       };
     });
+  }
+
+  async getAllByLocationWithSchedule(
+    locationId: string,
+    addressId: string,
+    page: number,
+    perPage: number,
+  ) {
+    const addresses = await this.locationAddressRepo.findAndCountAll({
+      limit: perPage,
+      offset: page,
+      distinct: true,
+      order: [['id', 'DESC']],
+      where: {
+        [Op.and]: [
+          { locationId },
+          {
+            [Op.not]: [{ id: addressId }],
+          },
+        ],
+      },
+      include: [
+        {
+          model: ClinicSchedule,
+          attributes: ['dayType', 'from', 'to', 'weekDayId'],
+        },
+      ],
+    });
+
+    if (!addresses) {
+      throw new InternalServerErrorException();
+    }
+
+    return addresses;
   }
 }

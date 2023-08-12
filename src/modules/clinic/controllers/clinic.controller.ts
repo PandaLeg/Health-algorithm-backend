@@ -14,6 +14,7 @@ import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
 import { ClinicCardInfoPage } from '../interfaces/clinic-card-info-page.interface';
 import { ClinicCardInfo } from '../interfaces/clinic-card-info.interface';
 import { ClinicFullInfo } from '../interfaces/clinic-full-info.interface';
+import { ClinicsFullInfo } from '../interfaces/clinics-full-info.interface';
 
 @Controller('clinics')
 export class ClinicController {
@@ -41,6 +42,24 @@ export class ClinicController {
   }
 
   @UseFilters(new HttpExceptionFilter())
+  @Get('/full-info')
+  async getFullInfoClinics(
+    @Query('id') id: string,
+    @Query('city') city: string,
+    @Query('address') addressId: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('perPage', ParseIntPipe) perPage: number,
+  ) {
+    return this.clinicService.getFullInfoClinics(
+      id,
+      city,
+      addressId,
+      page,
+      perPage,
+    );
+  }
+
+  @UseFilters(new HttpExceptionFilter())
   @Get('/:id/card-info')
   async getByCityAndName(
     @Param('id') id: string,
@@ -58,4 +77,5 @@ export class ClinicController {
   ): Promise<ClinicFullInfo> {
     return this.clinicService.getFullInfoClinic(id, city, addressId);
   }
+
 }
