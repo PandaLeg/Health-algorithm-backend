@@ -24,9 +24,6 @@ export class CreateClinicDto {
   clinicType: number;
 
   @IsArray()
-  conveniences: number[];
-
-  @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => ClinicPlaceDto)

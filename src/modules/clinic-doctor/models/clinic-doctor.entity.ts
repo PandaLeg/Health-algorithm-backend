@@ -6,19 +6,18 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { Clinic } from '../../clinic/models/clinic.entity';
 import { Doctor } from '../../doctor/models/doctor.entity';
-import { LocationAddress } from '../../clinic/models/location-address.entity';
+import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
 
 @Table({ tableName: 'clinic_doctors' })
 export class ClinicDoctor extends Model<ClinicDoctor> {
-  @ForeignKey(() => Clinic)
+  @ForeignKey(() => ClinicBranch)
   @Column({
     type: DataType.UUID,
     allowNull: false,
     primaryKey: true,
   })
-  clinicId: string;
+  clinicBranchId: string;
 
   @ForeignKey(() => Doctor)
   @Column({
@@ -28,20 +27,9 @@ export class ClinicDoctor extends Model<ClinicDoctor> {
   })
   doctorId: string;
 
-  @ForeignKey(() => LocationAddress)
-  @Column({
-    type: DataType.UUID,
-    allowNull: false,
-    primaryKey: true,
-  })
-  addressId: string;
-
-  @BelongsTo(() => Clinic, { onDelete: 'CASCADE' })
-  clinic: Clinic;
+  @BelongsTo(() => ClinicBranch, { onDelete: 'CASCADE' })
+  clinicBranch: ClinicBranch;
 
   @BelongsTo(() => Doctor, { onDelete: 'CASCADE' })
   doctor: Doctor;
-
-  @BelongsTo(() => LocationAddress, { onDelete: 'CASCADE' })
-  address: LocationAddress;
 }

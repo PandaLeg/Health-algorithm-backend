@@ -6,10 +6,10 @@ import { ClinicInfo } from '../interfaces/clinic-info.interface';
 import { QueryTypes } from 'sequelize';
 import { ClinicLocationService } from './clinic-location.service';
 import { ClinicLocation } from '../models/clinic-location.entity';
-import { LocationAddressService } from './location-address.service';
-import { LocationAddress } from '../models/location-address.entity';
+import { ClinicBranchService } from './clinic-branch.service';
+import { ClinicBranch } from '../models/clinic-branch.entity';
 import { ClinicScheduleService } from './clinic-schedule.service';
-import { ClinicAddressDto } from '../dto/clinic-address.dto';
+import { ClinicBranchDto } from '../dto/clinic-branch.dto';
 import { ClinicConvenienceService } from './clinic-convenience.service';
 import { ClinicCardInfo } from '../interfaces/clinic-card-info.interface';
 import { User } from '../../user/models/user.entity';
@@ -27,7 +27,7 @@ export class ClinicService {
     @Inject('CLINICS_REPOSITORY') private clinicRepo: typeof Clinic,
     @Inject('SEQUELIZE') private sequelize: Sequelize,
     private readonly clinicLocationService: ClinicLocationService,
-    private readonly locationAddressService: LocationAddressService,
+    private readonly clinicBranchService: ClinicBranchService,
     private readonly clinicScheduleService: ClinicScheduleService,
     private readonly clinicConvenienceService: ClinicConvenienceService,
   ) {}
@@ -72,17 +72,17 @@ export class ClinicService {
 
     for (const el of clinicsFromDb.rows) {
       const locationId: string = el.locations[0].id;
-      const address: LocationAddress =
-        await this.locationAddressService.getFirstByLocation(locationId);
+      const clinicBranch: ClinicBranch =
+        await this.clinicBranchService.getFirstByLocation(locationId);
 
-      const clinic = {
+      const clinic: ClinicCardInfo = {
         clinicId: el.userId,
         name: el.name,
         description: el.description,
         avatar: el.user.avatar,
         type: el.clinicType.name,
         city: city.toLowerCase(),
-        addressId: address.id,
+        clinicBranchId: clinicBranch.id,
       };
 
       clinics.push(clinic);
@@ -109,7 +109,7 @@ export class ClinicService {
         city,
       );
 
-    const addressId: string = location.addresses[0].id;
+    const clinicBranchId: string = location.clinicBranches[0].id;
 
     const clinic: ClinicCardInfo = {
       clinicId: clinicFromDb.userId,
@@ -118,7 +118,7 @@ export class ClinicService {
       avatar: clinicFromDb.user.avatar,
       type: clinicFromDb.clinicType.name,
       city: location.city.toLowerCase(),
-      addressId,
+      clinicBranchId,
     };
 
     return clinic;
@@ -132,15 +132,6 @@ export class ClinicService {
       clinicTypeId: dto.clinicType,
     });
 
-    if (dto.conveniences.length) {
-      for (const convenienceId of dto.conveniences) {
-        await this.clinicConvenienceService.create(
-          convenienceId,
-          clinic.userId,
-        );
-      }
-    }
-
     for (const location of dto.locations) {
       const clinicLocation: ClinicLocation =
         await this.clinicLocationService.createLocation(
@@ -148,44 +139,37 @@ export class ClinicService {
           location.city,
         );
 
-      if (location.addresses.length === 1) {
-        const firstAddress: ClinicAddressDto = location.addresses[0];
-
+      for (const clinicBranch of location.clinicBranches) {
         await this.createAddressAndSchedule(
           clinicLocation.id,
           clinic.userId,
-          firstAddress,
+          clinicBranch,
         );
-      } else {
-        for (const address of location.addresses) {
-          await this.createAddressAndSchedule(
-            clinicLocation.id,
-            clinic.userId,
-            address,
-          );
-        }
       }
     }
   }
 
   async createAddressAndSchedule(
     clinicLocationId: string,
-    userId: string,
-    address: ClinicAddressDto,
+    clinicId: string,
+    clinicBranch: ClinicBranchDto,
   ) {
-    const newAddress: LocationAddress =
-      await this.locationAddressService.createAddress(
-        clinicLocationId,
-        address.name,
-      );
+    const newBranch: ClinicBranch = await this.clinicBranchService.create(
+      clinicLocationId,
+      clinicId,
+      clinicBranch.address,
+    );
 
-    for (const scheduleClinic of address.scheduleClinic) {
+    for (const convenienceId of clinicBranch.conveniences) {
+      await this.clinicConvenienceService.create(convenienceId, newBranch.id);
+    }
+
+    for (const scheduleClinic of clinicBranch.scheduleClinic) {
       const weekDays: number[] = scheduleClinic.weekDays;
 
       for (const weekDayId of weekDays) {
         await this.clinicScheduleService.createSchedule(
-          userId,
-          newAddress.id,
+          newBranch.id,
           scheduleClinic,
           weekDayId,
         );
@@ -210,7 +194,11 @@ export class ClinicService {
     return clinics;
   }
 
-  async getFullInfoClinic(id: string, city: string, addressId: string) {
+  async getFullInfoClinic(
+    id: string,
+    city: string,
+    clinicBranchId: string,
+  ): Promise<ClinicFullInfo> {
     const clinicFromDb: Clinic = await this.clinicRepo.findOne({
       where: { userId: id },
       include: [
@@ -229,12 +217,12 @@ export class ClinicService {
         city,
       );
 
-    const addressFromDb: LocationAddress =
-      await this.locationAddressService.getByIdWithSchedule(addressId);
+    const clinicBranch: ClinicBranch =
+      await this.clinicBranchService.getByIdWithSchedule(clinicBranchId);
 
     const newSchedules: ScheduleClinic[] = await this.formScheduleForClinic(
-      addressFromDb.schedules,
-      addressId,
+      clinicBranch.schedules,
+      clinicBranchId,
     );
 
     const clinic: ClinicFullInfo = {
@@ -244,8 +232,12 @@ export class ClinicService {
       avatar: clinicFromDb.user.avatar,
       type: clinicFromDb.clinicType.name,
       city: location.city,
-      addressId: addressFromDb.id,
-      address: addressFromDb.address,
+      clinicBranchId: clinicBranch.id,
+      address: clinicBranch.address,
+      conveniences: clinicBranch.conveniences.map((el) => ({
+        id: el.id,
+        name: el.name,
+      })),
       schedule: newSchedules,
     };
 
@@ -255,7 +247,7 @@ export class ClinicService {
   async getFullInfoClinics(
     id: string,
     city: string,
-    addressId: string,
+    clinicBranchId: string,
     page: number,
     perPage: number,
   ) {
@@ -271,27 +263,31 @@ export class ClinicService {
         city,
       );
 
-    const addressesFromDb =
-      await this.locationAddressService.getAllByLocationWithSchedule(
+    const clinicBranches =
+      await this.clinicBranchService.getAllByLocationWithSchedule(
         location.id,
-        addressId,
+        clinicBranchId,
         page,
         perPage,
       );
 
     const clinics = [];
 
-    const totalPages = Math.ceil(addressesFromDb.count / perPage);
+    const totalPages = Math.ceil(clinicBranches.count / perPage);
 
-    for (const addressFromDb of addressesFromDb.rows) {
+    for (const clinicBranch of clinicBranches.rows) {
       const schedule: ScheduleClinic[] = await this.formScheduleForClinic(
-        addressFromDb.schedules,
-        addressId,
+        clinicBranch.schedules,
+        clinicBranch.id,
       );
 
       const clinicInfo = {
-        addressId: addressFromDb.id,
-        address: addressFromDb.address,
+        clinicBranchId: clinicBranch.id,
+        address: clinicBranch.address,
+        conveniences: clinicBranch.conveniences.map((el) => ({
+          id: el.id,
+          name: el.name,
+        })),
         schedule,
       };
 
@@ -306,7 +302,7 @@ export class ClinicService {
 
   async formScheduleForClinic(
     clinicSchedule: ClinicSchedule[],
-    addressId: string,
+    clinicBranchId: string,
   ): Promise<ScheduleClinic[]> {
     const newClinicSchedule: ScheduleClinic[] = [];
 
@@ -337,7 +333,7 @@ export class ClinicService {
 
       const scheduleFromDb: ClinicSchedule[] =
         await this.clinicScheduleService.getByAddressAndTime(
-          addressId,
+          clinicBranchId,
           schedule.from,
           schedule.to,
         );

@@ -7,18 +7,16 @@ import { WeekDay } from '../../week-day/models/week-day.entity';
 export class ClinicScheduleService {
   constructor(
     @Inject('CLINIC_SCHEDULE_REPOSITORY')
-    private clinicSchedule: typeof ClinicSchedule,
+    private clinicScheduleRepo: typeof ClinicSchedule,
   ) {}
 
   async createSchedule(
-    clinicId: string,
-    addressId: string,
+    clinicBranchId: string,
     scheduleClinic: ClinicScheduleDto,
     weekDayId: number,
   ) {
-    await this.clinicSchedule.create({
-      clinicId,
-      addressId,
+    await this.clinicScheduleRepo.create({
+      clinicBranchId,
       dayType: scheduleClinic.dayType,
       weekDayId,
       from: scheduleClinic.from,
@@ -26,10 +24,14 @@ export class ClinicScheduleService {
     });
   }
 
-  async getByAddressAndTime(addressId: string, from: string, to: string) {
-    const schedules: ClinicSchedule[] = await this.clinicSchedule.findAll({
+  async getByAddressAndTime(
+    clinicBranchId: string,
+    from: string,
+    to: string,
+  ): Promise<ClinicSchedule[]> {
+    const schedules: ClinicSchedule[] = await this.clinicScheduleRepo.findAll({
       where: {
-        addressId,
+        clinicBranchId,
         from,
         to,
       },

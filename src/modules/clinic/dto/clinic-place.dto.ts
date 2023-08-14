@@ -1,6 +1,6 @@
 import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
-import { ClinicAddressDto } from './clinic-address.dto';
+import { ClinicBranchDto } from './clinic-branch.dto';
 
 export class ClinicPlaceDto {
   @IsString()
@@ -11,6 +11,6 @@ export class ClinicPlaceDto {
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => ClinicAddressDto)
-  addresses: ClinicAddressDto[];
+  @Type(() => ClinicBranchDto)
+  clinicBranches: ClinicBranchDto[];
 }

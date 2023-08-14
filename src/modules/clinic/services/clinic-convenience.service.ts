@@ -8,10 +8,10 @@ export class ClinicConvenienceService {
     private clinicConvenienceRepo: typeof ClinicConvenience,
   ) {}
 
-  async create(convenienceId: number, clinicId: string) {
+  async create(convenienceId: number, clinicBranchId: string) {
     await this.clinicConvenienceRepo.create({
       convenienceId,
-      clinicId,
+      clinicBranchId,
     });
   }
 }

@@ -5,8 +5,8 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { Clinic } from './clinic.entity';
 import { ClinicConvenience } from './clinic-convenience.entity';
+import { ClinicBranch } from './clinic-branch.entity';
 
 @Table({ tableName: 'conveniences' })
 export class Convenience extends Model<Convenience> {
@@ -15,7 +15,7 @@ export class Convenience extends Model<Convenience> {
     primaryKey: true,
     autoIncrement: true,
   })
-  id: string;
+  id: number;
 
   @Column({
     type: DataType.STRING(20),
@@ -24,6 +24,6 @@ export class Convenience extends Model<Convenience> {
   })
   name: string;
 
-  @BelongsToMany(() => Clinic, () => ClinicConvenience)
-  clinics: Clinic[];
+  @BelongsToMany(() => ClinicBranch, () => ClinicConvenience)
+  clinics: ClinicBranch[];
 }

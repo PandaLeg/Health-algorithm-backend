@@ -112,22 +112,10 @@ export class UserService {
         for (let i = 0; i < locations.length; i++) {
           const location = locations[i];
 
-          if (location.addresses.length === 1) {
-            await this.clinicDoctorService.create(
-              location.clinicId,
-              user.id,
-              location.addresses[0],
-            );
-          } else {
-            for (let j = 0; j < location.addresses.length; j++) {
-              const addressId: string = location.addresses[j];
+          for (let j = 0; j < location.clinicBranches.length; j++) {
+            const clinicBranchId: string = location.clinicBranches[j];
 
-              await this.clinicDoctorService.create(
-                location.clinicId,
-                user.id,
-                addressId,
-              );
-            }
+            await this.clinicDoctorService.create(clinicBranchId, user.id);
           }
         }
 

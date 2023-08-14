@@ -6,7 +6,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { Convenience } from './convenience.entity';
-import { Clinic } from './clinic.entity';
+import { ClinicBranch } from './clinic-branch.entity';
 
 @Table({ tableName: 'clinic_conveniences', createdAt: false, updatedAt: false })
 export class ClinicConvenience extends Model<ClinicConvenience> {
@@ -18,11 +18,11 @@ export class ClinicConvenience extends Model<ClinicConvenience> {
   })
   convenienceId: number;
 
-  @ForeignKey(() => Clinic)
+  @ForeignKey(() => ClinicBranch)
   @Column({
     type: DataType.UUID,
     primaryKey: true,
     allowNull: false,
   })
-  clinicId: string;
+  clinicBranchId: string;
 }

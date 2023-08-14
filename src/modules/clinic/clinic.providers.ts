@@ -1,6 +1,6 @@
 import { Clinic } from './models/clinic.entity';
 import { ClinicLocation } from './models/clinic-location.entity';
-import { LocationAddress } from './models/location-address.entity';
+import { ClinicBranch } from './models/clinic-branch.entity';
 import { ClinicSchedule } from './models/clinic-schedule.entity';
 import { Convenience } from './models/convenience.entity';
 import { ClinicConvenience } from './models/clinic-convenience.entity';
@@ -16,8 +16,8 @@ export const clinicProviders = [
     useValue: ClinicLocation,
   },
   {
-    provide: 'LOCATION_ADDRESS_REPOSITORY',
-    useValue: LocationAddress,
+    provide: 'CLINIC_BRANCH_REPOSITORY',
+    useValue: ClinicBranch,
   },
   {
     provide: 'CLINIC_SCHEDULE_REPOSITORY',

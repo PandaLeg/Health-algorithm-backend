@@ -6,7 +6,7 @@ import {
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
-import { LocationAddress } from '../models/location-address.entity';
+import { ClinicBranch } from '../models/clinic-branch.entity';
 
 @Injectable()
 export class ClinicLocationService {
@@ -31,7 +31,7 @@ export class ClinicLocationService {
             ),
           ],
         },
-        include: [{ model: LocationAddress, attributes: ['id'] }],
+        include: [{ model: ClinicBranch, attributes: ['id'] }],
       });
 
     if (!location) {

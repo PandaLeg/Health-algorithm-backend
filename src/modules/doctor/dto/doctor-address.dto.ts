@@ -8,5 +8,5 @@ export class DoctorAddressDto {
   clinicId: string;
 
   @IsNotEmpty()
-  addresses: string[];
+  clinicBranches: string[];
 }

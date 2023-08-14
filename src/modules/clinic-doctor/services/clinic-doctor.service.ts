@@ -8,11 +8,10 @@ export class ClinicDoctorService {
     readonly clinicDoctorRepo: typeof ClinicDoctor,
   ) {}
 
-  async create(clinicId: string, doctorId: string, addressId: string) {
+  async create(clinicBranchId: string, doctorId: string) {
     await this.clinicDoctorRepo.create({
-      clinicId,
+      clinicBranchId,
       doctorId,
-      addressId,
     });
   }
 }

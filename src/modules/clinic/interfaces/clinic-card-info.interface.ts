@@ -5,5 +5,5 @@ export interface ClinicCardInfo {
   avatar: string;
   type: string;
   city: string;
-  addressId: string;
+  clinicBranchId: string;
 }

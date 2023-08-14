@@ -10,10 +10,10 @@ import {
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.entity';
 import { ClinicLocation } from './clinic-location.entity';
-import { ClinicSchedule } from './clinic-schedule.entity';
 import { ClinicType } from './clinic-type.entity';
 import { ClinicConvenience } from './clinic-convenience.entity';
 import { Convenience } from './convenience.entity';
+import { ClinicBranch } from './clinic-branch.entity';
 
 @Table({ tableName: 'clinics' })
 export class Clinic extends Model<Clinic> {
@@ -39,7 +39,7 @@ export class Clinic extends Model<Clinic> {
 
   @ForeignKey(() => ClinicType)
   @Column({
-    type: DataType.NUMBER,
+    type: DataType.INTEGER,
     allowNull: false,
   })
   clinicTypeId: number;
@@ -47,15 +47,12 @@ export class Clinic extends Model<Clinic> {
   @BelongsTo(() => User, { onDelete: 'CASCADE' })
   user: User;
 
+  @HasMany(() => ClinicBranch)
+  branches: ClinicBranch[];
+
   @HasMany(() => ClinicLocation)
   locations: ClinicLocation[];
 
-  @HasMany(() => ClinicSchedule)
-  schedules: ClinicSchedule[];
-
   @BelongsTo(() => ClinicType)
   clinicType: ClinicType;
-
-  @BelongsToMany(() => Convenience, () => ClinicConvenience)
-  conveniences: Convenience[];
 }
