@@ -57,7 +57,7 @@ export class AuthController {
     userDto: CreateUserDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({ fileType: 'image/jpeg' })
+        .addFileTypeValidator({ fileType: new RegExp('image/jpeg|image/png') })
         .addMaxSizeValidator({ maxSize: 5242880 })
         .build({
           fileIsRequired: false,

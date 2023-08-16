@@ -16,6 +16,7 @@ module.exports = {
         email: 'kurtlansfer@gmail.com',
         activationCode: null,
         isActivated: false,
+        confirmed: true,
         ...date,
       },
     ]);

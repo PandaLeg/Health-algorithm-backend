@@ -7,8 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
-import { Clinic } from './clinic.entity';
-import { LocationAddress } from './location-address.entity';
+import { ClinicBranch } from './clinic-branch.entity';
 import { WeekDay } from '../../week-day/models/week-day.entity';
 
 @Table({ tableName: 'clinic_schedule' })
@@ -41,15 +40,23 @@ export class ClinicSchedule extends Model<ClinicSchedule> {
   })
   to: string;
 
-  @ForeignKey(() => Clinic)
-  clinicId: string;
-
-  @ForeignKey(() => LocationAddress)
-  addressId: string;
+  @ForeignKey(() => ClinicBranch)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+  })
+  clinicBranchId: string;
 
   @ForeignKey(() => WeekDay)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
   weekDayId: number;
 
-  @BelongsTo(() => LocationAddress, { onDelete: 'CASCADE' })
-  locationAddress: LocationAddress;
+  @BelongsTo(() => ClinicBranch, { onDelete: 'CASCADE' })
+  clinicBranch: ClinicBranch;
+
+  @BelongsTo(() => WeekDay)
+  weekDay: WeekDay;
 }

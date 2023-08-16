@@ -14,10 +14,13 @@ import { AppealType } from '../modules/appeal-type/models/appeal-type.entity';
 import { Token } from '../modules/auth/models/token.entity';
 import { DescriptionDoctor } from '../modules/doctor/models/description-doctor.entity';
 import { ClinicLocation } from '../modules/clinic/models/clinic-location.entity';
-import { LocationAddress } from '../modules/clinic/models/location-address.entity';
+import { ClinicBranch } from '../modules/clinic/models/clinic-branch.entity';
 import { ClinicDoctor } from '../modules/clinic-doctor/models/clinic-doctor.entity';
 import { WeekDay } from '../modules/week-day/models/week-day.entity';
 import { ClinicSchedule } from '../modules/clinic/models/clinic-schedule.entity';
+import { Convenience } from '../modules/clinic/models/convenience.entity';
+import { ClinicConvenience } from '../modules/clinic/models/clinic-convenience.entity';
+import { ClinicType } from '../modules/clinic/models/clinic-type.entity';
 
 export const databaseProviders = [
   {
@@ -45,9 +48,12 @@ export const databaseProviders = [
         CategoryDoctor,
         DescriptionDoctor,
         ClinicLocation,
-        LocationAddress,
+        ClinicBranch,
         ClinicDoctor,
         ClinicSchedule,
+        Convenience,
+        ClinicConvenience,
+        ClinicType,
         Appeal,
         AppealType,
         WeekDay,

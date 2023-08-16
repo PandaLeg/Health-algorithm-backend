@@ -1,4 +1,10 @@
-import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { ClinicPlaceDto } from './clinic-place.dto';
 
@@ -7,6 +13,15 @@ export class CreateClinicDto {
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
   name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  description: string;
+
+  @IsInt()
+  @IsNotEmpty()
+  clinicType: number;
 
   @IsArray()
   @IsNotEmpty()

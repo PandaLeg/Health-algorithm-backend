@@ -9,7 +9,7 @@ import {
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { Clinic } from './clinic.entity';
-import { LocationAddress } from './location-address.entity';
+import { ClinicBranch } from './clinic-branch.entity';
 
 @Table({ tableName: 'clinic_locations' })
 export class ClinicLocation extends Model<ClinicLocation> {
@@ -37,6 +37,6 @@ export class ClinicLocation extends Model<ClinicLocation> {
   @BelongsTo(() => Clinic, { onDelete: 'CASCADE' })
   clinic: Clinic;
 
-  @HasMany(() => LocationAddress)
-  addresses: LocationAddress[];
+  @HasMany(() => ClinicBranch)
+  clinicBranches: ClinicBranch[];
 }
