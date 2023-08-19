@@ -2,6 +2,7 @@ import {
   BelongsToMany,
   Column,
   DataType,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -26,4 +27,7 @@ export class Specialty extends Model<Specialty> {
 
   @BelongsToMany(() => Doctor, () => DoctorSpecialty)
   doctors: Doctor[];
+
+  @HasMany(() => DoctorSpecialty)
+  doctorSpecialties: DoctorSpecialty[];
 }

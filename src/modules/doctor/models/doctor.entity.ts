@@ -4,6 +4,7 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   HasOne,
   Model,
   Table,
@@ -13,6 +14,7 @@ import { CategoryDoctor } from './category-doctor.entity';
 import { DoctorSpecialty } from './doctor-specialty.entity';
 import { Specialty } from './specialty.entity';
 import { DescriptionDoctor } from './description-doctor.entity';
+import { DoctorLocation } from './doctor-location.entity';
 
 @Table({ tableName: 'doctors' })
 export class Doctor extends Model<Doctor> {
@@ -68,6 +70,12 @@ export class Doctor extends Model<Doctor> {
   @BelongsToMany(() => Specialty, () => DoctorSpecialty)
   specialties: Specialty[];
 
+  @HasMany(() => DoctorSpecialty)
+  doctorSpecialties: DoctorSpecialty[];
+
   @HasOne(() => DescriptionDoctor)
   description: DescriptionDoctor;
+
+  @HasMany(() => DoctorLocation)
+  locations: DoctorLocation[];
 }

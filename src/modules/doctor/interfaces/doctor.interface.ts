@@ -5,6 +5,6 @@ export interface IDoctor {
   surname: string;
   experience: number;
   categoryName: string;
-  avatar: string;
+  avatar: string | null;
   specialties: { id: number; name: string }[];
 }

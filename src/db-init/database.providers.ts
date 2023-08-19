@@ -21,6 +21,7 @@ import { ClinicSchedule } from '../modules/clinic/models/clinic-schedule.entity'
 import { Convenience } from '../modules/clinic/models/convenience.entity';
 import { ClinicConvenience } from '../modules/clinic/models/clinic-convenience.entity';
 import { ClinicType } from '../modules/clinic/models/clinic-type.entity';
+import { DoctorLocation } from '../modules/doctor/models/doctor-location.entity';
 
 export const databaseProviders = [
   {
@@ -54,6 +55,7 @@ export const databaseProviders = [
         Convenience,
         ClinicConvenience,
         ClinicType,
+        DoctorLocation,
         Appeal,
         AppealType,
         WeekDay,

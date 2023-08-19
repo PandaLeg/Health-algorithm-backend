@@ -1,6 +1,13 @@
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsNotEmpty,
+  IsString,
+  ValidateIf,
+  ValidateNested,
+} from 'class-validator';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
-import { DoctorAddressDto } from './doctor-address.dto';
+import { DescriptionInfoDto } from './description-info.dto';
 
 export class CreateDoctorDto {
   @IsString()
@@ -18,6 +25,9 @@ export class CreateDoctorDto {
   @Transform(({ value }: TransformFnParams) => value?.trim())
   surname: string;
 
+  @ValidateIf((o) => !!o.dateOfBirth)
+  @IsDateString()
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   dateOfBirth: string;
 
   @IsNotEmpty()
@@ -27,9 +37,18 @@ export class CreateDoctorDto {
   categoryId: number;
 
   @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => DescriptionInfoDto)
+  description: DescriptionInfoDto;
+
+  @IsNotEmpty()
   specialties: number[];
 
-  @ValidateNested()
-  @Type(() => DoctorAddressDto)
-  locations: DoctorAddressDto[];
+  @IsArray()
+  @IsNotEmpty()
+  clinicBranches: string[];
+
+  @IsArray()
+  @IsNotEmpty()
+  cities: string[];
 }

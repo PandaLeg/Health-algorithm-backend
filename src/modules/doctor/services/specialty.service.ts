@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Specialty } from '../models/specialty.entity';
 import { Op } from 'sequelize';
+import { DoctorSpecialty } from '../models/doctor-specialty.entity';
 
 @Injectable()
 export class SpecialtyService {
@@ -21,6 +22,23 @@ export class SpecialtyService {
   async findAll(): Promise<Specialty[]> {
     const specialties: Specialty[] = await this.specialtyRepo.findAll({
       attributes: ['id', 'name'],
+    });
+
+    return specialties;
+  }
+
+  async findAllByDoctorId(doctorId: string) {
+    const specialties: Specialty[] = await this.specialtyRepo.findAll({
+      attributes: ['id', 'name'],
+      include: [
+        {
+          model: DoctorSpecialty,
+          attributes: ['doctorId'],
+          where: {
+            doctorId,
+          },
+        },
+      ],
     });
 
     return specialties;
