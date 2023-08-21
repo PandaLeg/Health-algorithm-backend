@@ -4,13 +4,21 @@ import { DoctorService } from './services/doctor.service';
 import { doctorProviders } from './doctor.providers';
 import { CategoryDoctorService } from './services/category-doctor.service';
 import { SpecialtyService } from './services/specialty.service';
+import { DescriptionDoctorService } from './services/description-doctor.service';
+import { SpecialtyController } from './controllers/specialty.controller';
+import { DoctorLocationService } from './services/doctor-location.service';
+import { DatabaseModule } from '../../db-init/database.module';
+import { ClinicModule } from '../clinic/clinic.module';
 
 @Module({
-  controllers: [DoctorController],
+  imports: [DatabaseModule, ClinicModule],
+  controllers: [DoctorController, SpecialtyController],
   providers: [
     DoctorService,
+    DescriptionDoctorService,
     CategoryDoctorService,
     SpecialtyService,
+    DoctorLocationService,
     ...doctorProviders,
   ],
   exports: [DoctorService],

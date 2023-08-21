@@ -7,6 +7,7 @@ import { ClinicLocation } from '../models/clinic-location.entity';
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { ClinicBranch } from '../models/clinic-branch.entity';
+import { Location } from '@nestjs/schematics';
 
 @Injectable()
 export class ClinicLocationService {
@@ -37,6 +38,17 @@ export class ClinicLocationService {
     if (!location) {
       throw new InternalServerErrorException();
     }
+
+    return location;
+  }
+
+  async getById(id: string) {
+    const location: ClinicLocation = await this.clinicLocationRepo.findByPk(
+      id,
+      {
+        attributes: ['city'],
+      },
+    );
 
     return location;
   }

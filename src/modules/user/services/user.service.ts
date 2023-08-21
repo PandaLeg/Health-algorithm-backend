@@ -105,18 +105,13 @@ export class UserService {
           doctor,
           user.id,
           specialtyCategoryDoctor,
+          userDto.doctor,
         );
 
-        const locations = userDto.doctor.locations;
+        const clinicBranches = userDto.doctor.clinicBranches;
 
-        for (let i = 0; i < locations.length; i++) {
-          const location = locations[i];
-
-          for (let j = 0; j < location.clinicBranches.length; j++) {
-            const clinicBranchId: string = location.clinicBranches[j];
-
-            await this.clinicDoctorService.create(clinicBranchId, user.id);
-          }
+        for (const clinicBranchId of clinicBranches) {
+          await this.clinicDoctorService.create(clinicBranchId, user.id);
         }
 
         break;

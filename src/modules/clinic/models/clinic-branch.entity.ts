@@ -14,6 +14,8 @@ import { ClinicSchedule } from './clinic-schedule.entity';
 import { Clinic } from './clinic.entity';
 import { ClinicConvenience } from './clinic-convenience.entity';
 import { Convenience } from './convenience.entity';
+import { Doctor } from '../../doctor/models/doctor.entity';
+import { ClinicDoctor } from '../../clinic-doctor/models/clinic-doctor.entity';
 
 @Table({ tableName: 'clinic_branches' })
 export class ClinicBranch extends Model<ClinicBranch> {
@@ -56,4 +58,7 @@ export class ClinicBranch extends Model<ClinicBranch> {
 
   @BelongsToMany(() => Convenience, () => ClinicConvenience)
   conveniences: Convenience[];
+
+  @BelongsToMany(() => Doctor, () => ClinicDoctor)
+  doctors: Doctor[];
 }
