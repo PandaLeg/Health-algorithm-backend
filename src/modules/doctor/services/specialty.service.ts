@@ -27,7 +27,7 @@ export class SpecialtyService {
     return specialties;
   }
 
-  async findAllByDoctorId(doctorId: string) {
+  async findAllByDoctorId(doctorId: string): Promise<Specialty[]> {
     const specialties: Specialty[] = await this.specialtyRepo.findAll({
       attributes: ['id', 'name'],
       include: [

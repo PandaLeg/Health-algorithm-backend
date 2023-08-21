@@ -20,6 +20,8 @@ import { ClinicSchedule } from '../models/clinic-schedule.entity';
 import { ScheduleClinic } from '../interfaces/schedule-clinic.interface';
 import { NotFoundException } from '../../../exceptions/not-found.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { ClinicBranchFullInfo } from '../interfaces/clinic-branch-full-info.interface';
+import { ClinicTypeService } from './clinic-type.service';
 
 @Injectable()
 export class ClinicService {
@@ -30,6 +32,7 @@ export class ClinicService {
     private readonly clinicBranchService: ClinicBranchService,
     private readonly clinicScheduleService: ClinicScheduleService,
     private readonly clinicConvenienceService: ClinicConvenienceService,
+    private readonly clinicTypeService: ClinicTypeService,
   ) {}
 
   async getByName(name: string): Promise<Clinic | null> {
@@ -271,17 +274,26 @@ export class ClinicService {
         perPage,
       );
 
-    const clinics = [];
+    const clinics = await this.formClinicBranches(clinicBranches.rows);
 
     const totalPages = Math.ceil(clinicBranches.count / perPage);
 
-    for (const clinicBranch of clinicBranches.rows) {
+    return {
+      clinics,
+      totalPages,
+    };
+  }
+
+  async formClinicBranches(clinicBranches: ClinicBranch[]) {
+    const clinics: ClinicBranchFullInfo[] = [];
+
+    for (const clinicBranch of clinicBranches) {
       const schedule: ScheduleClinic[] = await this.formScheduleForClinic(
         clinicBranch.schedules,
         clinicBranch.id,
       );
 
-      const clinicInfo = {
+      const clinicInfo: ClinicBranchFullInfo = {
         clinicBranchId: clinicBranch.id,
         address: clinicBranch.address,
         conveniences: clinicBranch.conveniences.map((el) => ({
@@ -294,10 +306,7 @@ export class ClinicService {
       clinics.push(clinicInfo);
     }
 
-    return {
-      clinics,
-      totalPages,
-    };
+    return clinics;
   }
 
   async formScheduleForClinic(
@@ -349,5 +358,17 @@ export class ClinicService {
     }
 
     return newClinicSchedule;
+  }
+
+  async getClinicCityAndType(id: number, locationId: string) {
+    const type: ClinicType = await this.clinicTypeService.getById(id);
+    const location: ClinicLocation = await this.clinicLocationService.getById(
+      locationId,
+    );
+
+    return {
+      type,
+      location,
+    };
   }
 }

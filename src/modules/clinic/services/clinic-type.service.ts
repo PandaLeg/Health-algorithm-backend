@@ -14,4 +14,12 @@ export class ClinicTypeService {
 
     return types;
   }
+
+  async getById(id: number) {
+    const type: ClinicType = await this.clinicTypeRepo.findByPk(id, {
+      attributes: ['id', 'name'],
+    });
+
+    return type;
+  }
 }

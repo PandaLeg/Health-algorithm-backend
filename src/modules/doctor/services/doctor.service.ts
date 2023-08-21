@@ -17,12 +17,22 @@ import { DescriptionDoctorService } from './description-doctor.service';
 import { LastNameDto } from '../dto/last-name.dto';
 import { DoctorLocationService } from './doctor-location.service';
 import { Sequelize } from 'sequelize-typescript';
-import sequelize, { Op, QueryTypes } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 import { DoctorName } from '../interfaces/doctor-name.interface';
-import { DoctorSpecialty } from '../models/doctor-specialty.entity';
-import { DoctorLocation } from '../models/doctor-location.entity';
 import { PageDto } from '../../../dto/PageDto';
 import { DoctorSearchDto } from '../dto/doctor-search.dto';
+import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
+import { NotFoundException } from '../../../exceptions/not-found.exception';
+import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { ClinicSchedule } from '../../clinic/models/clinic-schedule.entity';
+import { Convenience } from '../../clinic/models/convenience.entity';
+import { ScheduleClinic } from '../../clinic/interfaces/schedule-clinic.interface';
+import { ClinicService } from '../../clinic/services/clinic.service';
+import { ClinicBranchFullInfo } from '../../clinic/interfaces/clinic-branch-full-info.interface';
+import { DoctorClinic } from '../interfaces/doctor-clinic.interface';
+import { Clinic } from '../../clinic/models/clinic.entity';
+import { DoctorClinicBranch } from '../interfaces/doctor-clinic-branch.inteface';
+import { DescriptionDoctor } from '../models/description-doctor.entity';
 
 @Injectable()
 export class DoctorService {
@@ -33,6 +43,7 @@ export class DoctorService {
     private readonly specialtyService: SpecialtyService,
     private readonly descriptionDoctorService: DescriptionDoctorService,
     private readonly doctorLocationService: DoctorLocationService,
+    private readonly clinicService: ClinicService,
   ) {}
 
   buildDoctor(dto: CreateDoctorDto): Doctor {
@@ -263,6 +274,96 @@ export class DoctorService {
     return {
       doctors,
       totalPages,
+    };
+  }
+
+  async getDoctorWithClinics(doctorId: string): Promise<DoctorClinic> {
+    const doctorFromDb: Doctor = await this.doctorRepo.findOne({
+      where: {
+        userId: doctorId,
+      },
+      attributes: ['userId', 'firstName', 'lastName', 'surname', 'experience'],
+      include: [
+        { model: User, attributes: ['avatar'] },
+        { model: Specialty, attributes: ['id', 'name'] },
+        { model: CategoryDoctor, attributes: ['name'] },
+        {
+          model: DescriptionDoctor,
+          attributes: ['about', 'education', 'course'],
+        },
+        {
+          model: ClinicBranch,
+          include: [
+            {
+              model: Clinic,
+              attributes: ['userId', 'clinicTypeId'],
+            },
+            {
+              model: Convenience,
+              attributes: ['id', 'name'],
+            },
+            {
+              model: ClinicSchedule,
+              attributes: ['dayType', 'from', 'to', 'weekDayId'],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!doctorFromDb) {
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
+    }
+
+    const doctor: IDoctor = {
+      userId: doctorFromDb.userId,
+      firstName: doctorFromDb.firstName,
+      lastName: doctorFromDb.lastName,
+      surname: doctorFromDb.surname,
+      avatar: doctorFromDb.user.avatar,
+      experience: doctorFromDb.experience,
+      categoryName: doctorFromDb.category.name,
+      specialties: doctorFromDb.specialties.map((el) => ({
+        id: el.id,
+        name: el.name,
+      })),
+      about: doctorFromDb.description.about,
+      education: doctorFromDb.description.education,
+      course: doctorFromDb.description.course,
+    };
+
+    const clinics: DoctorClinicBranch[] = [];
+
+    for (const clinicBranch of doctorFromDb.clinicBranches) {
+      const schedule: ScheduleClinic[] =
+        await this.clinicService.formScheduleForClinic(
+          clinicBranch.schedules,
+          clinicBranch.id,
+        );
+      const clinicTypeLocation = await this.clinicService.getClinicCityAndType(
+        clinicBranch.clinic.clinicTypeId,
+        clinicBranch.locationId,
+      );
+
+      const clinicInfo: DoctorClinicBranch = {
+        clinicBranchId: clinicBranch.id,
+        address: clinicBranch.address,
+        conveniences: clinicBranch.conveniences.map((el) => ({
+          id: el.id,
+          name: el.name,
+        })),
+        schedule,
+        clinicId: clinicBranch.clinicId,
+        city: clinicTypeLocation.location.city,
+        type: clinicTypeLocation.type.name,
+      };
+
+      clinics.push(clinicInfo);
+    }
+
+    return {
+      doctor,
+      clinics,
     };
   }
 }

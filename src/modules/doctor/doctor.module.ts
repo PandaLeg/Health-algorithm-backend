@@ -8,9 +8,10 @@ import { DescriptionDoctorService } from './services/description-doctor.service'
 import { SpecialtyController } from './controllers/specialty.controller';
 import { DoctorLocationService } from './services/doctor-location.service';
 import { DatabaseModule } from '../../db-init/database.module';
+import { ClinicModule } from '../clinic/clinic.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, ClinicModule],
   controllers: [DoctorController, SpecialtyController],
   providers: [
     DoctorService,

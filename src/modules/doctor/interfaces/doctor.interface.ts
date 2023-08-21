@@ -7,4 +7,7 @@ export interface IDoctor {
   categoryName: string;
   avatar: string | null;
   specialties: { id: number; name: string }[];
+  about?: string;
+  education?: string;
+  course?: string;
 }

@@ -1,6 +1,5 @@
 import {
   BelongsTo,
-  BelongsToMany,
   Column,
   DataType,
   ForeignKey,
@@ -11,8 +10,6 @@ import {
 import { User } from '../../user/models/user.entity';
 import { ClinicLocation } from './clinic-location.entity';
 import { ClinicType } from './clinic-type.entity';
-import { ClinicConvenience } from './clinic-convenience.entity';
-import { Convenience } from './convenience.entity';
 import { ClinicBranch } from './clinic-branch.entity';
 
 @Table({ tableName: 'clinics' })
