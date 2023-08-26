@@ -4,12 +4,14 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ClinicBranch } from '../models/clinic-branch.entity';
-import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
+import { ClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { ClinicLocationService } from './clinic-location.service';
 import { ClinicSchedule } from '../models/clinic-schedule.entity';
 import { Op } from 'sequelize';
 import { Convenience } from '../models/convenience.entity';
+import { WeekDay } from '../../week-day/models/week-day.entity';
+import { BranchSchedule } from '../interfaces/branch-schedule.interface';
 
 @Injectable()
 export class ClinicBranchService {
@@ -24,6 +26,13 @@ export class ClinicBranchService {
       where: {
         locationId,
       },
+      include: [
+        {
+          model: ClinicSchedule,
+          where: { dayType: 'Workday' },
+          include: [{ model: WeekDay, attributes: ['id', 'name'] }],
+        },
+      ],
     });
 
     if (!branches.length) {
@@ -83,12 +92,30 @@ export class ClinicBranchService {
     const location: ClinicLocation | null =
       await this.clinicLocationService.getByClinicIdAndCity(clinicId, city);
 
-    const addresses: ClinicBranch[] = await this.getAllByLocation(location.id);
+    const clinicBranches: ClinicBranch[] = await this.getAllByLocation(
+      location.id,
+    );
 
-    return addresses.map((el): ClinicAddressInfo => {
+    return clinicBranches.map((branch): ClinicAddressInfo => {
+      const branchSchedule: BranchSchedule[] = branch.schedules.map(
+        (schedule) => ({
+          from: schedule.from,
+          to: schedule.to,
+          weekDayId: schedule.weekDayId,
+        }),
+      );
+      const days: { id: number; name: string }[] = branch.schedules.map(
+        (schedule) => ({
+          id: schedule.weekDay.id,
+          name: schedule.weekDay.name,
+        }),
+      );
+
       return {
-        id: el.id,
-        address: el.address,
+        id: branch.id,
+        address: branch.address,
+        days,
+        schedule: branchSchedule,
       };
     });
   }

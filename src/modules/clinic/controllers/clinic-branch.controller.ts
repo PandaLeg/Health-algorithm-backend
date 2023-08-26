@@ -3,7 +3,7 @@ import { ClinicBranchService } from '../services/clinic-branch.service';
 import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
 import { QueryLocationDto } from '../dto/query-location.dto';
-import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
+import { ClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
 
 @Controller('clinic-branches')
 export class ClinicBranchController {

@@ -9,6 +9,7 @@ import { SpecialtyController } from './controllers/specialty.controller';
 import { DoctorLocationService } from './services/doctor-location.service';
 import { DatabaseModule } from '../../db-init/database.module';
 import { ClinicModule } from '../clinic/clinic.module';
+import { DoctorScheduleService } from './services/doctor-schedule.service';
 
 @Module({
   imports: [DatabaseModule, ClinicModule],
@@ -19,8 +20,9 @@ import { ClinicModule } from '../clinic/clinic.module';
     CategoryDoctorService,
     SpecialtyService,
     DoctorLocationService,
+    DoctorScheduleService,
     ...doctorProviders,
   ],
-  exports: [DoctorService],
+  exports: [DoctorService, DoctorScheduleService],
 })
 export class DoctorModule {}

@@ -16,6 +16,8 @@ import { BadRequestException } from '../../../exceptions/bad-request.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import { Clinic } from '../../clinic/models/clinic.entity';
 import { ClinicDoctorService } from '../../clinic-doctor/services/clinic-doctor.service';
+import { DoctorWorkPlaceDto } from '../../doctor/dto/doctor-work-place.dto';
+import { DoctorScheduleService } from '../../doctor/services/doctor-schedule.service';
 
 @Injectable()
 export class UserService {
@@ -27,6 +29,7 @@ export class UserService {
     private readonly roleService: RoleService,
     private readonly fileService: FileService,
     private readonly clinicDoctorService: ClinicDoctorService,
+    private readonly doctorScheduleService: DoctorScheduleService,
   ) {}
 
   async getAll() {
@@ -108,10 +111,19 @@ export class UserService {
           userDto.doctor,
         );
 
-        const clinicBranches = userDto.doctor.clinicBranches;
+        const workPlaces: DoctorWorkPlaceDto[] =
+          userDto.doctor.doctorWorkPlaces;
 
-        for (const clinicBranchId of clinicBranches) {
-          await this.clinicDoctorService.create(clinicBranchId, user.id);
+        for (const workPlace of workPlaces) {
+          await this.clinicDoctorService.create(workPlace.id, user.id);
+
+          for (const schedule of workPlace.schedule) {
+            await this.doctorScheduleService.create(
+              workPlace.id,
+              user.id,
+              schedule,
+            );
+          }
         }
 
         break;

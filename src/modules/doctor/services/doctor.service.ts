@@ -28,7 +28,6 @@ import { ClinicSchedule } from '../../clinic/models/clinic-schedule.entity';
 import { Convenience } from '../../clinic/models/convenience.entity';
 import { ScheduleClinic } from '../../clinic/interfaces/schedule-clinic.interface';
 import { ClinicService } from '../../clinic/services/clinic.service';
-import { ClinicBranchFullInfo } from '../../clinic/interfaces/clinic-branch-full-info.interface';
 import { DoctorClinic } from '../interfaces/doctor-clinic.interface';
 import { Clinic } from '../../clinic/models/clinic.entity';
 import { DoctorClinicBranch } from '../interfaces/doctor-clinic-branch.inteface';

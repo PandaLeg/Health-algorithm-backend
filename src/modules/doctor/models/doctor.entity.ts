@@ -17,6 +17,7 @@ import { DescriptionDoctor } from './description-doctor.entity';
 import { DoctorLocation } from './doctor-location.entity';
 import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
 import { ClinicDoctor } from '../../clinic-doctor/models/clinic-doctor.entity';
+import { DoctorSchedule } from './doctor-schedule.entity';
 
 @Table({ tableName: 'doctors' })
 export class Doctor extends Model<Doctor> {
@@ -83,4 +84,7 @@ export class Doctor extends Model<Doctor> {
 
   @HasMany(() => DoctorLocation)
   locations: DoctorLocation[];
+
+  @HasMany(() => DoctorSchedule)
+  schedules: DoctorSchedule[];
 }
