@@ -12,6 +12,9 @@ import { Op } from 'sequelize';
 import { Convenience } from '../models/convenience.entity';
 import { WeekDay } from '../../week-day/models/week-day.entity';
 import { BranchSchedule } from '../interfaces/branch-schedule.interface';
+import { Clinic } from '../models/clinic.entity';
+import { NotFoundException } from '../../../exceptions/not-found.exception';
+import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 
 @Injectable()
 export class ClinicBranchService {
@@ -36,10 +39,23 @@ export class ClinicBranchService {
     });
 
     if (!branches.length) {
-      throw new InternalServerErrorException();
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
     }
 
     return branches;
+  }
+
+  async getById(id: string): Promise<ClinicBranch> {
+    const branch: ClinicBranch = await this.clinicBranchRepo.findByPk(id, {
+      include: [
+        {
+          model: Clinic,
+          attributes: ['userId'],
+        },
+      ],
+    });
+
+    return branch;
   }
 
   async getByIdWithSchedule(id: string): Promise<ClinicBranch> {
@@ -57,7 +73,7 @@ export class ClinicBranchService {
     });
 
     if (!branch) {
-      throw new InternalServerErrorException();
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
     }
 
     return branch;
@@ -71,7 +87,7 @@ export class ClinicBranchService {
     });
 
     if (!branch) {
-      throw new InternalServerErrorException();
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
     }
 
     return branch;

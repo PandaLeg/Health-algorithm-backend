@@ -32,6 +32,11 @@ import { DoctorClinic } from '../interfaces/doctor-clinic.interface';
 import { Clinic } from '../../clinic/models/clinic.entity';
 import { DoctorClinicBranch } from '../interfaces/doctor-clinic-branch.inteface';
 import { DescriptionDoctor } from '../models/description-doctor.entity';
+import { AppointmentSchedule } from '../interfaces/appointment-schedule.interface';
+import { DoctorScheduleService } from './doctor-schedule.service';
+import { DoctorSchedule } from '../models/doctor-schedule.entity';
+import * as moment from 'moment';
+import { ScheduleDoctor } from '../interfaces/schedule-doctor.interface';
 
 @Injectable()
 export class DoctorService {
@@ -42,6 +47,7 @@ export class DoctorService {
     private readonly specialtyService: SpecialtyService,
     private readonly descriptionDoctorService: DescriptionDoctorService,
     private readonly doctorLocationService: DoctorLocationService,
+    private readonly doctorScheduleService: DoctorScheduleService,
     private readonly clinicService: ClinicService,
   ) {}
 
@@ -83,6 +89,12 @@ export class DoctorService {
       specialties,
       categoryId: category.id,
     };
+  }
+
+  async getById(id: string): Promise<Doctor> {
+    const doctor: Doctor = await this.doctorRepo.findByPk(id);
+
+    return doctor;
   }
 
   async createDoctor(
@@ -364,5 +376,35 @@ export class DoctorService {
       doctor,
       clinics,
     };
+  }
+
+  async getAppointmentSchedule(
+    doctorId: string,
+    clinicBranches: string[],
+  ): Promise<AppointmentSchedule[]> {
+    const appointmentSchedule: AppointmentSchedule[] = [];
+
+    for (const clinicBranchId of clinicBranches) {
+      const appointment: Partial<AppointmentSchedule> = {};
+
+      appointment.clinicBranchId = clinicBranchId;
+
+      const scheduleFromDb: DoctorSchedule[] =
+        await this.doctorScheduleService.getAllByDoctorAndBranch(
+          doctorId,
+          clinicBranchId,
+        );
+
+      appointment.schedule = scheduleFromDb.map((schedule) => ({
+        from: schedule.from,
+        to: schedule.to,
+        duration: schedule.duration,
+        weekDay: { id: schedule.weekDay.id, name: schedule.weekDay.name },
+      }));
+
+      appointmentSchedule.push(<AppointmentSchedule>appointment);
+    }
+
+    return appointmentSchedule;
   }
 }

@@ -11,6 +11,7 @@ import { User } from '../../user/models/user.entity';
 import { ClinicLocation } from './clinic-location.entity';
 import { ClinicType } from './clinic-type.entity';
 import { ClinicBranch } from './clinic-branch.entity';
+import { Appointment } from '../../appointment/models/appointment.entity';
 
 @Table({ tableName: 'clinics' })
 export class Clinic extends Model<Clinic> {
@@ -52,4 +53,7 @@ export class Clinic extends Model<Clinic> {
 
   @BelongsTo(() => ClinicType)
   clinicType: ClinicType;
+
+  @HasMany(() => Appointment)
+  appointments: Appointment[];
 }

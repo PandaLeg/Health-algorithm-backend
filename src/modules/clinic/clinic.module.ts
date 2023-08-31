@@ -31,6 +31,6 @@ import { ClinicBranchController } from './controllers/clinic-branch.controller';
     ClinicTypeService,
     ...clinicProviders,
   ],
-  exports: [ClinicService],
+  exports: [ClinicService, ClinicBranchService],
 })
 export class ClinicModule {}

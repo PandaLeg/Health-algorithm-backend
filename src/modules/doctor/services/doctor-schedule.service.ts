@@ -1,6 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { DoctorSchedule } from '../models/doctor-schedule.entity';
 import { DoctorScheduleDto } from '../dto/doctor-schedule.dto';
+import { WeekDay } from '../../week-day/models/week-day.entity';
 
 @Injectable()
 export class DoctorScheduleService {
@@ -22,5 +27,24 @@ export class DoctorScheduleService {
       clinicBranchId,
       doctorId,
     });
+  }
+
+  async getAllByDoctorAndBranch(
+    doctorId: string,
+    clinicBranchId: string,
+  ): Promise<DoctorSchedule[]> {
+    const schedule = await this.doctorScheduleRepo.findAll({
+      where: {
+        doctorId,
+        clinicBranchId,
+      },
+      include: [{ model: WeekDay, attributes: ['id', 'name'] }],
+    });
+
+    if (!schedule) {
+      throw new InternalServerErrorException();
+    }
+
+    return schedule;
   }
 }

@@ -8,6 +8,8 @@ import { PageDto } from '../../../dto/PageDto';
 import { DoctorSearchDto } from '../dto/doctor-search.dto';
 import { DoctorName } from '../interfaces/doctor-name.interface';
 import { DoctorClinic } from '../interfaces/doctor-clinic.interface';
+import { ParseJsonBranchesPipe } from '../pipes/parse-json-branches.pipe';
+import { AppointmentSchedule } from '../interfaces/appointment-schedule.interface';
 
 @Controller('doctors')
 export class DoctorController {
@@ -51,5 +53,15 @@ export class DoctorController {
     @Param('id') doctorId: string,
   ): Promise<DoctorClinic> {
     return this.doctorService.getDoctorWithClinics(doctorId);
+  }
+
+  @UseFilters(new HttpExceptionFilter())
+  @Get('/:id/schedule')
+  async getAppointmentSchedule(
+    @Param('id') doctorId: string,
+    @Query('clinicBranches', new ParseJsonBranchesPipe())
+    clinicBranches: string[],
+  ): Promise<AppointmentSchedule[]> {
+    return this.doctorService.getAppointmentSchedule(doctorId, clinicBranches);
   }
 }
