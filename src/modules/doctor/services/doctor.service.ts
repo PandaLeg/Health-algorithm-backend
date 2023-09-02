@@ -32,11 +32,9 @@ import { DoctorClinic } from '../interfaces/doctor-clinic.interface';
 import { Clinic } from '../../clinic/models/clinic.entity';
 import { DoctorClinicBranch } from '../interfaces/doctor-clinic-branch.inteface';
 import { DescriptionDoctor } from '../models/description-doctor.entity';
-import { AppointmentSchedule } from '../interfaces/appointment-schedule.interface';
+import { AppointmentScheduleFromDoctor } from '../interfaces/appointment-schedule.interface';
 import { DoctorScheduleService } from './doctor-schedule.service';
 import { DoctorSchedule } from '../models/doctor-schedule.entity';
-import * as moment from 'moment';
-import { ScheduleDoctor } from '../interfaces/schedule-doctor.interface';
 
 @Injectable()
 export class DoctorService {
@@ -381,11 +379,11 @@ export class DoctorService {
   async getAppointmentSchedule(
     doctorId: string,
     clinicBranches: string[],
-  ): Promise<AppointmentSchedule[]> {
-    const appointmentSchedule: AppointmentSchedule[] = [];
+  ): Promise<AppointmentScheduleFromDoctor[]> {
+    const appointmentSchedule: AppointmentScheduleFromDoctor[] = [];
 
     for (const clinicBranchId of clinicBranches) {
-      const appointment: Partial<AppointmentSchedule> = {};
+      const appointment: Partial<AppointmentScheduleFromDoctor> = {};
 
       appointment.clinicBranchId = clinicBranchId;
 
@@ -402,7 +400,7 @@ export class DoctorService {
         weekDay: { id: schedule.weekDay.id, name: schedule.weekDay.name },
       }));
 
-      appointmentSchedule.push(<AppointmentSchedule>appointment);
+      appointmentSchedule.push(<AppointmentScheduleFromDoctor>appointment);
     }
 
     return appointmentSchedule;

@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Query, UseFilters } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
 import { DoctorService } from '../services/doctor.service';
 import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { IDoctorResponse } from '../interfaces/doctor-response.interface';
@@ -9,7 +16,8 @@ import { DoctorSearchDto } from '../dto/doctor-search.dto';
 import { DoctorName } from '../interfaces/doctor-name.interface';
 import { DoctorClinic } from '../interfaces/doctor-clinic.interface';
 import { ParseJsonBranchesPipe } from '../pipes/parse-json-branches.pipe';
-import { AppointmentSchedule } from '../interfaces/appointment-schedule.interface';
+import { AppointmentScheduleFromDoctor } from '../interfaces/appointment-schedule.interface';
+import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
 
 @Controller('doctors')
 export class DoctorController {
@@ -55,13 +63,14 @@ export class DoctorController {
     return this.doctorService.getDoctorWithClinics(doctorId);
   }
 
+  @UseGuards(AuthAccessGuard)
   @UseFilters(new HttpExceptionFilter())
   @Get('/:id/schedule')
   async getAppointmentSchedule(
     @Param('id') doctorId: string,
     @Query('clinicBranches', new ParseJsonBranchesPipe())
     clinicBranches: string[],
-  ): Promise<AppointmentSchedule[]> {
+  ): Promise<AppointmentScheduleFromDoctor[]> {
     return this.doctorService.getAppointmentSchedule(doctorId, clinicBranches);
   }
 }

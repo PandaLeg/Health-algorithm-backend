@@ -10,9 +10,10 @@ import { DoctorLocationService } from './services/doctor-location.service';
 import { DatabaseModule } from '../../db-init/database.module';
 import { ClinicModule } from '../clinic/clinic.module';
 import { DoctorScheduleService } from './services/doctor-schedule.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [DatabaseModule, ClinicModule],
+  imports: [DatabaseModule, ClinicModule, AuthModule],
   controllers: [DoctorController, SpecialtyController],
   providers: [
     DoctorService,

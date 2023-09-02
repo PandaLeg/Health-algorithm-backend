@@ -1,6 +1,15 @@
 import { ScheduleDoctor } from './schedule-doctor.interface';
 
-export interface AppointmentSchedule {
-  clinicBranchId: string;
+interface AppointmentSchedule {
   schedule: ScheduleDoctor[];
+}
+
+export interface AppointmentScheduleFromDoctor extends AppointmentSchedule {
+  clinicBranchId: string;
+}
+
+export interface AppointmentScheduleFromClinic extends AppointmentSchedule {
+  doctorId: string;
+  firstName: string;
+  lastName: string;
 }

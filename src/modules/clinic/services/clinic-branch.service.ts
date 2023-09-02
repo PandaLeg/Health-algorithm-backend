@@ -15,6 +15,9 @@ import { BranchSchedule } from '../interfaces/branch-schedule.interface';
 import { Clinic } from '../models/clinic.entity';
 import { NotFoundException } from '../../../exceptions/not-found.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { AppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
+import { DoctorSchedule } from '../../doctor/models/doctor-schedule.entity';
+import { Doctor } from '../../doctor/models/doctor.entity';
 
 @Injectable()
 export class ClinicBranchService {
@@ -172,5 +175,39 @@ export class ClinicBranchService {
     }
 
     return branches;
+  }
+
+  async getClinicDoctorSchedule(
+    id: string,
+  ): Promise<AppointmentScheduleFromClinic[]> {
+    const clinicBranch: ClinicBranch = await this.clinicBranchRepo.findByPk(
+      id,
+      {
+        include: [
+          {
+            model: Doctor,
+            attributes: ['userId', 'firstName', 'lastName'],
+            include: [
+              {
+                model: DoctorSchedule,
+                where: { clinicBranchId: id },
+                attributes: ['from', 'to', 'duration'],
+                include: [{ model: WeekDay, attributes: ['id', 'name'] }],
+              },
+            ],
+          },
+        ],
+      },
+    );
+
+    const appointmentSchedule: AppointmentScheduleFromClinic[] =
+      clinicBranch.doctors.map((doctor) => ({
+        doctorId: doctor.userId,
+        firstName: doctor.firstName,
+        lastName: doctor.lastName,
+        schedule: doctor.schedules,
+      }));
+
+    return appointmentSchedule;
   }
 }

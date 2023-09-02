@@ -9,6 +9,7 @@ import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
 import { Patient } from '../../patient/models/patient.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class AppointmentService {
@@ -51,10 +52,10 @@ export class AppointmentService {
     };
   }
 
-  async getTimeByDate(date: string): Promise<string[]> {
+  async getTimeByDate(date: string, doctorId: string): Promise<string[]> {
     const times: Appointment[] = await this.appointmentRepo.findAll({
       where: {
-        date,
+        [Op.and]: [{ date }, { doctorId }],
       },
       attributes: ['time'],
     });
