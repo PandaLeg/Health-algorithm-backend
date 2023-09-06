@@ -12,6 +12,8 @@ import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { CreateAppointmentDto } from '../dto/create-appointment.dto';
 import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
 import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
+import { AppointmentPage } from '../interfaces/appointment-page.interface';
+import { PageDto } from '../../../dto/PageDto';
 
 @Controller('appointments')
 export class AppointmentController {
@@ -24,6 +26,18 @@ export class AppointmentController {
     appointment: CreateAppointmentDto,
   ): Promise<{ message: string }> {
     return this.appointmentService.create(appointment);
+  }
+
+  @UseGuards(AuthAccessGuard)
+  @UseFilters(new HttpExceptionFilter())
+  @Get()
+  async getAll(
+    @Query('id') id: string,
+    @Query(new GeneralValidationPipe()) pageDto: PageDto,
+    @Body('authPayload') authPayload: any,
+  ): Promise<AppointmentPage> {
+    const roles = authPayload.roles;
+    return this.appointmentService.getAll(id, roles, pageDto);
   }
 
   @UseGuards(AuthAccessGuard)
