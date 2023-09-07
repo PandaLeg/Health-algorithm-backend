@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsDateString,
+  IsInt,
   IsNotEmpty,
   IsString,
   ValidateIf,
@@ -8,6 +9,7 @@ import {
 } from 'class-validator';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { DescriptionInfoDto } from './description-info.dto';
+import { DoctorWorkPlaceDto } from './doctor-work-place.dto';
 
 export class CreateDoctorDto {
   @IsString()
@@ -30,9 +32,11 @@ export class CreateDoctorDto {
   @Transform(({ value }: TransformFnParams) => value?.trim())
   dateOfBirth: string;
 
+  @IsInt()
   @IsNotEmpty()
   experience: number;
 
+  @IsInt()
   @IsNotEmpty()
   categoryId: number;
 
@@ -46,7 +50,9 @@ export class CreateDoctorDto {
 
   @IsArray()
   @IsNotEmpty()
-  clinicBranches: string[];
+  @ValidateNested({ each: true })
+  @Type(() => DoctorWorkPlaceDto)
+  doctorWorkPlaces: DoctorWorkPlaceDto[];
 
   @IsArray()
   @IsNotEmpty()

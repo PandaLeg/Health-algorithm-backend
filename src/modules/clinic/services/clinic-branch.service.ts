@@ -4,12 +4,20 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ClinicBranch } from '../models/clinic-branch.entity';
-import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
+import { ClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { ClinicLocationService } from './clinic-location.service';
 import { ClinicSchedule } from '../models/clinic-schedule.entity';
 import { Op } from 'sequelize';
 import { Convenience } from '../models/convenience.entity';
+import { WeekDay } from '../../week-day/models/week-day.entity';
+import { BranchSchedule } from '../interfaces/branch-schedule.interface';
+import { Clinic } from '../models/clinic.entity';
+import { NotFoundException } from '../../../exceptions/not-found.exception';
+import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { AppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
+import { DoctorSchedule } from '../../doctor/models/doctor-schedule.entity';
+import { Doctor } from '../../doctor/models/doctor.entity';
 
 @Injectable()
 export class ClinicBranchService {
@@ -24,13 +32,33 @@ export class ClinicBranchService {
       where: {
         locationId,
       },
+      include: [
+        {
+          model: ClinicSchedule,
+          where: { dayType: 'Workday' },
+          include: [{ model: WeekDay, attributes: ['id', 'name'] }],
+        },
+      ],
     });
 
     if (!branches.length) {
-      throw new InternalServerErrorException();
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
     }
 
     return branches;
+  }
+
+  async getById(id: string): Promise<ClinicBranch> {
+    const branch: ClinicBranch = await this.clinicBranchRepo.findByPk(id, {
+      include: [
+        {
+          model: Clinic,
+          attributes: ['userId'],
+        },
+      ],
+    });
+
+    return branch;
   }
 
   async getByIdWithSchedule(id: string): Promise<ClinicBranch> {
@@ -48,7 +76,7 @@ export class ClinicBranchService {
     });
 
     if (!branch) {
-      throw new InternalServerErrorException();
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
     }
 
     return branch;
@@ -62,7 +90,7 @@ export class ClinicBranchService {
     });
 
     if (!branch) {
-      throw new InternalServerErrorException();
+      throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
     }
 
     return branch;
@@ -83,12 +111,30 @@ export class ClinicBranchService {
     const location: ClinicLocation | null =
       await this.clinicLocationService.getByClinicIdAndCity(clinicId, city);
 
-    const addresses: ClinicBranch[] = await this.getAllByLocation(location.id);
+    const clinicBranches: ClinicBranch[] = await this.getAllByLocation(
+      location.id,
+    );
 
-    return addresses.map((el): ClinicAddressInfo => {
+    return clinicBranches.map((branch): ClinicAddressInfo => {
+      const branchSchedule: BranchSchedule[] = branch.schedules.map(
+        (schedule) => ({
+          from: schedule.from,
+          to: schedule.to,
+          weekDayId: schedule.weekDayId,
+        }),
+      );
+      const days: { id: number; name: string }[] = branch.schedules.map(
+        (schedule) => ({
+          id: schedule.weekDay.id,
+          name: schedule.weekDay.name,
+        }),
+      );
+
       return {
-        id: el.id,
-        address: el.address,
+        id: branch.id,
+        address: branch.address,
+        days,
+        schedule: branchSchedule,
       };
     });
   }
@@ -129,5 +175,39 @@ export class ClinicBranchService {
     }
 
     return branches;
+  }
+
+  async getClinicDoctorSchedule(
+    id: string,
+  ): Promise<AppointmentScheduleFromClinic[]> {
+    const clinicBranch: ClinicBranch = await this.clinicBranchRepo.findByPk(
+      id,
+      {
+        include: [
+          {
+            model: Doctor,
+            attributes: ['userId', 'firstName', 'lastName'],
+            include: [
+              {
+                model: DoctorSchedule,
+                where: { clinicBranchId: id },
+                attributes: ['from', 'to', 'duration'],
+                include: [{ model: WeekDay, attributes: ['id', 'name'] }],
+              },
+            ],
+          },
+        ],
+      },
+    );
+
+    const appointmentSchedule: AppointmentScheduleFromClinic[] =
+      clinicBranch.doctors.map((doctor) => ({
+        doctorId: doctor.userId,
+        firstName: doctor.firstName,
+        lastName: doctor.lastName,
+        schedule: doctor.schedules,
+      }));
+
+    return appointmentSchedule;
   }
 }

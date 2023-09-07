@@ -16,6 +16,8 @@ import { ClinicConvenience } from './clinic-convenience.entity';
 import { Convenience } from './convenience.entity';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicDoctor } from '../../clinic-doctor/models/clinic-doctor.entity';
+import { DoctorSchedule } from '../../doctor/models/doctor-schedule.entity';
+import { Appointment } from '../../appointment/models/appointment.entity';
 
 @Table({ tableName: 'clinic_branches' })
 export class ClinicBranch extends Model<ClinicBranch> {
@@ -56,9 +58,15 @@ export class ClinicBranch extends Model<ClinicBranch> {
   @HasMany(() => ClinicSchedule)
   schedules: ClinicSchedule[];
 
+  @HasMany(() => DoctorSchedule)
+  doctorsSchedule: DoctorSchedule[];
+
   @BelongsToMany(() => Convenience, () => ClinicConvenience)
   conveniences: Convenience[];
 
   @BelongsToMany(() => Doctor, () => ClinicDoctor)
   doctors: Doctor[];
+
+  @HasMany(() => Appointment)
+  appointments: Appointment[];
 }

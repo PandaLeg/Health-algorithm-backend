@@ -17,6 +17,8 @@ import { DescriptionDoctor } from './description-doctor.entity';
 import { DoctorLocation } from './doctor-location.entity';
 import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
 import { ClinicDoctor } from '../../clinic-doctor/models/clinic-doctor.entity';
+import { DoctorSchedule } from './doctor-schedule.entity';
+import { Appointment } from '../../appointment/models/appointment.entity';
 
 @Table({ tableName: 'doctors' })
 export class Doctor extends Model<Doctor> {
@@ -27,9 +29,6 @@ export class Doctor extends Model<Doctor> {
     allowNull: false,
   })
   userId: string;
-
-  @BelongsTo(() => User, { onDelete: 'CASCADE' })
-  user: User;
 
   @Column({
     type: DataType.STRING(30),
@@ -66,6 +65,9 @@ export class Doctor extends Model<Doctor> {
   })
   categoryId: number;
 
+  @BelongsTo(() => User, { onDelete: 'CASCADE' })
+  user: User;
+
   @BelongsTo(() => CategoryDoctor)
   category: CategoryDoctor;
 
@@ -83,4 +85,10 @@ export class Doctor extends Model<Doctor> {
 
   @HasMany(() => DoctorLocation)
   locations: DoctorLocation[];
+
+  @HasMany(() => DoctorSchedule)
+  schedules: DoctorSchedule[];
+
+  @HasMany(() => Appointment)
+  appointments: Appointment[];
 }

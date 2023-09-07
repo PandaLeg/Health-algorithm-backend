@@ -12,9 +12,10 @@ import { ClinicTypeController } from './controllers/clinic-type.controller';
 import { ClinicTypeService } from './services/clinic-type.service';
 import { ClinicConvenienceService } from './services/clinic-convenience.service';
 import { ClinicBranchController } from './controllers/clinic-branch.controller';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, AuthModule],
   controllers: [
     ClinicController,
     ConvenienceController,
@@ -31,6 +32,6 @@ import { ClinicBranchController } from './controllers/clinic-branch.controller';
     ClinicTypeService,
     ...clinicProviders,
   ],
-  exports: [ClinicService],
+  exports: [ClinicService, ClinicBranchService],
 })
 export class ClinicModule {}

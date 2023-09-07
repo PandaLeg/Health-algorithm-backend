@@ -50,14 +50,14 @@ export class TokenService {
         { ...payload },
         {
           secret: process.env.JWT_ACCESS,
-          expiresIn: '1m',
+          expiresIn: '1h',
         },
       ),
       this.jwtService.sign(
         { ...payload },
         {
           secret: process.env.JWT_REFRESH,
-          expiresIn: '2m',
+          expiresIn: '10h',
         },
       ),
     ]);
@@ -79,7 +79,7 @@ export class TokenService {
       },
     });
 
-    const expiresIn = moment().add(2, 'm').toString();
+    const expiresIn = moment().add(10, 'h').toString();
 
     if (tokens.length === this.MAX_SESSIONS_COUNT) {
       for (const token of tokens) {

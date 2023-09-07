@@ -1,22 +1,40 @@
-import { Controller, Get, Query, UseFilters } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
 import { ClinicBranchService } from '../services/clinic-branch.service';
 import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
 import { QueryLocationDto } from '../dto/query-location.dto';
-import { ClinicAddressInfo } from '../interfaces/clinic-address-info,interface';
+import { ClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
+import { AppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
+import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
 
 @Controller('clinic-branches')
 export class ClinicBranchController {
-  constructor(private readonly locationAddressService: ClinicBranchService) {}
+  constructor(private readonly clinicBranchService: ClinicBranchService) {}
 
   @UseFilters(new HttpExceptionFilter())
   @Get('/addresses')
   async getClinicAddresses(
     @Query(new GeneralValidationPipe()) queryLocationDto: QueryLocationDto,
   ): Promise<ClinicAddressInfo[]> {
-    return this.locationAddressService.getClinicAddresses(
+    return this.clinicBranchService.getClinicAddresses(
       queryLocationDto.clinicId,
       queryLocationDto.city,
     );
+  }
+
+  @UseGuards(AuthAccessGuard)
+  @UseFilters(new HttpExceptionFilter())
+  @Get('/:id/doctors-schedule')
+  async getClinicDoctorSchedule(
+    @Param('id') id: string,
+  ): Promise<AppointmentScheduleFromClinic[]> {
+    return this.clinicBranchService.getClinicDoctorSchedule(id);
   }
 }

@@ -4,6 +4,7 @@ import { Specialty } from './models/specialty.entity';
 import { DoctorSpecialty } from './models/doctor-specialty.entity';
 import { DescriptionDoctor } from './models/description-doctor.entity';
 import { DoctorLocation } from './models/doctor-location.entity';
+import { DoctorSchedule } from './models/doctor-schedule.entity';
 
 export const doctorProviders = [
   {
@@ -29,5 +30,9 @@ export const doctorProviders = [
   {
     provide: 'DOCTOR_LOCATION_REPOSITORY',
     useValue: DoctorLocation,
+  },
+  {
+    provide: 'DOCTOR_SCHEDULE_REPOSITORY',
+    useValue: DoctorSchedule,
   },
 ];

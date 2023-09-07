@@ -11,5 +11,6 @@ import { MailService } from './services/mail.service';
   imports: [forwardRef(() => UserModule), JwtModule.register({ global: true })],
   controllers: [AuthController],
   providers: [AuthService, TokenService, MailService, ...authProviders],
+  exports: [TokenService],
 })
 export class AuthModule {}

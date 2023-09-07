@@ -7,7 +7,6 @@ import { ClinicLocation } from '../models/clinic-location.entity';
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { ClinicBranch } from '../models/clinic-branch.entity';
-import { Location } from '@nestjs/schematics';
 
 @Injectable()
 export class ClinicLocationService {
