@@ -1,4 +1,5 @@
 import {
+  forwardRef,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -18,6 +19,11 @@ import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import { AppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
 import { DoctorSchedule } from '../../doctor/models/doctor-schedule.entity';
 import { Doctor } from '../../doctor/models/doctor.entity';
+import { ClinicDoctors } from '../interfaces/clinic-doctors.interface';
+import { BadRequestException } from '../../../exceptions/bad-request.exception';
+import { DoctorService } from '../../doctor/services/doctor.service';
+import { IDoctor } from '../../doctor/interfaces/doctor.interface';
+import { PageDto } from '../../../dto/PageDto';
 
 @Injectable()
 export class ClinicBranchService {
@@ -25,6 +31,8 @@ export class ClinicBranchService {
     @Inject('CLINIC_BRANCH_REPOSITORY')
     private clinicBranchRepo: typeof ClinicBranch,
     private readonly clinicLocationService: ClinicLocationService,
+    @Inject(forwardRef(() => DoctorService))
+    private readonly doctorService: DoctorService,
   ) {}
 
   async getAllByLocation(locationId: string): Promise<ClinicBranch[]> {
@@ -209,5 +217,46 @@ export class ClinicBranchService {
       }));
 
     return appointmentSchedule;
+  }
+
+  async getClinicDoctors(id: string, pageDto: PageDto): Promise<ClinicDoctors> {
+    const clinicBranch: ClinicBranch = await this.clinicBranchRepo.findByPk(
+      id,
+      {
+        attributes: ['id'],
+      },
+    );
+
+    if (!clinicBranch) {
+      throw new BadRequestException(
+        'Data incorrect',
+        ErrorCodes.DATA_INCORRECT,
+      );
+    }
+
+    const doctorsFromDb = await this.doctorService.getAllDoctorsByBranch(
+      id,
+      pageDto,
+    );
+
+    const totalPages = Math.ceil(doctorsFromDb.count / 5);
+    const doctors: IDoctor[] = doctorsFromDb.rows.map((doctor) => ({
+      userId: doctor.userId,
+      firstName: doctor.firstName,
+      lastName: doctor.lastName,
+      surname: doctor.surname,
+      avatar: null,
+      experience: doctor.experience,
+      categoryName: doctor.category.name,
+      specialties: doctor.specialties.map((el) => ({
+        id: el.id,
+        name: el.name,
+      })),
+    }));
+
+    return {
+      doctors,
+      totalPages,
+    };
   }
 }

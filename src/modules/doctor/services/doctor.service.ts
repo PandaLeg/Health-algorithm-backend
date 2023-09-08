@@ -165,6 +165,23 @@ export class DoctorService {
     };
   }
 
+  async getAllDoctorsByBranch(id: string, pageDto: PageDto) {
+    const doctorsFromDb = await this.doctorRepo.findAndCountAll({
+      limit: pageDto.perPage,
+      offset: pageDto.page,
+      distinct: true,
+      order: [['userId', 'DESC']],
+      attributes: ['userId', 'firstName', 'lastName', 'surname', 'experience'],
+      include: [
+        { model: ClinicBranch, attributes: ['id'], where: { id } },
+        { model: Specialty, attributes: ['id', 'name'] },
+        { model: CategoryDoctor, attributes: ['name'] },
+      ],
+    });
+
+    return doctorsFromDb;
+  }
+
   async getNames(lastNameDto: LastNameDto): Promise<DoctorName[]> {
     const lastName: string = lastNameDto.lastName.toLowerCase();
     const city: string = lastNameDto.city.toLowerCase();
