@@ -5,15 +5,15 @@ export class DescriptionInfoDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  about: string;
+  readonly about: string;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  education: string;
+  readonly education: string;
 
   @ValidateIf((o) => !!o.course)
   @IsString()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  course: string;
+  readonly course: string;
 }

@@ -6,11 +6,11 @@ export class ClinicPlaceDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  city: string;
+  readonly city: string;
 
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => ClinicBranchDto)
-  clinicBranches: ClinicBranchDto[];
+  readonly clinicBranches: ClinicBranchDto[];
 }

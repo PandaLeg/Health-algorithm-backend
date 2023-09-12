@@ -1,7 +1,7 @@
-import { ClinicCardInfo } from './clinic-card-info.interface';
+import { ClinicSearch } from './clinic-search.interface';
 import { ScheduleClinic } from './schedule-clinic.interface';
 
-export interface ClinicFullInfo extends ClinicCardInfo {
+export interface ClinicFullInfo extends ClinicSearch {
   address: string;
   conveniences: { id: number; name: string }[];
   schedule: ScheduleClinic[];

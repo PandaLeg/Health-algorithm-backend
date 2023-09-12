@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { DoctorSchedule } from '../models/doctor-schedule.entity';
 import { DoctorScheduleDto } from '../dto/doctor-schedule.dto';
-import { WeekDay } from '../../week-day/models/week-day.entity';
+import { IDoctorScheduleRepository } from '../repos/doctor-schedule.repository.interface';
 
 @Injectable()
 export class DoctorScheduleService {
   constructor(
-    @Inject('DOCTOR_SCHEDULE_REPOSITORY')
-    private doctorScheduleRepo: typeof DoctorSchedule,
+    @Inject('IDoctorScheduleRepository')
+    private doctorScheduleRepo: IDoctorScheduleRepository,
   ) {}
 
   async create(
@@ -33,13 +33,11 @@ export class DoctorScheduleService {
     doctorId: string,
     clinicBranchId: string,
   ): Promise<DoctorSchedule[]> {
-    const schedule = await this.doctorScheduleRepo.findAll({
-      where: {
+    const schedule: DoctorSchedule[] =
+      await this.doctorScheduleRepo.findAllByDoctorAndBranch(
         doctorId,
         clinicBranchId,
-      },
-      include: [{ model: WeekDay, attributes: ['id', 'name'] }],
-    });
+      );
 
     if (!schedule) {
       throw new InternalServerErrorException();

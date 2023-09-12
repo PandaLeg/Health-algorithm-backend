@@ -48,11 +48,10 @@ export class DoctorController {
   @UseFilters(new HttpExceptionFilter())
   @Get('/search')
   async searchDoctors(
-    @Query(new GeneralValidationPipe()) pageDto: PageDto,
     @Query(new GeneralValidationPipe())
     searchDto: DoctorSearchDto,
   ): Promise<IDoctorResponse> {
-    return this.doctorService.searchDoctors(pageDto, searchDto);
+    return this.doctorService.searchDoctors(searchDto);
   }
 
   @UseFilters(new HttpExceptionFilter())

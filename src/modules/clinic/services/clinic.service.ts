@@ -1,9 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Clinic } from '../models/clinic.entity';
 import { CreateClinicDto } from '../dto/create-clinic.dto';
-import { Sequelize } from 'sequelize-typescript';
 import { ClinicInfo } from '../interfaces/clinic-info.interface';
-import { QueryTypes } from 'sequelize';
 import { ClinicLocationService } from './clinic-location.service';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { ClinicBranchService } from './clinic-branch.service';
@@ -11,10 +9,9 @@ import { ClinicBranch } from '../models/clinic-branch.entity';
 import { ClinicScheduleService } from './clinic-schedule.service';
 import { ClinicBranchDto } from '../dto/clinic-branch.dto';
 import { ClinicConvenienceService } from './clinic-convenience.service';
-import { ClinicCardInfo } from '../interfaces/clinic-card-info.interface';
-import { User } from '../../user/models/user.entity';
+import { ClinicSearch } from '../interfaces/clinic-search.interface';
 import { ClinicType } from '../models/clinic-type.entity';
-import { ClinicCardInfoPage } from '../interfaces/clinic-card-info-page.interface';
+import { ClinicSearchPage } from '../interfaces/clinic-search-page.interface';
 import { ClinicFullInfo } from '../interfaces/clinic-full-info.interface';
 import { ClinicSchedule } from '../models/clinic-schedule.entity';
 import { ScheduleClinic } from '../interfaces/schedule-clinic.interface';
@@ -22,12 +19,15 @@ import { NotFoundException } from '../../../exceptions/not-found.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import { ClinicBranchFullInfo } from '../interfaces/clinic-branch-full-info.interface';
 import { ClinicTypeService } from './clinic-type.service';
+import { IClinicRepository } from '../repos/clinic.repository.interface';
+import { PageDto } from '../../../dto/PageDto';
+import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
+import { CurrentClinicBranchDto } from '../dto/current-clinic-branch.dto';
 
 @Injectable()
 export class ClinicService {
   constructor(
-    @Inject('CLINICS_REPOSITORY') private clinicRepo: typeof Clinic,
-    @Inject('SEQUELIZE') private sequelize: Sequelize,
+    @Inject('IClinicRepository') private clinicRepo: IClinicRepository,
     private readonly clinicLocationService: ClinicLocationService,
     private readonly clinicBranchService: ClinicBranchService,
     private readonly clinicScheduleService: ClinicScheduleService,
@@ -36,49 +36,27 @@ export class ClinicService {
   ) {}
 
   async getByName(name: string): Promise<Clinic | null> {
-    const clinic: Clinic | null = await this.clinicRepo.findOne({
-      where: {
-        name,
-      },
-    });
-
-    return clinic;
+    return await this.clinicRepo.findOneByName(name);
   }
 
-  async getAllByCity(
-    page: number,
-    perPage: number,
+  async searchClinicsByCity(
     city: string,
-  ): Promise<ClinicCardInfoPage> {
+    pageDto: PageDto,
+  ): Promise<ClinicSearchPage> {
     city = city.toLowerCase();
 
-    const clinicsFromDb = await this.clinicRepo.findAndCountAll({
-      limit: perPage,
-      offset: page,
-      distinct: true,
-      order: [['userId', 'DESC']],
-      include: [
-        {
-          model: ClinicLocation,
-          where: this.sequelize.where(
-            this.sequelize.fn('lower', this.sequelize.col('city')),
-            city,
-          ),
-        },
-        { model: User, attributes: ['avatar'] },
-        { model: ClinicType, attributes: ['name'] },
-      ],
-    });
+    const clinicPage: IEntityPagination<Clinic> =
+      await this.clinicRepo.findAndCountAllByCity(city, pageDto);
 
-    const totalPages = Math.ceil(clinicsFromDb.count / perPage);
-    const clinics: ClinicCardInfo[] = [];
+    const totalPages = Math.ceil(clinicPage.count / pageDto.perPage);
+    const clinics: ClinicSearch[] = [];
 
-    for (const el of clinicsFromDb.rows) {
+    for (const el of clinicPage.rows) {
       const locationId: string = el.locations[0].id;
       const clinicBranch: ClinicBranch =
         await this.clinicBranchService.getFirstByLocation(locationId);
 
-      const clinic: ClinicCardInfo = {
+      const clinic: ClinicSearch = {
         clinicId: el.userId,
         name: el.name,
         description: el.description,
@@ -97,14 +75,11 @@ export class ClinicService {
     };
   }
 
-  async getByIdAndCity(id: string, city: string): Promise<ClinicCardInfo> {
-    const clinicFromDb: Clinic = await this.clinicRepo.findOne({
-      where: { userId: id },
-      include: [
-        { model: User, attributes: ['avatar'] },
-        { model: ClinicType, attributes: ['name'] },
-      ],
-    });
+  async searchClinicByIdAndCity(
+    id: string,
+    city: string,
+  ): Promise<ClinicSearch> {
+    const clinicFromDb: Clinic = await this.clinicRepo.findOneById(id);
 
     const location: ClinicLocation =
       await this.clinicLocationService.getByClinicIdAndCity(
@@ -114,7 +89,7 @@ export class ClinicService {
 
     const clinicBranchId: string = location.clinicBranches[0].id;
 
-    const clinic: ClinicCardInfo = {
+    const clinic: ClinicSearch = {
       clinicId: clinicFromDb.userId,
       name: clinicFromDb.name,
       description: clinicFromDb.description,
@@ -128,12 +103,8 @@ export class ClinicService {
   }
 
   async createClinic(userId: string, dto: CreateClinicDto) {
-    const clinic: Clinic = await this.clinicRepo.create({
-      userId,
-      name: dto.name,
-      description: dto.description,
-      clinicTypeId: dto.clinicType,
-    });
+    const clinic: Clinic = this.clinicRepo.build(userId, dto);
+    await clinic.save();
 
     for (const location of dto.locations) {
       const clinicLocation: ClinicLocation =
@@ -180,21 +151,8 @@ export class ClinicService {
     }
   }
 
-  async getAllByCityAndName(name: string, city: string) {
-    const query = `
-    SELECT c."userId" as "clinicId", c.name
-    FROM clinics as c 
-    INNER JOIN users as u on c."userId" = u.id 
-    INNER JOIN clinic_locations as cl on c."userId" = cl."clinicId"
-    where cl.city = '${city}' and LOWER(c.name) like LOWER('${name}%')
-    `;
-
-    const clinics: ClinicInfo[] = await this.sequelize.query<ClinicInfo>(
-      query,
-      { type: QueryTypes.SELECT },
-    );
-
-    return clinics;
+  async getAllByCityAndName(city: string, name: string): Promise<ClinicInfo[]> {
+    return await this.clinicRepo.findAllByCityAndName(city, name);
   }
 
   async getFullInfoClinic(
@@ -202,13 +160,7 @@ export class ClinicService {
     city: string,
     clinicBranchId: string,
   ): Promise<ClinicFullInfo> {
-    const clinicFromDb: Clinic = await this.clinicRepo.findOne({
-      where: { userId: id },
-      include: [
-        { model: User, attributes: ['avatar'] },
-        { model: ClinicType, attributes: ['name'] },
-      ],
-    });
+    const clinicFromDb: Clinic = await this.clinicRepo.findOneById(id);
 
     if (!clinicFromDb) {
       throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
@@ -247,14 +199,14 @@ export class ClinicService {
     return clinic;
   }
 
-  async getFullInfoClinics(
-    id: string,
-    city: string,
-    clinicBranchId: string,
-    page: number,
-    perPage: number,
-  ) {
-    const clinicFromDb: Clinic = await this.clinicRepo.findByPk(id);
+  async getFullInfoClinics(currentClinicDto: CurrentClinicBranchDto) {
+    const clinicFromDb: Clinic = await this.clinicRepo.findById(
+      currentClinicDto.id,
+    );
+    const pageDto: PageDto = {
+      page: currentClinicDto.page,
+      perPage: currentClinicDto.perPage,
+    };
 
     if (!clinicFromDb) {
       throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
@@ -263,20 +215,21 @@ export class ClinicService {
     const location: ClinicLocation =
       await this.clinicLocationService.getByClinicIdAndCity(
         clinicFromDb.userId,
-        city,
+        currentClinicDto.city,
       );
 
     const clinicBranches =
       await this.clinicBranchService.getAllByLocationWithSchedule(
         location.id,
-        clinicBranchId,
-        page,
-        perPage,
+        currentClinicDto.clinicBranchId,
+        pageDto,
       );
 
     const clinics = await this.formClinicBranches(clinicBranches.rows);
 
-    const totalPages = Math.ceil(clinicBranches.count / perPage);
+    const totalPages = Math.ceil(
+      clinicBranches.count / currentClinicDto.perPage,
+    );
 
     return {
       clinics,

@@ -4,8 +4,8 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class DoctorSearchDto extends PageDto {
   @IsString()
   @IsNotEmpty()
-  city: string;
+  readonly city: string;
 
-  specialtyId: number;
-  doctorNameId: string;
+  readonly specialtyId: number;
+  readonly doctorNameId: string;
 }

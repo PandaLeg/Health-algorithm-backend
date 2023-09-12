@@ -13,11 +13,11 @@ export class DoctorWorkPlaceDto {
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
   @IsUUID()
-  id: string;
+  readonly id: string;
 
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => DoctorScheduleDto)
-  schedule: DoctorScheduleDto[];
+  readonly schedule: DoctorScheduleDto[];
 }

@@ -1,45 +1,34 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ClinicBranch } from '../models/clinic-branch.entity';
 import { ClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { ClinicLocationService } from './clinic-location.service';
-import { ClinicSchedule } from '../models/clinic-schedule.entity';
-import { Op } from 'sequelize';
-import { Convenience } from '../models/convenience.entity';
-import { WeekDay } from '../../week-day/models/week-day.entity';
 import { BranchSchedule } from '../interfaces/branch-schedule.interface';
-import { Clinic } from '../models/clinic.entity';
 import { NotFoundException } from '../../../exceptions/not-found.exception';
 import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import { AppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
-import { DoctorSchedule } from '../../doctor/models/doctor-schedule.entity';
 import { Doctor } from '../../doctor/models/doctor.entity';
+import { ClinicDoctors } from '../interfaces/clinic-doctors.interface';
+import { BadRequestException } from '../../../exceptions/bad-request.exception';
+import { DoctorService } from '../../doctor/services/doctor.service';
+import { IDoctor } from '../../doctor/interfaces/doctor.interface';
+import { PageDto } from '../../../dto/PageDto';
+import { IClinicBranchRepository } from '../repos/clinic-branch.repository.interface';
+import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 
 @Injectable()
 export class ClinicBranchService {
   constructor(
-    @Inject('CLINIC_BRANCH_REPOSITORY')
-    private clinicBranchRepo: typeof ClinicBranch,
+    @Inject('IClinicBranchRepository')
+    private clinicBranchRepo: IClinicBranchRepository,
     private readonly clinicLocationService: ClinicLocationService,
+    @Inject(forwardRef(() => DoctorService))
+    private readonly doctorService: DoctorService,
   ) {}
 
   async getAllByLocation(locationId: string): Promise<ClinicBranch[]> {
-    const branches: ClinicBranch[] = await this.clinicBranchRepo.findAll({
-      where: {
-        locationId,
-      },
-      include: [
-        {
-          model: ClinicSchedule,
-          where: { dayType: 'Workday' },
-          include: [{ model: WeekDay, attributes: ['id', 'name'] }],
-        },
-      ],
-    });
+    const branches: ClinicBranch[] =
+      await this.clinicBranchRepo.findAllByLocation(locationId);
 
     if (!branches.length) {
       throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
@@ -49,31 +38,12 @@ export class ClinicBranchService {
   }
 
   async getById(id: string): Promise<ClinicBranch> {
-    const branch: ClinicBranch = await this.clinicBranchRepo.findByPk(id, {
-      include: [
-        {
-          model: Clinic,
-          attributes: ['userId'],
-        },
-      ],
-    });
-
-    return branch;
+    return this.clinicBranchRepo.findByIdWithClinic(id);
   }
 
   async getByIdWithSchedule(id: string): Promise<ClinicBranch> {
-    const branch: ClinicBranch = await this.clinicBranchRepo.findByPk(id, {
-      include: [
-        {
-          model: Convenience,
-          attributes: ['id', 'name'],
-        },
-        {
-          model: ClinicSchedule,
-          attributes: ['dayType', 'from', 'to', 'weekDayId'],
-        },
-      ],
-    });
+    const branch: ClinicBranch =
+      await this.clinicBranchRepo.findByIdWithSchedule(id);
 
     if (!branch) {
       throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
@@ -83,11 +53,8 @@ export class ClinicBranchService {
   }
 
   async getFirstByLocation(locationId: string): Promise<ClinicBranch> {
-    const branch: ClinicBranch | null = await this.clinicBranchRepo.findOne({
-      where: {
-        locationId,
-      },
-    });
+    const branch: ClinicBranch =
+      await this.clinicBranchRepo.findFirstByLocation(locationId);
 
     if (!branch) {
       throw new NotFoundException('Not found', ErrorCodes.NOT_FOUND);
@@ -96,7 +63,11 @@ export class ClinicBranchService {
     return branch;
   }
 
-  async create(locationId: string, clinicId: string, address: string) {
+  async create(
+    locationId: string,
+    clinicId: string,
+    address: string,
+  ): Promise<ClinicBranch> {
     return await this.clinicBranchRepo.create({
       locationId,
       clinicId,
@@ -142,63 +113,20 @@ export class ClinicBranchService {
   async getAllByLocationWithSchedule(
     locationId: string,
     clinicBranchId: string,
-    page: number,
-    perPage: number,
+    pageDto: PageDto,
   ) {
-    const branches = await this.clinicBranchRepo.findAndCountAll({
-      limit: perPage,
-      offset: page,
-      distinct: true,
-      order: [['id', 'DESC']],
-      where: {
-        [Op.and]: [
-          { locationId },
-          {
-            [Op.not]: [{ id: clinicBranchId }],
-          },
-        ],
-      },
-      include: [
-        {
-          model: Convenience,
-          attributes: ['id', 'name'],
-        },
-        {
-          model: ClinicSchedule,
-          attributes: ['dayType', 'from', 'to', 'weekDayId'],
-        },
-      ],
-    });
-
-    if (!branches) {
-      throw new InternalServerErrorException();
-    }
-
-    return branches;
+    return await this.clinicBranchRepo.findAndCountAllByLocationWithoutCurrent(
+      locationId,
+      clinicBranchId,
+      pageDto,
+    );
   }
 
   async getClinicDoctorSchedule(
     id: string,
   ): Promise<AppointmentScheduleFromClinic[]> {
-    const clinicBranch: ClinicBranch = await this.clinicBranchRepo.findByPk(
-      id,
-      {
-        include: [
-          {
-            model: Doctor,
-            attributes: ['userId', 'firstName', 'lastName'],
-            include: [
-              {
-                model: DoctorSchedule,
-                where: { clinicBranchId: id },
-                attributes: ['from', 'to', 'duration'],
-                include: [{ model: WeekDay, attributes: ['id', 'name'] }],
-              },
-            ],
-          },
-        ],
-      },
-    );
+    const clinicBranch: ClinicBranch =
+      await this.clinicBranchRepo.findByIdWithDoctor(id);
 
     const appointmentSchedule: AppointmentScheduleFromClinic[] =
       clinicBranch.doctors.map((doctor) => ({
@@ -209,5 +137,40 @@ export class ClinicBranchService {
       }));
 
     return appointmentSchedule;
+  }
+
+  async getClinicDoctors(id: string, pageDto: PageDto): Promise<ClinicDoctors> {
+    const clinicBranch: ClinicBranch =
+      await this.clinicBranchRepo.findByIdWithAttributes(id);
+
+    if (!clinicBranch) {
+      throw new BadRequestException(
+        'Data incorrect',
+        ErrorCodes.DATA_INCORRECT,
+      );
+    }
+
+    const doctorPage: IEntityPagination<Doctor> =
+      await this.doctorService.getAllDoctorsByBranch(id, pageDto);
+
+    const totalPages = Math.ceil(doctorPage.count / 5);
+    const doctors: IDoctor[] = doctorPage.rows.map((doctor) => ({
+      userId: doctor.userId,
+      firstName: doctor.firstName,
+      lastName: doctor.lastName,
+      surname: doctor.surname,
+      avatar: null,
+      experience: doctor.experience,
+      categoryName: doctor.category.name,
+      specialties: doctor.specialties.map((el) => ({
+        id: el.id,
+        name: el.name,
+      })),
+    }));
+
+    return {
+      doctors,
+      totalPages,
+    };
   }
 }

@@ -13,6 +13,8 @@ import { QueryLocationDto } from '../dto/query-location.dto';
 import { ClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
 import { AppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
 import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
+import { ClinicDoctors } from '../interfaces/clinic-doctors.interface';
+import { PageDto } from '../../../dto/PageDto';
 
 @Controller('clinic-branches')
 export class ClinicBranchController {
@@ -36,5 +38,14 @@ export class ClinicBranchController {
     @Param('id') id: string,
   ): Promise<AppointmentScheduleFromClinic[]> {
     return this.clinicBranchService.getClinicDoctorSchedule(id);
+  }
+
+  @UseFilters(new HttpExceptionFilter())
+  @Get('/:id/doctors')
+  async getClinicDoctors(
+    @Param('id') id: string,
+    @Query(new GeneralValidationPipe()) pageDto: PageDto,
+  ): Promise<ClinicDoctors> {
+    return this.clinicBranchService.getClinicDoctors(id, pageDto);
   }
 }

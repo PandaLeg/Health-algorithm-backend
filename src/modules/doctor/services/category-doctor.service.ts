@@ -1,33 +1,19 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CategoryDoctor } from '../models/category-doctor.entity';
+import { ICategoryDoctorRepository } from '../repos/category-doctor.repository.interface';
 
 @Injectable()
 export class CategoryDoctorService {
   constructor(
-    @Inject('CATEGORY_DOCTOR_REPOSITORY')
-    private categoryDoctorRepo: typeof CategoryDoctor,
+    @Inject('ICategoryDoctorRepository')
+    private categoryDoctorRepo: ICategoryDoctorRepository,
   ) {}
 
-  async getCategoryById(id: number) {
-    const category: CategoryDoctor | null =
-      await this.categoryDoctorRepo.findByPk(id);
-
-    if (!category) {
-      throw new InternalServerErrorException('Internal server error');
-    }
-
-    return category;
+  async getCategoryById(id: number): Promise<CategoryDoctor> {
+    return await this.categoryDoctorRepo.findById(id);
   }
 
   async findAll(): Promise<CategoryDoctor[]> {
-    const categories = await this.categoryDoctorRepo.findAll({
-      attributes: ['id', 'name'],
-    });
-
-    return categories;
+    return await this.categoryDoctorRepo.findAllWithAttributes();
   }
 }

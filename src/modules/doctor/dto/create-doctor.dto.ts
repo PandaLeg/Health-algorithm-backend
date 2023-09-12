@@ -15,46 +15,46 @@ export class CreateDoctorDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  firstName: string;
+  readonly firstName: string;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  lastName: string;
+  readonly lastName: string;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  surname: string;
+  readonly surname: string;
 
   @ValidateIf((o) => !!o.dateOfBirth)
   @IsDateString()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  dateOfBirth: string;
+  readonly dateOfBirth: string;
 
   @IsInt()
   @IsNotEmpty()
-  experience: number;
+  readonly experience: number;
 
   @IsInt()
   @IsNotEmpty()
-  categoryId: number;
+  readonly categoryId: number;
 
   @IsNotEmpty()
   @ValidateNested()
   @Type(() => DescriptionInfoDto)
-  description: DescriptionInfoDto;
+  readonly description: DescriptionInfoDto;
 
   @IsNotEmpty()
-  specialties: number[];
+  readonly specialties: number[];
 
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => DoctorWorkPlaceDto)
-  doctorWorkPlaces: DoctorWorkPlaceDto[];
+  readonly doctorWorkPlaces: DoctorWorkPlaceDto[];
 
   @IsArray()
   @IsNotEmpty()
-  cities: string[];
+  readonly cities: string[];
 }

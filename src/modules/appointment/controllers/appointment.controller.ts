@@ -47,6 +47,6 @@ export class AppointmentController {
     @Query('date') date: string,
     @Query('doctorId') doctorId: string,
   ): Promise<string[]> {
-    return this.appointmentService.getTimeByDate(date, doctorId);
+    return this.appointmentService.getTimeByDate(doctorId, date);
   }
 }

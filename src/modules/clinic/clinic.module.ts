@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ClinicController } from './controllers/clinic.controller';
 import { ClinicService } from './services/clinic.service';
 import { clinicProviders } from './clinic.providers';
@@ -13,9 +13,10 @@ import { ClinicTypeService } from './services/clinic-type.service';
 import { ClinicConvenienceService } from './services/clinic-convenience.service';
 import { ClinicBranchController } from './controllers/clinic-branch.controller';
 import { AuthModule } from '../auth/auth.module';
+import { DoctorModule } from '../doctor/doctor.module';
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [DatabaseModule, AuthModule, forwardRef(() => DoctorModule)],
   controllers: [
     ClinicController,
     ConvenienceController,

@@ -5,21 +5,21 @@ export class ClinicScheduleDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  dayType: string;
+  readonly dayType: string;
 
   @ValidateIf((o) => o.dayType === 'Workday')
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  from: string;
+  readonly from: string;
 
   @ValidateIf((o) => o.dayType === 'Workday')
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  to: string;
+  readonly to: string;
 
   @IsArray()
   @IsNotEmpty()
-  weekDays: number[];
+  readonly weekDays: number[];
 }

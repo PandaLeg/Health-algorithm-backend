@@ -4,17 +4,14 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Role } from '../models/role.entity';
+import { IRoleRepository } from '../repos/role.repository.interface';
 
 @Injectable()
 export class RoleService {
-  constructor(@Inject('ROLES_REPOSITORY') private roleRepo: typeof Role) {}
+  constructor(@Inject('IRoleRepository') private roleRepo: IRoleRepository) {}
 
-  async getRoleByValue(name: string) {
-    const role: Role | null = await this.roleRepo.findOne({
-      where: {
-        name,
-      },
-    });
+  async getRoleByValue(name: string): Promise<Role> {
+    const role: Role = await this.roleRepo.findByName(name);
 
     if (!role) {
       throw new InternalServerErrorException();

@@ -4,16 +4,13 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ClinicLocation } from '../models/clinic-location.entity';
-import { Op } from 'sequelize';
-import { Sequelize } from 'sequelize-typescript';
-import { ClinicBranch } from '../models/clinic-branch.entity';
+import { IClinicLocationRepository } from '../repos/clinic-location.repository.interface';
 
 @Injectable()
 export class ClinicLocationService {
   constructor(
-    @Inject('CLINIC_LOCATION_REPOSITORY')
-    private clinicLocationRepo: typeof ClinicLocation,
-    @Inject('SEQUELIZE') private sequelize: Sequelize,
+    @Inject('IClinicLocationRepository')
+    private clinicLocationRepo: IClinicLocationRepository,
   ) {}
 
   async getByClinicIdAndCity(
@@ -21,18 +18,7 @@ export class ClinicLocationService {
     city: string,
   ): Promise<ClinicLocation | null> {
     const location: ClinicLocation | null =
-      await this.clinicLocationRepo.findOne({
-        where: {
-          [Op.and]: [
-            { clinicId },
-            this.sequelize.where(
-              this.sequelize.fn('lower', this.sequelize.col('city')),
-              city.toLowerCase(),
-            ),
-          ],
-        },
-        include: [{ model: ClinicBranch, attributes: ['id'] }],
-      });
+      await this.clinicLocationRepo.findOneByClinicAndCity(clinicId, city);
 
     if (!location) {
       throw new InternalServerErrorException();
@@ -41,24 +27,14 @@ export class ClinicLocationService {
     return location;
   }
 
-  async getById(id: string) {
-    const location: ClinicLocation = await this.clinicLocationRepo.findByPk(
-      id,
-      {
-        attributes: ['city'],
-      },
-    );
-
-    return location;
+  async getById(id: string): Promise<ClinicLocation> {
+    return await this.clinicLocationRepo.findByIdWithAttributes(id);
   }
 
   async createLocation(
     clinicId: string,
     city: string,
   ): Promise<ClinicLocation> {
-    return await this.clinicLocationRepo.create({
-      clinicId,
-      city,
-    });
+    return await this.clinicLocationRepo.create({ clinicId, city });
   }
 }
