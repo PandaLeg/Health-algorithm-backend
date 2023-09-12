@@ -1,9 +1,9 @@
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { User } from '../models/user.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { IUserRepository } from './user.repository.interface';
 import { CreateUserDto } from '../../auth/dto/create-user.dto';
-import { MultipleUserProps, UserProp } from '../../../types/user.type';
+import { MultipleUserProps, UserProp } from '../../../base/types/user.type';
 import { Role } from '../models/role.entity';
 import { Op } from 'sequelize';
 

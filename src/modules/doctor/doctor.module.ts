@@ -7,7 +7,7 @@ import { SpecialtyService } from './services/specialty.service';
 import { DescriptionDoctorService } from './services/description-doctor.service';
 import { SpecialtyController } from './controllers/specialty.controller';
 import { DoctorLocationService } from './services/doctor-location.service';
-import { DatabaseModule } from '../../db-init/database.module';
+import { DatabaseModule } from '../../db/database.module';
 import { ClinicModule } from '../clinic/clinic.module';
 import { DoctorScheduleService } from './services/doctor-schedule.service';
 import { AuthModule } from '../auth/auth.module';

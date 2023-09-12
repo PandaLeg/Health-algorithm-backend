@@ -1,4 +1,4 @@
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { ClinicBranch } from '../models/clinic-branch.entity';
 import { IClinicBranchRepository } from './clinic-branch.repository.interface';
 import { Inject, Injectable } from '@nestjs/common';
@@ -6,7 +6,7 @@ import { ClinicSchedule } from '../models/clinic-schedule.entity';
 import { WeekDay } from '../../week-day/models/week-day.entity';
 import { Clinic } from '../models/clinic.entity';
 import { Convenience } from '../models/convenience.entity';
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 import { Op } from 'sequelize';
 import { Doctor } from '../../doctor/models/doctor.entity';

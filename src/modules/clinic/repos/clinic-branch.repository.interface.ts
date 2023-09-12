@@ -1,6 +1,6 @@
-import { IBaseRepository } from '../../../base/repos/base.repository.interface';
+import { IBaseRepository } from '../../../db/repos/base.repository.interface';
 import { ClinicBranch } from '../models/clinic-branch.entity';
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 
 export interface IClinicBranchRepository extends IBaseRepository<ClinicBranch> {

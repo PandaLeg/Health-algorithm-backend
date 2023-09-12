@@ -4,7 +4,7 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
 
 @Injectable()
 export class ParseIntDoctorPipe implements PipeTransform {

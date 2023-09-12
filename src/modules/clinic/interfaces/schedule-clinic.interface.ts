@@ -1,4 +1,4 @@
-export interface ScheduleClinic {
+export interface IScheduleClinic {
   dayType: string;
   from: string;
   to: string;

@@ -4,21 +4,21 @@ import { UserService } from '../../user/services/user.service';
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
 import * as cryptoRandomString from 'crypto-random-string';
-import { BadRequestException } from '../../../exceptions/bad-request.exception';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { BadRequestException } from '../../../base/exceptions/bad-request.exception';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
 import { UserCredentialsDto } from '../dto/user-credentials.dto';
 import { User } from '../../user/models/user.entity';
 import { TokenService } from './token.service';
-import { AuthResponse } from '../interfaces/auth-response.interface';
-import { UserPayload } from '../interfaces/user-payload.interface';
+import { IAuthResponse } from '../interfaces/auth-response.interface';
+import { IUserPayload } from '../interfaces/user-payload.interface';
 import { Token } from '../models/token.entity';
-import { NotFoundException } from '../../../exceptions/not-found.exception';
+import { NotFoundException } from '../../../base/exceptions/not-found.exception';
 import { MailService } from './mail.service';
-import { Activation } from '../interfaces/activation.interface';
+import { IActivation } from '../interfaces/activation.interface';
 import hashPassword from '../../../utils/hashPassword';
 import { UserEmailDto } from '../dto/user-email.dto';
 import { UserResetDto } from '../dto/user-reset.dto';
-import { MultipleUserProps } from '../../../types/user.type';
+import { MultipleUserProps } from '../../../base/types/user.type';
 
 @Injectable()
 export class AuthService {
@@ -68,7 +68,7 @@ export class AuthService {
     return 'User created successfully';
   }
 
-  async login(userCredentials: UserCredentialsDto): Promise<AuthResponse> {
+  async login(userCredentials: UserCredentialsDto): Promise<IAuthResponse> {
     const user: User | null = await this.userService.findOne(
       'phone',
       userCredentials.phone,
@@ -103,7 +103,10 @@ export class AuthService {
     return this.tokenService.generateAndSaveTokens(user, null);
   }
 
-  async refresh(user: UserPayload, refreshToken: Token): Promise<AuthResponse> {
+  async refresh(
+    user: IUserPayload,
+    refreshToken: Token,
+  ): Promise<IAuthResponse> {
     const userFromDb: User | null = await this.userService.findById(user.id);
 
     if (!userFromDb) {
@@ -127,7 +130,7 @@ export class AuthService {
     return 'Logout successfully';
   }
 
-  async activate(code: string): Promise<Activation> {
+  async activate(code: string): Promise<IActivation> {
     const user: User | null = await this.userService.findOne(
       'activationCode',
       code,

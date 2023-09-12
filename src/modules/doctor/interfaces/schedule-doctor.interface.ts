@@ -1,4 +1,4 @@
-export interface ScheduleDoctor {
+export interface IScheduleDoctor {
   from: string;
   to: string;
   duration: string;

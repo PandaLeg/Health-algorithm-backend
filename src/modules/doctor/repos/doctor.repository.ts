@@ -1,4 +1,4 @@
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { Doctor } from '../models/doctor.entity';
 import { IDoctorRepository } from './doctor.repository.interface';
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
@@ -7,9 +7,9 @@ import { IEntityPagination } from '../../../base/interfaces/entity-pagination.in
 import { User } from '../../user/models/user.entity';
 import { Specialty } from '../models/specialty.entity';
 import { CategoryDoctor } from '../models/category-doctor.entity';
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
-import { DoctorName } from '../interfaces/doctor-name.interface';
+import { IDoctorName } from '../interfaces/doctor-name.interface';
 import { QueryTypes } from 'sequelize';
 import { LastNameDto } from '../dto/last-name.dto';
 import { Sequelize } from 'sequelize-typescript';
@@ -75,7 +75,7 @@ export class DoctorRepository
     });
   }
 
-  findNamesByCityAndLastName(lastNameDto: LastNameDto): Promise<DoctorName[]> {
+  findNamesByCityAndLastName(lastNameDto: LastNameDto): Promise<IDoctorName[]> {
     const lastName: string = lastNameDto.lastName.toLowerCase();
     const city: string = lastNameDto.city.toLowerCase();
     const specialtyId: number | null = lastNameDto.specialtyId ?? null;
@@ -96,7 +96,7 @@ export class DoctorRepository
     ORDER BY "firstName" DESC
     LIMIT 10`;
 
-    return this.sequelize.query<DoctorName>(mainQuery, {
+    return this.sequelize.query<IDoctorName>(mainQuery, {
       type: QueryTypes.SELECT,
     });
   }
@@ -198,6 +198,6 @@ export class DoctorRepository
           ],
         },
       ],
-    })
+    });
   }
 }

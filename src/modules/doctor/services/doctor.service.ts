@@ -8,23 +8,23 @@ import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { CategoryDoctorService } from './category-doctor.service';
 import { CategoryDoctor } from '../models/category-doctor.entity';
 import { SpecialtyService } from './specialty.service';
-import { SpecialtyCategory } from '../interfaces/specialty-category.interface';
+import { ISpecialtyCategory } from '../interfaces/specialty-category.interface';
 import { Specialty } from '../models/specialty.entity';
 import { IDoctorResponse } from '../interfaces/doctor-response.interface';
 import { IDoctor } from '../interfaces/doctor.interface';
 import { DescriptionDoctorService } from './description-doctor.service';
 import { LastNameDto } from '../dto/last-name.dto';
 import { DoctorLocationService } from './doctor-location.service';
-import { DoctorName } from '../interfaces/doctor-name.interface';
-import { PageDto } from '../../../dto/PageDto';
+import { IDoctorName } from '../interfaces/doctor-name.interface';
+import { PageDto } from '../../../base/dto/PageDto';
 import { DoctorSearchDto } from '../dto/doctor-search.dto';
-import { NotFoundException } from '../../../exceptions/not-found.exception';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
-import { ScheduleClinic } from '../../clinic/interfaces/schedule-clinic.interface';
+import { NotFoundException } from '../../../base/exceptions/not-found.exception';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
+import { IScheduleClinic } from '../../clinic/interfaces/schedule-clinic.interface';
 import { ClinicService } from '../../clinic/services/clinic.service';
-import { DoctorClinic } from '../interfaces/doctor-clinic.interface';
-import { DoctorClinicBranch } from '../interfaces/doctor-clinic-branch.inteface';
-import { AppointmentScheduleFromDoctor } from '../interfaces/appointment-schedule.interface';
+import { IDoctorClinic } from '../interfaces/doctor-clinic.interface';
+import { IDoctorClinicBranch } from '../interfaces/doctor-clinic-branch.inteface';
+import { IAppointmentScheduleFromDoctor } from '../interfaces/appointment-schedule.interface';
 import { DoctorScheduleService } from './doctor-schedule.service';
 import { DoctorSchedule } from '../models/doctor-schedule.entity';
 import { IDoctorRepository } from '../repos/doctor.repository.interface';
@@ -49,7 +49,7 @@ export class DoctorService {
   async findSpecialtiesAndCategory(
     categoryId: number,
     specialties: number[],
-  ): Promise<SpecialtyCategory> {
+  ): Promise<ISpecialtyCategory> {
     const category: CategoryDoctor =
       await this.categoryDoctorService.getCategoryById(categoryId);
 
@@ -87,7 +87,7 @@ export class DoctorService {
   async createDoctor(
     doctor: Doctor,
     userId: string,
-    specialtyCategoryDoctor: SpecialtyCategory,
+    specialtyCategoryDoctor: ISpecialtyCategory,
     doctorDto: CreateDoctorDto,
   ) {
     doctor.userId = userId;
@@ -151,7 +151,7 @@ export class DoctorService {
     return await this.doctorRepo.findAndCountAllByBranch(id, pageDto);
   }
 
-  async getNames(lastNameDto: LastNameDto): Promise<DoctorName[]> {
+  async getNames(lastNameDto: LastNameDto): Promise<IDoctorName[]> {
     return await this.doctorRepo.findNamesByCityAndLastName(lastNameDto);
   }
 
@@ -186,7 +186,7 @@ export class DoctorService {
     };
   }
 
-  async getDoctorWithClinics(doctorId: string): Promise<DoctorClinic> {
+  async getDoctorWithClinics(doctorId: string): Promise<IDoctorClinic> {
     const doctorFromDb: Doctor = await this.doctorRepo.findOneByIdWithRelations(
       doctorId,
     );
@@ -212,10 +212,10 @@ export class DoctorService {
       course: doctorFromDb.description.course,
     };
 
-    const clinics: DoctorClinicBranch[] = [];
+    const clinics: IDoctorClinicBranch[] = [];
 
     for (const clinicBranch of doctorFromDb.clinicBranches) {
-      const schedule: ScheduleClinic[] =
+      const schedule: IScheduleClinic[] =
         await this.clinicService.formScheduleForClinic(
           clinicBranch.schedules,
           clinicBranch.id,
@@ -225,7 +225,7 @@ export class DoctorService {
         clinicBranch.locationId,
       );
 
-      const clinicInfo: DoctorClinicBranch = {
+      const clinicInfo: IDoctorClinicBranch = {
         clinicBranchId: clinicBranch.id,
         address: clinicBranch.address,
         conveniences: clinicBranch.conveniences.map((el) => ({
@@ -250,11 +250,11 @@ export class DoctorService {
   async getAppointmentSchedule(
     doctorId: string,
     clinicBranches: string[],
-  ): Promise<AppointmentScheduleFromDoctor[]> {
-    const appointmentSchedule: AppointmentScheduleFromDoctor[] = [];
+  ): Promise<IAppointmentScheduleFromDoctor[]> {
+    const appointmentSchedule: IAppointmentScheduleFromDoctor[] = [];
 
     for (const clinicBranchId of clinicBranches) {
-      const appointment: Partial<AppointmentScheduleFromDoctor> = {};
+      const appointment: Partial<IAppointmentScheduleFromDoctor> = {};
 
       appointment.clinicBranchId = clinicBranchId;
 
@@ -271,7 +271,7 @@ export class DoctorService {
         weekDay: { id: schedule.weekDay.id, name: schedule.weekDay.name },
       }));
 
-      appointmentSchedule.push(<AppointmentScheduleFromDoctor>appointment);
+      appointmentSchedule.push(<IAppointmentScheduleFromDoctor>appointment);
     }
 
     return appointmentSchedule;

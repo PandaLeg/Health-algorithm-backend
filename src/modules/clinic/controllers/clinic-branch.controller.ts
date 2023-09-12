@@ -7,14 +7,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClinicBranchService } from '../services/clinic-branch.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
-import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
+import { GeneralValidationPipe } from '../../../base/pipes/general-validation.pipe';
 import { QueryLocationDto } from '../dto/query-location.dto';
-import { ClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
-import { AppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
+import { IClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
+import { IAppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
 import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
-import { ClinicDoctors } from '../interfaces/clinic-doctors.interface';
-import { PageDto } from '../../../dto/PageDto';
+import { IClinicDoctors } from '../interfaces/clinic-doctors.interface';
+import { PageDto } from '../../../base/dto/PageDto';
 
 @Controller('clinic-branches')
 export class ClinicBranchController {
@@ -24,7 +24,7 @@ export class ClinicBranchController {
   @Get('/addresses')
   async getClinicAddresses(
     @Query(new GeneralValidationPipe()) queryLocationDto: QueryLocationDto,
-  ): Promise<ClinicAddressInfo[]> {
+  ): Promise<IClinicAddressInfo[]> {
     return this.clinicBranchService.getClinicAddresses(
       queryLocationDto.clinicId,
       queryLocationDto.city,
@@ -36,7 +36,7 @@ export class ClinicBranchController {
   @Get('/:id/doctors-schedule')
   async getClinicDoctorSchedule(
     @Param('id') id: string,
-  ): Promise<AppointmentScheduleFromClinic[]> {
+  ): Promise<IAppointmentScheduleFromClinic[]> {
     return this.clinicBranchService.getClinicDoctorSchedule(id);
   }
 
@@ -45,7 +45,7 @@ export class ClinicBranchController {
   async getClinicDoctors(
     @Param('id') id: string,
     @Query(new GeneralValidationPipe()) pageDto: PageDto,
-  ): Promise<ClinicDoctors> {
+  ): Promise<IClinicDoctors> {
     return this.clinicBranchService.getClinicDoctors(id, pageDto);
   }
 }

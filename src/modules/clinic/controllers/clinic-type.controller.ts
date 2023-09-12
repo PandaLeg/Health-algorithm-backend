@@ -1,6 +1,6 @@
 import { Controller, Get, UseFilters } from '@nestjs/common';
 import { ClinicTypeService } from '../services/clinic-type.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
 import { ClinicType } from '../models/clinic-type.entity';
 
 @Controller('clinic-types')

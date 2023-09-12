@@ -1,4 +1,4 @@
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { Role } from '../models/role.entity';
 import { IRoleRepository } from './role.repository.interface';
 import { Inject, Injectable } from '@nestjs/common';

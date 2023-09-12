@@ -8,12 +8,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AppointmentService } from '../services/appointment.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
 import { CreateAppointmentDto } from '../dto/create-appointment.dto';
-import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
+import { GeneralValidationPipe } from '../../../base/pipes/general-validation.pipe';
 import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
-import { AppointmentPage } from '../interfaces/appointment-page.interface';
-import { PageDto } from '../../../dto/PageDto';
+import { IAppointmentPage } from '../interfaces/appointment-page.interface';
+import { PageDto } from '../../../base/dto/PageDto';
 
 @Controller('appointments')
 export class AppointmentController {
@@ -35,7 +35,7 @@ export class AppointmentController {
     @Query('id') id: string,
     @Query(new GeneralValidationPipe()) pageDto: PageDto,
     @Body('authPayload') authPayload: any,
-  ): Promise<AppointmentPage> {
+  ): Promise<IAppointmentPage> {
     const roles = authPayload.roles;
     return this.appointmentService.getAll(id, roles, pageDto);
   }

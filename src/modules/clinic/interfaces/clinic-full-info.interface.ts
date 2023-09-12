@@ -1,8 +1,8 @@
-import { ClinicSearch } from './clinic-search.interface';
-import { ScheduleClinic } from './schedule-clinic.interface';
+import { IClinicSearch } from './clinic-search.interface';
+import { IScheduleClinic } from './schedule-clinic.interface';
 
-export interface ClinicFullInfo extends ClinicSearch {
+export interface IClinicFullInfo extends IClinicSearch {
   address: string;
   conveniences: { id: number; name: string }[];
-  schedule: ScheduleClinic[];
+  schedule: IScheduleClinic[];
 }

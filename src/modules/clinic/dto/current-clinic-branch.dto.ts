@@ -1,4 +1,4 @@
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Transform, TransformFnParams } from 'class-transformer';
 

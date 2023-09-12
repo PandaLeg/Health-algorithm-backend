@@ -1,4 +1,4 @@
-import { IBaseRepository } from '../../../base/repos/base.repository.interface';
+import { IBaseRepository } from '../../../db/repos/base.repository.interface';
 import { ClinicSchedule } from '../models/clinic-schedule.entity';
 
 export interface IClinicScheduleRepository

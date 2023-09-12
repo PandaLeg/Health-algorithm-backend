@@ -1,7 +1,7 @@
 import { IDoctor } from './doctor.interface';
-import { DoctorClinicBranch } from './doctor-clinic-branch.inteface';
+import { IDoctorClinicBranch } from './doctor-clinic-branch.inteface';
 
-export interface DoctorClinic {
+export interface IDoctorClinic {
   doctor: IDoctor;
-  clinics: DoctorClinicBranch[];
+  clinics: IDoctorClinicBranch[];
 }

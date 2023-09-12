@@ -2,7 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { ClinicController } from './controllers/clinic.controller';
 import { ClinicService } from './services/clinic.service';
 import { clinicProviders } from './clinic.providers';
-import { DatabaseModule } from '../../db-init/database.module';
+import { DatabaseModule } from '../../db/database.module';
 import { ClinicLocationService } from './services/clinic-location.service';
 import { ClinicBranchService } from './services/clinic-branch.service';
 import { ClinicScheduleService } from './services/clinic-schedule.service';

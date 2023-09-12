@@ -1,13 +1,13 @@
 import { Controller, Get, Param, Query, UseFilters } from '@nestjs/common';
 import { ClinicService } from '../services/clinic.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
-import { ClinicInfo } from '../interfaces/clinic-info.interface';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
+import { IClinicInfo } from '../interfaces/clinic-info.interface';
 import { QueryClinicDto } from '../dto/query-clinic.dto';
-import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
-import { ClinicSearchPage } from '../interfaces/clinic-search-page.interface';
-import { ClinicSearch } from '../interfaces/clinic-search.interface';
-import { ClinicFullInfo } from '../interfaces/clinic-full-info.interface';
-import { PageDto } from '../../../dto/PageDto';
+import { GeneralValidationPipe } from '../../../base/pipes/general-validation.pipe';
+import { IClinicSearchPage } from '../interfaces/clinic-search-page.interface';
+import { IClinicSearch } from '../interfaces/clinic-search.interface';
+import { IClinicFullInfo } from '../interfaces/clinic-full-info.interface';
+import { PageDto } from '../../../base/dto/PageDto';
 import { CurrentClinicBranchDto } from '../dto/current-clinic-branch.dto';
 
 @Controller('clinics')
@@ -18,7 +18,7 @@ export class ClinicController {
   @Get('/names')
   async getAllByCityAndName(
     @Query(new GeneralValidationPipe()) queryClinicDto: QueryClinicDto,
-  ): Promise<ClinicInfo[]> {
+  ): Promise<IClinicInfo[]> {
     return this.clinicService.getAllByCityAndName(
       queryClinicDto.city,
       queryClinicDto.name,
@@ -30,7 +30,7 @@ export class ClinicController {
   async getAllByCity(
     @Query('city') city: string,
     @Query(new GeneralValidationPipe()) pageDto: PageDto,
-  ): Promise<ClinicSearchPage> {
+  ): Promise<IClinicSearchPage> {
     return this.clinicService.searchClinicsByCity(city, pageDto);
   }
 
@@ -48,7 +48,7 @@ export class ClinicController {
   async getByCityAndName(
     @Param('id') id: string,
     @Query('city') city: string,
-  ): Promise<ClinicSearch> {
+  ): Promise<IClinicSearch> {
     return this.clinicService.searchClinicByIdAndCity(id, city);
   }
 
@@ -58,7 +58,7 @@ export class ClinicController {
     @Param('id') id: string,
     @Query('city') city: string,
     @Query('clinicBranch') clinicBranchId: string,
-  ): Promise<ClinicFullInfo> {
+  ): Promise<IClinicFullInfo> {
     return this.clinicService.getFullInfoClinic(id, city, clinicBranchId);
   }
 }

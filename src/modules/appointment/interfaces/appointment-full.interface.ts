@@ -1,12 +1,12 @@
-import { ClinicInfoAppointment } from './clinic-info-appointment.interface';
-import { DoctorInfoAppointment } from './doctor-info-appointment.interface';
-import { PatientInfoAppointment } from './patient-info-appointment.interface';
+import { IClinicInfoAppointment } from './clinic-info-appointment.interface';
+import { IDoctorInfoAppointment } from './doctor-info-appointment.interface';
+import { IPatientInfoAppointment } from './patient-info-appointment.interface';
 
-export interface AppointmentFull {
+export interface IAppointmentFull {
   id: string;
   date: string;
   time: string;
-  doctor: DoctorInfoAppointment;
-  clinicBranch: ClinicInfoAppointment;
-  patient: PatientInfoAppointment;
+  doctor: IDoctorInfoAppointment;
+  clinicBranch: IClinicInfoAppointment;
+  patient: IPatientInfoAppointment;
 }

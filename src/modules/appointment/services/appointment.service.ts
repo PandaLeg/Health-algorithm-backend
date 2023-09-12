@@ -8,17 +8,17 @@ import { CreateAppointmentDto } from '../dto/create-appointment.dto';
 import { ClinicBranchService } from '../../clinic/services/clinic-branch.service';
 import { DoctorService } from '../../doctor/services/doctor.service';
 import { PatientService } from '../../patient/services/patient.service';
-import { NotFoundException } from '../../../exceptions/not-found.exception';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { NotFoundException } from '../../../base/exceptions/not-found.exception';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
 import { Patient } from '../../patient/models/patient.entity';
-import { AppointmentPage } from '../interfaces/appointment-page.interface';
-import { AppointmentFull } from '../interfaces/appointment-full.interface';
-import { DoctorInfoAppointment } from '../interfaces/doctor-info-appointment.interface';
-import { ClinicInfoAppointment } from '../interfaces/clinic-info-appointment.interface';
-import { PatientInfoAppointment } from '../interfaces/patient-info-appointment.interface';
-import { PageDto } from '../../../dto/PageDto';
+import { IAppointmentPage } from '../interfaces/appointment-page.interface';
+import { IAppointmentFull } from '../interfaces/appointment-full.interface';
+import { IDoctorInfoAppointment } from '../interfaces/doctor-info-appointment.interface';
+import { IClinicInfoAppointment } from '../interfaces/clinic-info-appointment.interface';
+import { IPatientInfoAppointment } from '../interfaces/patient-info-appointment.interface';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IAppointmentRepository } from '../repos/appointment.repository.interface';
 import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 
@@ -74,7 +74,7 @@ export class AppointmentService {
     id: string,
     roles: string[],
     pageDto: PageDto,
-  ): Promise<AppointmentPage> {
+  ): Promise<IAppointmentPage> {
     const role = roles?.find((r) => r === 'CLINIC' || r === 'PATIENT');
 
     if (!role) {
@@ -89,10 +89,10 @@ export class AppointmentService {
         roleKey,
         pageDto,
       );
-    const appointments: AppointmentFull[] = [];
+    const appointments: IAppointmentFull[] = [];
 
     for (const appointmentFromDb of appointmentPage.rows) {
-      const doctor: DoctorInfoAppointment = {
+      const doctor: IDoctorInfoAppointment = {
         doctorId: appointmentFromDb.doctorId,
         firstName: appointmentFromDb.doctor.firstName,
         lastName: appointmentFromDb.doctor.lastName,
@@ -102,7 +102,7 @@ export class AppointmentService {
         })),
       };
 
-      const clinic: ClinicInfoAppointment = {
+      const clinic: IClinicInfoAppointment = {
         clinicId: appointmentFromDb.clinicId,
         clinicBranchId: appointmentFromDb.clinicBranchId,
         address: appointmentFromDb.clinicBranch.address,
@@ -110,13 +110,13 @@ export class AppointmentService {
         name: appointmentFromDb.clinic.name,
       };
 
-      const patient: PatientInfoAppointment = {
+      const patient: IPatientInfoAppointment = {
         firstName: appointmentFromDb.patient.firstName,
         lastName: appointmentFromDb.patient.lastName,
         phone: appointmentFromDb.patient.user.phone,
       };
 
-      const appointment: AppointmentFull = {
+      const appointment: IAppointmentFull = {
         id: appointmentFromDb.id,
         date: appointmentFromDb.date,
         time: appointmentFromDb.time,
