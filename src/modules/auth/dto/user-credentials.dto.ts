@@ -10,11 +10,11 @@ export class UserCredentialsDto {
   @IsString()
   @IsNotEmpty()
   @IsPhoneNumber('UA')
-  phone: string;
+  readonly phone: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
   @MaxLength(20)
-  password: string;
+  readonly password: string;
 }

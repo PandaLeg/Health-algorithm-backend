@@ -5,10 +5,10 @@ export class QueryLocationDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  clinicId: string;
+  readonly clinicId: string;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  city: string;
+  readonly city: string;
 }

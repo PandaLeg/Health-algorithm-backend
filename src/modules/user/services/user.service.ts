@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../models/user.entity';
 import { CreateUserDto } from '../../auth/dto/create-user.dto';
-import { RoleService } from '../../role/services/role.service';
+import { RoleService } from './role.service';
 import { PatientService } from '../../patient/services/patient.service';
-import { Op } from 'sequelize';
-import { RoleType } from '../../role/enums/role-type.enum';
-import { Role } from '../../role/models/role.entity';
+import { RoleType } from '../enums/role-type.enum';
+import { Role } from '../models/role.entity';
 import { DoctorService } from '../../doctor/services/doctor.service';
 import { SpecialtyCategory } from '../../doctor/interfaces/specialty-category.interface';
 import { Doctor } from '../../doctor/models/doctor.entity';
@@ -18,11 +17,12 @@ import { Clinic } from '../../clinic/models/clinic.entity';
 import { ClinicDoctorService } from '../../clinic-doctor/services/clinic-doctor.service';
 import { DoctorWorkPlaceDto } from '../../doctor/dto/doctor-work-place.dto';
 import { DoctorScheduleService } from '../../doctor/services/doctor-schedule.service';
+import { IUserRepository } from '../repos/user.repository.interface';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('USERS_REPOSITORY') private userRepo: typeof User,
+    @Inject('IUserRepository') private userRepo: IUserRepository,
     private readonly patientService: PatientService,
     private readonly doctorService: DoctorService,
     private readonly clinicService: ClinicService,
@@ -32,53 +32,27 @@ export class UserService {
     private readonly doctorScheduleService: DoctorScheduleService,
   ) {}
 
-  async getAll() {
-    return await this.userRepo.findAll({
-      include: [Role],
-    });
+  async getAll(): Promise<User[]> {
+    return await this.userRepo.findAllWithRole();
   }
 
-  async findById(id: string): Promise<User | null> {
-    const user: User | null = await this.userRepo.findByPk(id, {
-      include: [Role],
-    });
-
-    return user;
+  async findById(id: string): Promise<User> {
+    return await this.userRepo.findByIdWithRole(id);
   }
 
-  async findOne(key: UserProp, value: string): Promise<User | null> {
-    const user: User | null = await this.userRepo.findOne({
-      where: {
-        [key]: value,
-      },
-      include: [Role],
-    });
-
-    return user;
+  async findOne(key: UserProp, value: string): Promise<User> {
+    return await this.userRepo.findOneByUserProp(key, value);
   }
 
-  async findOneByMultipleFields(
-    fields: MultipleUserProps[],
-  ): Promise<User | null> {
-    const user: User | null = await this.userRepo.findOne({
-      where: {
-        [Op.and]: fields,
-      },
-      include: [Role],
-    });
-
-    return user;
+  async findOneByMultipleFields(fields: MultipleUserProps[]): Promise<User> {
+    return await this.userRepo.findOneByUserProps(fields);
   }
 
   async createUser(
     userDto: CreateUserDto,
     image?: Express.Multer.File,
   ): Promise<User> {
-    const user: User = this.userRepo.build({
-      phone: userDto.phone,
-      password: userDto.password,
-      email: userDto.email,
-    });
+    const user: User = this.userRepo.buildUser(userDto);
 
     let role: Role;
 
@@ -161,12 +135,6 @@ export class UserService {
   }
 
   async checkUserExists(phone: string, email: string): Promise<boolean> {
-    const user: User | null = await this.userRepo.findOne({
-      where: {
-        [Op.or]: [{ phone }, { email }],
-      },
-    });
-
-    return !!user;
+    return !!(await this.userRepo.findOneByPhoneOrEmail(phone, email));
   }
 }

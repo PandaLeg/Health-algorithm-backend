@@ -1,19 +1,14 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Query,
-  UseFilters,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, UseFilters } from '@nestjs/common';
 import { ClinicService } from '../services/clinic.service';
 import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
 import { ClinicInfo } from '../interfaces/clinic-info.interface';
 import { QueryClinicDto } from '../dto/query-clinic.dto';
 import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
-import { ClinicCardInfoPage } from '../interfaces/clinic-card-info-page.interface';
-import { ClinicCardInfo } from '../interfaces/clinic-card-info.interface';
+import { ClinicSearchPage } from '../interfaces/clinic-search-page.interface';
+import { ClinicSearch } from '../interfaces/clinic-search.interface';
 import { ClinicFullInfo } from '../interfaces/clinic-full-info.interface';
+import { PageDto } from '../../../dto/PageDto';
+import { CurrentClinicBranchDto } from '../dto/current-clinic-branch.dto';
 
 @Controller('clinics')
 export class ClinicController {
@@ -25,46 +20,36 @@ export class ClinicController {
     @Query(new GeneralValidationPipe()) queryClinicDto: QueryClinicDto,
   ): Promise<ClinicInfo[]> {
     return this.clinicService.getAllByCityAndName(
-      queryClinicDto.name,
       queryClinicDto.city,
+      queryClinicDto.name,
     );
   }
 
   @UseFilters(new HttpExceptionFilter())
-  @Get('/card-info')
+  @Get('/search')
   async getAllByCity(
     @Query('city') city: string,
-    @Query('page', ParseIntPipe) page: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
-  ): Promise<ClinicCardInfoPage> {
-    return this.clinicService.getAllByCity(page, perPage, city);
+    @Query(new GeneralValidationPipe()) pageDto: PageDto,
+  ): Promise<ClinicSearchPage> {
+    return this.clinicService.searchClinicsByCity(city, pageDto);
   }
 
   @UseFilters(new HttpExceptionFilter())
-  @Get('/full-info')
+  @Get('/without-current')
   async getFullInfoClinics(
-    @Query('id') id: string,
-    @Query('city') city: string,
-    @Query('clinicBranch') clinicBranchId: string,
-    @Query('page', ParseIntPipe) page: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query(new GeneralValidationPipe())
+    currentClinicDto: CurrentClinicBranchDto,
   ) {
-    return this.clinicService.getFullInfoClinics(
-      id,
-      city,
-      clinicBranchId,
-      page,
-      perPage,
-    );
+    return this.clinicService.getFullInfoClinics(currentClinicDto);
   }
 
   @UseFilters(new HttpExceptionFilter())
-  @Get('/:id/card-info')
+  @Get('/:id/search')
   async getByCityAndName(
     @Param('id') id: string,
     @Query('city') city: string,
-  ): Promise<ClinicCardInfo> {
-    return this.clinicService.getByIdAndCity(id, city);
+  ): Promise<ClinicSearch> {
+    return this.clinicService.searchClinicByIdAndCity(id, city);
   }
 
   @UseFilters(new HttpExceptionFilter())

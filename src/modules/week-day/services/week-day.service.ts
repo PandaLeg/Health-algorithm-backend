@@ -1,15 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { WeekDay } from '../models/week-day.entity';
+import { IWeekDayRepository } from '../repos/week-day.repository.interface';
 
 @Injectable()
 export class WeekDayService {
   constructor(
-    @Inject('WEEK_DAY_REPOSITORY') private weekDayRepo: typeof WeekDay,
+    @Inject('IWeekDayRepository') private weekDayRepo: IWeekDayRepository,
   ) {}
 
   async getAll() {
-    const weekDays: WeekDay[] = await this.weekDayRepo.findAll();
-
-    return weekDays;
+    return await this.weekDayRepo.findAll();
   }
 }

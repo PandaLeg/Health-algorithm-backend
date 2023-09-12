@@ -13,23 +13,20 @@ import { ErrorCodes } from '../../../exceptions/error-codes.enum';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
 import { Patient } from '../../patient/models/patient.entity';
-import { Op } from 'sequelize';
-import { Specialty } from '../../doctor/models/specialty.entity';
-import { ClinicLocation } from '../../clinic/models/clinic-location.entity';
-import { User } from '../../user/models/user.entity';
-import { Clinic } from '../../clinic/models/clinic.entity';
 import { AppointmentPage } from '../interfaces/appointment-page.interface';
 import { AppointmentFull } from '../interfaces/appointment-full.interface';
 import { DoctorInfoAppointment } from '../interfaces/doctor-info-appointment.interface';
 import { ClinicInfoAppointment } from '../interfaces/clinic-info-appointment.interface';
 import { PatientInfoAppointment } from '../interfaces/patient-info-appointment.interface';
 import { PageDto } from '../../../dto/PageDto';
+import { IAppointmentRepository } from '../repos/appointment.repository.interface';
+import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 
 @Injectable()
 export class AppointmentService {
   constructor(
-    @Inject('APPOINTMENT_REPOSITORY')
-    private appointmentRepo: typeof Appointment,
+    @Inject('IAppointmentRepository')
+    private appointmentRepo: IAppointmentRepository,
     private readonly clinicBranchService: ClinicBranchService,
     private readonly doctorService: DoctorService,
     private readonly patientService: PatientService,
@@ -66,13 +63,9 @@ export class AppointmentService {
     };
   }
 
-  async getTimeByDate(date: string, doctorId: string): Promise<string[]> {
-    const times: Appointment[] = await this.appointmentRepo.findAll({
-      where: {
-        [Op.and]: [{ date }, { doctorId }],
-      },
-      attributes: ['time'],
-    });
+  async getTimeByDate(doctorId: string, date: string): Promise<string[]> {
+    const times: Appointment[] =
+      await this.appointmentRepo.findAllByDoctorAndDate(doctorId, date);
 
     return times.map((el) => el.time);
   }
@@ -90,42 +83,15 @@ export class AppointmentService {
 
     const roleKey = role === 'CLINIC' ? 'clinicId' : 'patientId';
 
-    const appointmentsFromDb = await this.appointmentRepo.findAndCountAll({
-      limit: pageDto.perPage,
-      offset: pageDto.page,
-      distinct: true,
-      order: [
-        ['date', 'DESC'],
-        ['time', 'DESC'],
-      ],
-      where: {
-        [roleKey]: id,
-      },
-      include: [
-        {
-          model: Doctor,
-          attributes: ['firstName', 'lastName'],
-          include: [{ model: Specialty, attributes: ['id', 'name'] }],
-        },
-        {
-          model: ClinicBranch,
-          attributes: ['address'],
-          include: [{ model: ClinicLocation, attributes: ['city'] }],
-        },
-        {
-          model: Clinic,
-          attributes: ['name'],
-        },
-        {
-          model: Patient,
-          attributes: ['firstName', 'lastName'],
-          include: [{ model: User, attributes: ['phone'] }],
-        },
-      ],
-    });
+    const appointmentPage: IEntityPagination<Appointment> =
+      await this.appointmentRepo.findAndCountAllDependingRole(
+        id,
+        roleKey,
+        pageDto,
+      );
     const appointments: AppointmentFull[] = [];
 
-    for (const appointmentFromDb of appointmentsFromDb.rows) {
+    for (const appointmentFromDb of appointmentPage.rows) {
       const doctor: DoctorInfoAppointment = {
         doctorId: appointmentFromDb.doctorId,
         firstName: appointmentFromDb.doctor.firstName,
@@ -163,7 +129,7 @@ export class AppointmentService {
     }
 
     const totalPages: number = Math.ceil(
-      appointmentsFromDb.count / pageDto.perPage,
+      appointmentPage.count / pageDto.perPage,
     );
 
     return {

@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClinicSchedule } from '../models/clinic-schedule.entity';
 import { ClinicScheduleDto } from '../dto/clinic-schedule.dto';
-import { WeekDay } from '../../week-day/models/week-day.entity';
+import { IClinicScheduleRepository } from '../repos/clinic-schedule.repository.interface';
 
 @Injectable()
 export class ClinicScheduleService {
   constructor(
-    @Inject('CLINIC_SCHEDULE_REPOSITORY')
-    private clinicScheduleRepo: typeof ClinicSchedule,
+    @Inject('IClinicScheduleRepository')
+    private clinicScheduleRepo: IClinicScheduleRepository,
   ) {}
 
   async createSchedule(
@@ -29,21 +29,10 @@ export class ClinicScheduleService {
     from: string,
     to: string,
   ): Promise<ClinicSchedule[]> {
-    const schedules: ClinicSchedule[] = await this.clinicScheduleRepo.findAll({
-      where: {
-        clinicBranchId,
-        from,
-        to,
-      },
-      attributes: ['dayType', 'from', 'to', 'weekDayId'],
-      include: [
-        {
-          model: WeekDay,
-          attributes: ['id', 'name'],
-        },
-      ],
-    });
-
-    return schedules;
+    return await this.clinicScheduleRepo.findByClinicBranchAndTime(
+      clinicBranchId,
+      from,
+      to,
+    );
   }
 }

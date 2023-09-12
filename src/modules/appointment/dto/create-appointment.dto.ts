@@ -10,25 +10,25 @@ export class CreateAppointmentDto {
   @IsUUID()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  doctorId: string;
+  readonly doctorId: string;
 
   @IsUUID()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  clinicBranchId: string;
+  readonly clinicBranchId: string;
 
   @IsUUID()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  patientId: string;
+  readonly patientId: string;
 
   @IsDateString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  dateAppointment: string;
+  readonly dateAppointment: string;
 
   @IsMilitaryTime()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  time: string;
+  readonly time: string;
 }

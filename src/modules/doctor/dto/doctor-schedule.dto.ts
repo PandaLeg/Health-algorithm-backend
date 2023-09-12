@@ -5,19 +5,19 @@ export class DoctorScheduleDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  from: string;
+  readonly from: string;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  to: string;
+  readonly to: string;
 
   @IsInt()
   @IsNotEmpty()
-  weekDayId: number;
+  readonly weekDayId: number;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  duration: string;
+  readonly duration: string;
 }

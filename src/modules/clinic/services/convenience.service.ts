@@ -1,18 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Convenience } from '../models/convenience.entity';
+import { IConvenienceRepository } from '../repos/convenience.repository.interface';
 
 @Injectable()
 export class ConvenienceService {
   constructor(
-    @Inject('CONVENIENCE_REPOSITORY')
-    private convenienceRepo: typeof Convenience,
+    @Inject('IConvenienceRepository')
+    private convenienceRepo: IConvenienceRepository,
   ) {}
 
   async getAll(): Promise<Convenience[]> {
-    const conveniences: Convenience[] = await this.convenienceRepo.findAll({
-      attributes: ['id', 'name'],
-    });
-
-    return conveniences;
+    return await this.convenienceRepo.findAllWithAttributes();
   }
 }

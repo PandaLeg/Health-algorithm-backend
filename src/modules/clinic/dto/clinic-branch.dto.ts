@@ -6,15 +6,15 @@ export class ClinicBranchDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  address: string;
+  readonly address: string;
 
   @IsArray()
   @IsNotEmpty()
-  conveniences: number[];
+  readonly conveniences: number[];
 
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => ClinicScheduleDto)
-  scheduleClinic: ClinicScheduleDto[];
+  readonly scheduleClinic: ClinicScheduleDto[];
 }

@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ClinicDoctor } from '../models/clinic-doctor.entity';
+import { IClinicDoctorRepository } from '../repos/clinic-doctor.repository.interface';
 
 @Injectable()
 export class ClinicDoctorService {
   constructor(
-    @Inject('CLINIC_DOCTOR_REPOSITORY')
-    readonly clinicDoctorRepo: typeof ClinicDoctor,
+    @Inject('IClinicDoctorRepository')
+    readonly clinicDoctorRepo: IClinicDoctorRepository,
   ) {}
 
   async create(clinicBranchId: string, doctorId: string) {

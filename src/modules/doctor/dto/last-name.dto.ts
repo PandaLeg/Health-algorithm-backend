@@ -3,10 +3,10 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class LastNameDto {
   @IsString()
   @IsNotEmpty()
-  city: string;
+  readonly city: string;
 
-  specialtyId: number;
+  readonly specialtyId: number;
 
   @IsString()
-  lastName: string;
+  readonly lastName: string;
 }

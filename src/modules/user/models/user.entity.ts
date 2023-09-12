@@ -9,8 +9,8 @@ import {
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { Patient } from '../../patient/models/patient.entity';
-import { UserRole } from '../../user-role/models/user-roles.entity';
-import { Role } from '../../role/models/role.entity';
+import { UserRole } from './user-roles.entity';
+import { Role } from './role.entity';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { Clinic } from '../../clinic/models/clinic.entity';
 import { Token } from '../../auth/models/token.entity';

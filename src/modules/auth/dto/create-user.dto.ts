@@ -20,35 +20,35 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @IsPhoneNumber('UA')
-  phone: string;
+  readonly phone: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
   @MaxLength(20)
-  password: string;
+  readonly password: string;
 
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  readonly email: string;
 
   @IsString()
   @IsNotEmpty()
   @Validate(ContainType)
-  type: UserType;
+  readonly type: UserType;
 
   @ValidateIf((o) => !!o.patient)
   @ValidateNested()
   @Type(() => CreatePatientDto)
-  patient?: CreatePatientDto;
+  readonly patient?: CreatePatientDto;
 
   @ValidateIf((o) => !!o.doctor)
   @ValidateNested()
   @Type(() => CreateDoctorDto)
-  doctor?: CreateDoctorDto;
+  readonly doctor?: CreateDoctorDto;
 
   @ValidateIf((o) => !!o.clinic)
   @ValidateNested()
   @Type(() => CreateClinicDto)
-  clinic?: CreateClinicDto;
+  readonly clinic?: CreateClinicDto;
 }

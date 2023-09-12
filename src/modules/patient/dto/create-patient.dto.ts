@@ -5,15 +5,15 @@ export class CreatePatientDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  firstName: string;
+  readonly firstName: string;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  lastName: string;
+  readonly lastName: string;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  city: string;
+  readonly city: string;
 }

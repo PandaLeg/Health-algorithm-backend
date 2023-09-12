@@ -12,20 +12,20 @@ export class CreateClinicDto {
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  name: string;
+  readonly name: string;
 
   @IsString()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  description: string;
+  readonly description: string;
 
   @IsInt()
   @IsNotEmpty()
-  clinicType: number;
+  readonly clinicType: number;
 
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => ClinicPlaceDto)
-  locations: ClinicPlaceDto[];
+  readonly locations: ClinicPlaceDto[];
 }

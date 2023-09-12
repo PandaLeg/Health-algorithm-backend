@@ -1,4 +1,4 @@
-export interface ClinicCardInfo {
+export interface ClinicSearch {
   clinicId: string;
   name: string;
   description: string;

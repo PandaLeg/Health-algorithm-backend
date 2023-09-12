@@ -7,22 +7,19 @@ import { Token } from '../models/token.entity';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 import { JwtService } from '@nestjs/jwt';
 import * as process from 'process';
+import { ITokenRepository } from '../repos/token.repository.interface';
 
 @Injectable()
 export class TokenService {
   MAX_SESSIONS_COUNT = 5;
 
   constructor(
-    @Inject('TOKENS_REPOSITORY') private tokenRepo: typeof Token,
+    @Inject('ITokenRepository') private tokenRepo: ITokenRepository,
     private readonly jwtService: JwtService,
   ) {}
 
   async findOneByToken(refreshToken: string): Promise<Token | null> {
-    const token: Token | null = await this.tokenRepo.findOne({
-      where: { refreshToken },
-    });
-
-    return token;
+    return await this.tokenRepo.findOneByRefreshToken(refreshToken);
   }
 
   async generateAndSaveTokens(
@@ -73,11 +70,7 @@ export class TokenService {
     refreshToken: string,
     oldToken: Token | null,
   ) {
-    const tokens: Token[] = await this.tokenRepo.findAll({
-      where: {
-        userId,
-      },
-    });
+    const tokens: Token[] = await this.tokenRepo.findAllByUser(userId);
 
     const expiresIn = moment().add(10, 'h').toString();
 
@@ -110,9 +103,7 @@ export class TokenService {
     });
   }
 
-  async removeToken(id: string) {
-    await this.tokenRepo.destroy({
-      where: { id },
-    });
+  async removeToken(id: string | number) {
+    await this.tokenRepo.remove('id', id);
   }
 }
