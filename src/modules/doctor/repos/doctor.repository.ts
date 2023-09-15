@@ -129,22 +129,20 @@ export class DoctorRepository
     LIMIT ${pageDto.perPage} OFFSET ${pageDto.page}`;
 
     const countDoctorsQuery = `
-    SELECT COUNT(rows."userId") as count
+    SELECT COUNT(rows.row) as count
     FROM (
-        SELECT DISTINCT
-        rows."userId",
-        row_number() OVER (PARTITION BY doctor_row) as row
+        SELECT
+        row_number() OVER (PARTITION BY user_id) as row
         FROM (
             SELECT
-            d."userId",
-            row_number() OVER (PARTITION BY d."userId") as doctor_row
+            DISTINCT
+            d."userId" as user_id
             FROM doctors as d
             inner join doctor_specialties as ds on d."userId" = ds."doctorId" 
             inner join doctor_locations as dl on d."userId" = dl."doctorId" 
             where lower(dl.city) = '${city}' ${doctorSubQuery} ${specialtySubQuery}
         ) rows
-    ) rows
-    WHERE rows.row <= ${pageDto.perPage}`;
+    ) rows`;
 
     const doctorsFromDb: IDoctor[] = await this.sequelize.query<IDoctor>(
       mainQuery,

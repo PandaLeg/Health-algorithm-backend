@@ -11,7 +11,6 @@ import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.fil
 import { IDoctorResponse } from '../interfaces/doctor-response.interface';
 import { LastNameDto } from '../dto/last-name.dto';
 import { GeneralValidationPipe } from '../../../base/pipes/general-validation.pipe';
-import { PageDto } from '../../../base/dto/PageDto';
 import { DoctorSearchDto } from '../dto/doctor-search.dto';
 import { IDoctorName } from '../interfaces/doctor-name.interface';
 import { IDoctorClinic } from '../interfaces/doctor-clinic.interface';
@@ -22,14 +21,6 @@ import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
 @Controller('doctors')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
-
-  @UseFilters(new HttpExceptionFilter())
-  @Get()
-  async getAllDoctors(
-    @Query(new GeneralValidationPipe()) pageDto: PageDto,
-  ): Promise<IDoctorResponse> {
-    return this.doctorService.getAllDoctors(pageDto);
-  }
 
   @UseFilters(new HttpExceptionFilter())
   @Get('/categories-specialties')

@@ -4,5 +4,5 @@ export interface IScheduleClinic {
   to: string;
   weekDayId: number;
   time?: string;
-  weekDays?: string[];
+  weekDays?: { id: number; name: string }[];
 }

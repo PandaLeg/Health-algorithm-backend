@@ -176,4 +176,8 @@ export class ClinicBranchService {
       totalPages,
     };
   }
+
+  async totalClinicsNumberByCity(city: string): Promise<number> {
+    return await this.clinicBranchRepo.countAllByCity(city);
+  }
 }

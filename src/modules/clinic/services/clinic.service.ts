@@ -69,9 +69,13 @@ export class ClinicService {
       clinics.push(clinic);
     }
 
+    const countClinicBranches: number =
+      await this.clinicBranchService.totalClinicsNumberByCity(city);
+
     return {
       clinics,
       totalPages,
+      count: countClinicBranches,
     };
   }
 
@@ -151,7 +155,10 @@ export class ClinicService {
     }
   }
 
-  async getAllByCityAndName(city: string, name: string): Promise<IClinicInfo[]> {
+  async getAllByCityAndName(
+    city: string,
+    name: string,
+  ): Promise<IClinicInfo[]> {
     return await this.clinicRepo.findAllByCityAndName(city, name);
   }
 
@@ -302,7 +309,10 @@ export class ClinicService {
 
       for (let j = 0; j < scheduleFromDb.length; j++) {
         const clinicSchedule = scheduleFromDb[j];
-        const weekDay = clinicSchedule.weekDay.name;
+        const weekDay = {
+          id: clinicSchedule.weekDay.id,
+          name: clinicSchedule.weekDay.name,
+        };
 
         newSchedule.weekDays.push(weekDay);
       }

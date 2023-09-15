@@ -21,4 +21,6 @@ export interface IClinicBranchRepository extends IBaseRepository<ClinicBranch> {
   findByIdWithDoctor(id: string): Promise<ClinicBranch>;
 
   findByIdWithAttributes(id: string): Promise<ClinicBranch>;
+
+  countAllByCity(city: string): Promise<number>;
 }

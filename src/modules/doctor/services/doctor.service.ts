@@ -119,31 +119,6 @@ export class DoctorService {
     };
   }
 
-  async getAllDoctors(pageDto: PageDto): Promise<IDoctorResponse> {
-    const doctorPage: IEntityPagination<Doctor> =
-      await this.doctorRepo.findAndCountAll(pageDto);
-
-    const totalPages = Math.ceil(doctorPage.count / pageDto.perPage);
-    const doctors: IDoctor[] = doctorPage.rows.map((doctor) => ({
-      userId: doctor.userId,
-      firstName: doctor.firstName,
-      lastName: doctor.lastName,
-      surname: doctor.surname,
-      avatar: doctor.user.avatar,
-      experience: doctor.experience,
-      categoryName: doctor.category.name,
-      specialties: doctor.specialties.map((el) => ({
-        id: el.id,
-        name: el.name,
-      })),
-    }));
-
-    return {
-      doctors,
-      totalPages,
-    };
-  }
-
   async getAllDoctorsByBranch(
     id: string,
     pageDto: PageDto,
@@ -183,6 +158,7 @@ export class DoctorService {
     return {
       doctors,
       totalPages,
+      count: doctorPage.count,
     };
   }
 
