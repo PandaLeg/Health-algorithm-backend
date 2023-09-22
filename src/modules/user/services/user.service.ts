@@ -55,12 +55,11 @@ export class UserService {
     const user: User = this.userRepo.buildUser(userDto);
 
     let role: Role;
-
+    user.confirmed = true;
     switch (userDto.type.trim()) {
       case 'patient':
         role = await this.roleService.getRoleByValue(RoleType.PATIENT_ROLE);
 
-        user.confirmed = true;
         await user.save();
         await this.patientService.createPatient(user.id, userDto.patient);
         break;
@@ -85,19 +84,16 @@ export class UserService {
           userDto.doctor,
         );
 
-        const workPlaces: DoctorWorkPlaceDto[] =
-          userDto.doctor.doctorWorkPlaces;
+        const workPlace: DoctorWorkPlaceDto = userDto.doctor.workPlace;
 
-        for (const workPlace of workPlaces) {
-          await this.clinicDoctorService.create(workPlace.id, user.id);
+        await this.clinicDoctorService.create(workPlace.id, user.id);
 
-          for (const schedule of workPlace.schedule) {
-            await this.doctorScheduleService.create(
-              workPlace.id,
-              user.id,
-              schedule,
-            );
-          }
+        for (const schedule of workPlace.schedule) {
+          await this.doctorScheduleService.create(
+            workPlace.id,
+            user.id,
+            schedule,
+          );
         }
 
         break;

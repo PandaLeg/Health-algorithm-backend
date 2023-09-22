@@ -57,6 +57,12 @@ export class Doctor extends Model<Doctor> {
     type: DataType.INTEGER,
     allowNull: false,
   })
+  price: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
   experience: number;
 
   @ForeignKey(() => CategoryDoctor)

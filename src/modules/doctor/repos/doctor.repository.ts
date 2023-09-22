@@ -39,6 +39,7 @@ export class DoctorRepository
       surname: dto.surname,
       dateOfBirth: dto.dateOfBirth,
       experience: dto.experience,
+      price: dto.price,
     });
   }
 
@@ -116,7 +117,7 @@ export class DoctorRepository
 
     const mainQuery = `
     SELECT DISTINCT d."userId" as "userId", d."firstName" as "firstName", 
-    d."lastName" as "lastName", d.surname, d.experience, u.avatar, 
+    d."lastName" as "lastName", d.surname, d.price, d.experience, u.avatar, 
     cd.name as "categoryName"
     FROM doctors as d
     INNER JOIN users as u on d."userId" = u.id 
@@ -169,7 +170,14 @@ export class DoctorRepository
       where: {
         userId: doctorId,
       },
-      attributes: ['userId', 'firstName', 'lastName', 'surname', 'experience'],
+      attributes: [
+        'userId',
+        'firstName',
+        'lastName',
+        'surname',
+        'price',
+        'experience',
+      ],
       include: [
         { model: User, attributes: ['avatar'] },
         { model: Specialty, attributes: ['id', 'name'] },

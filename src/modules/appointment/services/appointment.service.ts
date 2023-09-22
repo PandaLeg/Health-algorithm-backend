@@ -1,4 +1,5 @@
 import {
+  forwardRef,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -28,6 +29,7 @@ export class AppointmentService {
     @Inject('IAppointmentRepository')
     private appointmentRepo: IAppointmentRepository,
     private readonly clinicBranchService: ClinicBranchService,
+    @Inject(forwardRef(() => DoctorService))
     private readonly doctorService: DoctorService,
     private readonly patientService: PatientService,
   ) {}
@@ -93,9 +95,10 @@ export class AppointmentService {
 
     for (const appointmentFromDb of appointmentPage.rows) {
       const doctor: IDoctorInfoAppointment = {
-        doctorId: appointmentFromDb.doctorId,
+        id: appointmentFromDb.doctorId,
         firstName: appointmentFromDb.doctor.firstName,
         lastName: appointmentFromDb.doctor.lastName,
+        price: appointmentFromDb.doctor.price / 100,
         specialties: appointmentFromDb.doctor.specialties.map((specialty) => ({
           id: specialty.id,
           name: specialty.name,

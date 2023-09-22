@@ -56,7 +56,7 @@ export class AppointmentRepository
       include: [
         {
           model: Doctor,
-          attributes: ['firstName', 'lastName'],
+          attributes: ['firstName', 'lastName', 'price'],
           include: [{ model: Specialty, attributes: ['id', 'name'] }],
         },
         {

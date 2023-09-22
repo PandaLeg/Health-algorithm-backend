@@ -33,6 +33,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
     }
 
+    if (status === HttpStatus.FORBIDDEN) {
+      return response.json({
+        message: 'Forbidden',
+      });
+    }
+
     return response.json({
       message: 'Internal server error',
     });
