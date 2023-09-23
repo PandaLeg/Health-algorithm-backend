@@ -117,15 +117,16 @@ export class DoctorRepository
 
     const mainQuery = `
     SELECT DISTINCT d."userId" as "userId", d."firstName" as "firstName", 
-    d."lastName" as "lastName", d.surname, d.price, d.experience, u.avatar, 
+    d."lastName" as "lastName", dd.about, d.surname, d.price, d.experience, u.avatar, 
     cd.name as "categoryName"
     FROM doctors as d
     INNER JOIN users as u on d."userId" = u.id 
-    INNER JOIN categories_doctor as cd on d."categoryId" = cd.id  
-    INNER JOIN doctor_specialties as ds on ds."doctorId" = d."userId"
+    INNER JOIN categories_doctor as cd on d."categoryId" = cd.id
+    INNER JOIN description_doctors as dd on d."userId" = dd."doctorId"   
+    INNER JOIN doctor_specialties as ds on d."userId" = ds."doctorId"
     INNER JOIN doctor_locations as dl on d."userId" = dl."doctorId" 
     WHERE lower(dl.city) = '${city}' ${doctorSubQuery} ${specialtySubQuery}
-    GROUP BY u.id, d."userId", cd.name
+    GROUP BY u.id, d."userId", cd.name, dd.about
     ORDER BY "firstName" DESC
     LIMIT ${pageDto.perPage} OFFSET ${pageDto.page}`;
 
