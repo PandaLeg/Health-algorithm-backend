@@ -1,6 +1,6 @@
 import { Controller, Get, UseFilters } from '@nestjs/common';
 import { WeekDayService } from '../services/week-day.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
 import { WeekDay } from '../models/week-day.entity';
 
 @Controller('week-days')

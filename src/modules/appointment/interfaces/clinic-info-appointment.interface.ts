@@ -1,4 +1,4 @@
-export interface ClinicInfoAppointment {
+export interface IClinicInfoAppointment {
   clinicId: string;
   clinicBranchId: string;
   address: string;

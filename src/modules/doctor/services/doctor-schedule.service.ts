@@ -6,6 +6,7 @@ import {
 import { DoctorSchedule } from '../models/doctor-schedule.entity';
 import { DoctorScheduleDto } from '../dto/doctor-schedule.dto';
 import { IDoctorScheduleRepository } from '../repos/doctor-schedule.repository.interface';
+import { IClinicDoctorSchedule } from '../interfaces/clinic-doctor.interface';
 
 @Injectable()
 export class DoctorScheduleService {
@@ -38,6 +39,17 @@ export class DoctorScheduleService {
         doctorId,
         clinicBranchId,
       );
+
+    if (!schedule) {
+      throw new InternalServerErrorException();
+    }
+
+    return schedule;
+  }
+
+  async getAllByDoctorAndCity(doctorId: string, city: string) {
+    const schedule: IClinicDoctorSchedule[] =
+      await this.doctorScheduleRepo.findAllByDoctorAndCity(doctorId, city);
 
     if (!schedule) {
       throw new InternalServerErrorException();

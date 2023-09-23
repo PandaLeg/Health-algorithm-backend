@@ -1,6 +1,6 @@
 import { Controller, Get, UseFilters } from '@nestjs/common';
 import { ConvenienceService } from '../services/convenience.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
 import { Convenience } from '../models/convenience.entity';
 
 @Controller('conveniences')

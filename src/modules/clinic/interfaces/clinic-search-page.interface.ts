@@ -1,6 +1,7 @@
-import { ClinicSearch } from './clinic-search.interface';
+import { IClinicSearch } from './clinic-search.interface';
 
-export interface ClinicSearchPage {
-  clinics: ClinicSearch[];
+export interface IClinicSearchPage {
+  clinics: IClinicSearch[];
   totalPages: number;
+  count: number;
 }

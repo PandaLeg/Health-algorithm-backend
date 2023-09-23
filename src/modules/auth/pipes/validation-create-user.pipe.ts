@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
 
 @Injectable()
 export class ValidationCreateUserPipe implements PipeTransform {

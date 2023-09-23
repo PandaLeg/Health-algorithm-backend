@@ -1,6 +1,6 @@
 import { Controller, Get, Param, UseFilters } from '@nestjs/common';
 import { RoleService } from '../services/role.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
 
 @Controller('roles')
 export class RoleController {

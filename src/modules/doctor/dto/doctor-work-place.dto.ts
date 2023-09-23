@@ -1,18 +1,11 @@
-import {
-  IsArray,
-  IsNotEmpty,
-  IsString,
-  IsUUID,
-  ValidateNested,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsUUID, ValidateNested } from 'class-validator';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { DoctorScheduleDto } from './doctor-schedule.dto';
 
 export class DoctorWorkPlaceDto {
-  @IsString()
+  @IsUUID()
   @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
-  @IsUUID()
   readonly id: string;
 
   @IsArray()

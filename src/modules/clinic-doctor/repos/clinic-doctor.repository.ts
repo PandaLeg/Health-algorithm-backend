@@ -1,4 +1,4 @@
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { ClinicDoctor } from '../models/clinic-doctor.entity';
 import { IClinicDoctorRepository } from './clinic-doctor.repository.interface';
 import { Inject, Injectable } from '@nestjs/common';

@@ -1,18 +1,18 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ClinicBranch } from '../models/clinic-branch.entity';
-import { ClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
+import { IClinicAddressInfo } from '../interfaces/clinic-address-info.interface';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { ClinicLocationService } from './clinic-location.service';
-import { BranchSchedule } from '../interfaces/branch-schedule.interface';
-import { NotFoundException } from '../../../exceptions/not-found.exception';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
-import { AppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
+import { IBranchSchedule } from '../interfaces/branch-schedule.interface';
+import { NotFoundException } from '../../../base/exceptions/not-found.exception';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
+import { IAppointmentScheduleFromClinic } from '../../doctor/interfaces/appointment-schedule.interface';
 import { Doctor } from '../../doctor/models/doctor.entity';
-import { ClinicDoctors } from '../interfaces/clinic-doctors.interface';
-import { BadRequestException } from '../../../exceptions/bad-request.exception';
+import { IClinicDoctors } from '../interfaces/clinic-doctors.interface';
+import { BadRequestException } from '../../../base/exceptions/bad-request.exception';
 import { DoctorService } from '../../doctor/services/doctor.service';
 import { IDoctor } from '../../doctor/interfaces/doctor.interface';
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IClinicBranchRepository } from '../repos/clinic-branch.repository.interface';
 import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 
@@ -78,7 +78,7 @@ export class ClinicBranchService {
   async getClinicAddresses(
     clinicId: string,
     city: string,
-  ): Promise<ClinicAddressInfo[]> {
+  ): Promise<IClinicAddressInfo[]> {
     const location: ClinicLocation | null =
       await this.clinicLocationService.getByClinicIdAndCity(clinicId, city);
 
@@ -86,8 +86,8 @@ export class ClinicBranchService {
       location.id,
     );
 
-    return clinicBranches.map((branch): ClinicAddressInfo => {
-      const branchSchedule: BranchSchedule[] = branch.schedules.map(
+    return clinicBranches.map((branch): IClinicAddressInfo => {
+      const branchSchedule: IBranchSchedule[] = branch.schedules.map(
         (schedule) => ({
           from: schedule.from,
           to: schedule.to,
@@ -124,11 +124,11 @@ export class ClinicBranchService {
 
   async getClinicDoctorSchedule(
     id: string,
-  ): Promise<AppointmentScheduleFromClinic[]> {
+  ): Promise<IAppointmentScheduleFromClinic[]> {
     const clinicBranch: ClinicBranch =
       await this.clinicBranchRepo.findByIdWithDoctor(id);
 
-    const appointmentSchedule: AppointmentScheduleFromClinic[] =
+    const appointmentSchedule: IAppointmentScheduleFromClinic[] =
       clinicBranch.doctors.map((doctor) => ({
         doctorId: doctor.userId,
         firstName: doctor.firstName,
@@ -139,7 +139,10 @@ export class ClinicBranchService {
     return appointmentSchedule;
   }
 
-  async getClinicDoctors(id: string, pageDto: PageDto): Promise<ClinicDoctors> {
+  async getClinicDoctors(
+    id: string,
+    pageDto: PageDto,
+  ): Promise<IClinicDoctors> {
     const clinicBranch: ClinicBranch =
       await this.clinicBranchRepo.findByIdWithAttributes(id);
 
@@ -172,5 +175,9 @@ export class ClinicBranchService {
       doctors,
       totalPages,
     };
+  }
+
+  async totalClinicsNumberByCity(city: string): Promise<number> {
+    return await this.clinicBranchRepo.countAllByCity(city);
   }
 }

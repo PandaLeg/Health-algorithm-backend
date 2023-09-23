@@ -1,4 +1,4 @@
-export interface ClinicSearch {
+export interface IClinicSearch {
   clinicId: string;
   name: string;
   description: string;

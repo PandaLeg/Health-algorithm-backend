@@ -1,4 +1,4 @@
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class DoctorSearchDto extends PageDto {

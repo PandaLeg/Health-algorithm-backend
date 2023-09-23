@@ -1,4 +1,4 @@
-import { IBaseRepository } from '../../../base/repos/base.repository.interface';
+import { IBaseRepository } from '../../../db/repos/base.repository.interface';
 import { Patient } from '../models/patient.entity';
 import { CreatePatientDto } from '../dto/create-patient.dto';
 

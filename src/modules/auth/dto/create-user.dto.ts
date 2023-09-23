@@ -1,4 +1,4 @@
-import { UserType } from '../../../types/user.type';
+import { UserType } from '../../../base/types/user.type';
 import { CreatePatientDto } from '../../patient/dto/create-patient.dto';
 import { CreateDoctorDto } from '../../doctor/dto/create-doctor.dto';
 import { CreateClinicDto } from '../../clinic/dto/create-clinic.dto';

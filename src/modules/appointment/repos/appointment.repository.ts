@@ -1,4 +1,4 @@
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { Appointment } from '../models/appointment.entity';
 import { IAppointmentRepository } from './appointment.repository.interface';
 import { Inject, Injectable } from '@nestjs/common';
@@ -10,7 +10,7 @@ import { ClinicLocation } from '../../clinic/models/clinic-location.entity';
 import { Clinic } from '../../clinic/models/clinic.entity';
 import { Patient } from '../../patient/models/patient.entity';
 import { User } from '../../user/models/user.entity';
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 
 @Injectable()
@@ -56,7 +56,7 @@ export class AppointmentRepository
       include: [
         {
           model: Doctor,
-          attributes: ['firstName', 'lastName'],
+          attributes: ['firstName', 'lastName', 'price'],
           include: [{ model: Specialty, attributes: ['id', 'name'] }],
         },
         {

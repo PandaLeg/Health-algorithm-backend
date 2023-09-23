@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AdminAppealModule } from './modules/appeal/admin-appeal.module';
+import { AppealModule } from './modules/appeal/appeal.module';
 
 @Module({
-  imports: [AdminAppealModule],
+  imports: [AppealModule],
   controllers: [],
   providers: [],
 })

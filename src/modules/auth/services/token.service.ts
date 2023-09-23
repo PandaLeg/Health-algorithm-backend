@@ -1,10 +1,10 @@
 import * as moment from 'moment';
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../../user/models/user.entity';
-import { UserPayload } from '../interfaces/user-payload.interface';
-import { TokenInfo } from '../interfaces/token-info.interface';
+import { IUserPayload } from '../interfaces/user-payload.interface';
+import { ITokenInfo } from '../interfaces/token-info.interface';
 import { Token } from '../models/token.entity';
-import { AuthResponse } from '../interfaces/auth-response.interface';
+import { IAuthResponse } from '../interfaces/auth-response.interface';
 import { JwtService } from '@nestjs/jwt';
 import * as process from 'process';
 import { ITokenRepository } from '../repos/token.repository.interface';
@@ -25,14 +25,14 @@ export class TokenService {
   async generateAndSaveTokens(
     user: User,
     refreshToken: Token | null,
-  ): Promise<AuthResponse> {
+  ): Promise<IAuthResponse> {
     const roles: string[] = user.roles.map((role) => role.name);
-    const userPayload: UserPayload = {
+    const userPayload: IUserPayload = {
       id: user.id,
       email: user.email,
       roles,
     };
-    const tokens: TokenInfo = await this.generateTokens(userPayload);
+    const tokens: ITokenInfo = await this.generateTokens(userPayload);
     await this.saveTokens(user.id, tokens.refreshToken, refreshToken);
 
     return {
@@ -41,7 +41,7 @@ export class TokenService {
     };
   }
 
-  async generateTokens(payload: UserPayload): Promise<TokenInfo> {
+  async generateTokens(payload: IUserPayload): Promise<ITokenInfo> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         { ...payload },

@@ -1,6 +1,6 @@
-import { ClinicFullInfo } from './clinic-full-info.interface';
+import { IClinicFullInfo } from './clinic-full-info.interface';
 
-export interface ClinicsFullInfo {
-  clinics: ClinicFullInfo[];
+export interface IClinicsFullInfo {
+  clinics: IClinicFullInfo[];
   totalPages: number;
 }

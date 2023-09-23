@@ -1,4 +1,4 @@
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { Doctor } from '../models/doctor.entity';
 import { IDoctorRepository } from './doctor.repository.interface';
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
@@ -7,9 +7,9 @@ import { IEntityPagination } from '../../../base/interfaces/entity-pagination.in
 import { User } from '../../user/models/user.entity';
 import { Specialty } from '../models/specialty.entity';
 import { CategoryDoctor } from '../models/category-doctor.entity';
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { ClinicBranch } from '../../clinic/models/clinic-branch.entity';
-import { DoctorName } from '../interfaces/doctor-name.interface';
+import { IDoctorName } from '../interfaces/doctor-name.interface';
 import { QueryTypes } from 'sequelize';
 import { LastNameDto } from '../dto/last-name.dto';
 import { Sequelize } from 'sequelize-typescript';
@@ -39,6 +39,7 @@ export class DoctorRepository
       surname: dto.surname,
       dateOfBirth: dto.dateOfBirth,
       experience: dto.experience,
+      price: dto.price,
     });
   }
 
@@ -75,7 +76,7 @@ export class DoctorRepository
     });
   }
 
-  findNamesByCityAndLastName(lastNameDto: LastNameDto): Promise<DoctorName[]> {
+  findNamesByCityAndLastName(lastNameDto: LastNameDto): Promise<IDoctorName[]> {
     const lastName: string = lastNameDto.lastName.toLowerCase();
     const city: string = lastNameDto.city.toLowerCase();
     const specialtyId: number | null = lastNameDto.specialtyId ?? null;
@@ -96,7 +97,7 @@ export class DoctorRepository
     ORDER BY "firstName" DESC
     LIMIT 10`;
 
-    return this.sequelize.query<DoctorName>(mainQuery, {
+    return this.sequelize.query<IDoctorName>(mainQuery, {
       type: QueryTypes.SELECT,
     });
   }
@@ -116,35 +117,34 @@ export class DoctorRepository
 
     const mainQuery = `
     SELECT DISTINCT d."userId" as "userId", d."firstName" as "firstName", 
-    d."lastName" as "lastName", d.surname, d.experience, u.avatar, 
+    d."lastName" as "lastName", dd.about, d.surname, d.price, d.experience, u.avatar, 
     cd.name as "categoryName"
     FROM doctors as d
     INNER JOIN users as u on d."userId" = u.id 
-    INNER JOIN categories_doctor as cd on d."categoryId" = cd.id  
-    INNER JOIN doctor_specialties as ds on ds."doctorId" = d."userId"
+    INNER JOIN categories_doctor as cd on d."categoryId" = cd.id
+    INNER JOIN description_doctors as dd on d."userId" = dd."doctorId"   
+    INNER JOIN doctor_specialties as ds on d."userId" = ds."doctorId"
     INNER JOIN doctor_locations as dl on d."userId" = dl."doctorId" 
     WHERE lower(dl.city) = '${city}' ${doctorSubQuery} ${specialtySubQuery}
-    GROUP BY u.id, d."userId", cd.name
+    GROUP BY u.id, d."userId", cd.name, dd.about
     ORDER BY "firstName" DESC
     LIMIT ${pageDto.perPage} OFFSET ${pageDto.page}`;
 
     const countDoctorsQuery = `
-    SELECT COUNT(rows."userId") as count
+    SELECT COUNT(rows.row) as count
     FROM (
-        SELECT DISTINCT
-        rows."userId",
-        row_number() OVER (PARTITION BY doctor_row) as row
+        SELECT
+        row_number() OVER (PARTITION BY user_id) as row
         FROM (
             SELECT
-            d."userId",
-            row_number() OVER (PARTITION BY d."userId") as doctor_row
+            DISTINCT
+            d."userId" as user_id
             FROM doctors as d
             inner join doctor_specialties as ds on d."userId" = ds."doctorId" 
             inner join doctor_locations as dl on d."userId" = dl."doctorId" 
             where lower(dl.city) = '${city}' ${doctorSubQuery} ${specialtySubQuery}
         ) rows
-    ) rows
-    WHERE rows.row <= ${pageDto.perPage}`;
+    ) rows`;
 
     const doctorsFromDb: IDoctor[] = await this.sequelize.query<IDoctor>(
       mainQuery,
@@ -171,7 +171,14 @@ export class DoctorRepository
       where: {
         userId: doctorId,
       },
-      attributes: ['userId', 'firstName', 'lastName', 'surname', 'experience'],
+      attributes: [
+        'userId',
+        'firstName',
+        'lastName',
+        'surname',
+        'price',
+        'experience',
+      ],
       include: [
         { model: User, attributes: ['avatar'] },
         { model: Specialty, attributes: ['id', 'name'] },
@@ -198,6 +205,6 @@ export class DoctorRepository
           ],
         },
       ],
-    })
+    });
   }
 }

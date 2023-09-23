@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { Clinic } from '../models/clinic.entity';
 import { IClinicRepository } from './clinic.repository.interface';
 import { CreateClinicDto } from '../dto/create-clinic.dto';
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { User } from '../../user/models/user.entity';
 import { ClinicType } from '../models/clinic-type.entity';
 import { Sequelize } from 'sequelize-typescript';
-import { ClinicInfo } from '../interfaces/clinic-info.interface';
+import { IClinicInfo } from '../interfaces/clinic-info.interface';
 import { QueryTypes } from 'sequelize';
 
 @Injectable()
@@ -74,7 +74,7 @@ export class ClinicRepository
     });
   }
 
-  findAllByCityAndName(city: string, name: string): Promise<ClinicInfo[]> {
+  findAllByCityAndName(city: string, name: string): Promise<IClinicInfo[]> {
     const query = `
     SELECT c."userId" as "clinicId", c.name
     FROM clinics as c 
@@ -83,6 +83,8 @@ export class ClinicRepository
     where cl.city = '${city}' and LOWER(c.name) like LOWER('${name}%')
     `;
 
-    return this.sequelize.query<ClinicInfo>(query, { type: QueryTypes.SELECT });
+    return this.sequelize.query<IClinicInfo>(query, {
+      type: QueryTypes.SELECT,
+    });
   }
 }

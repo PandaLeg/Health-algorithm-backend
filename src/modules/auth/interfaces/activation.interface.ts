@@ -1,4 +1,4 @@
-export interface Activation {
+export interface IActivation {
   email?: string;
   isActivated: boolean;
 }

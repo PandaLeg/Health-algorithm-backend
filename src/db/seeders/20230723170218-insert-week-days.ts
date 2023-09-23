@@ -5,13 +5,13 @@ import { date } from '../creation-update-date';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('week_days', [
-      { name: 'Monday', ...date },
-      { name: 'Tuesday', ...date },
-      { name: 'Wednesday', ...date },
-      { name: 'Thursday', ...date },
-      { name: 'Friday', ...date },
-      { name: 'Saturday', ...date },
-      { name: 'Sunday', ...date },
+      { id: 1, name: 'Monday', ...date },
+      { id: 2, name: 'Tuesday', ...date },
+      { id: 3, name: 'Wednesday', ...date },
+      { id: 4, name: 'Thursday', ...date },
+      { id: 5, name: 'Friday', ...date },
+      { id: 6, name: 'Saturday', ...date },
+      { id: 0, name: 'Sunday', ...date },
     ]);
   },
 

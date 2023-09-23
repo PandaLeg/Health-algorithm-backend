@@ -7,29 +7,20 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DoctorService } from '../services/doctor.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
 import { IDoctorResponse } from '../interfaces/doctor-response.interface';
 import { LastNameDto } from '../dto/last-name.dto';
-import { GeneralValidationPipe } from '../../../pipes/general-validation.pipe';
-import { PageDto } from '../../../dto/PageDto';
+import { GeneralValidationPipe } from '../../../base/pipes/general-validation.pipe';
 import { DoctorSearchDto } from '../dto/doctor-search.dto';
-import { DoctorName } from '../interfaces/doctor-name.interface';
-import { DoctorClinic } from '../interfaces/doctor-clinic.interface';
+import { IDoctorName } from '../interfaces/doctor-name.interface';
+import { IDoctorClinic } from '../interfaces/doctor-clinic.interface';
 import { ParseJsonBranchesPipe } from '../pipes/parse-json-branches.pipe';
-import { AppointmentScheduleFromDoctor } from '../interfaces/appointment-schedule.interface';
+import { IAppointmentScheduleFromDoctor } from '../interfaces/appointment-schedule.interface';
 import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
 
 @Controller('doctors')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
-
-  @UseFilters(new HttpExceptionFilter())
-  @Get()
-  async getAllDoctors(
-    @Query(new GeneralValidationPipe()) pageDto: PageDto,
-  ): Promise<IDoctorResponse> {
-    return this.doctorService.getAllDoctors(pageDto);
-  }
 
   @UseFilters(new HttpExceptionFilter())
   @Get('/categories-specialties')
@@ -41,7 +32,7 @@ export class DoctorController {
   @Get('/names')
   async getNames(
     @Query(new GeneralValidationPipe()) lastNameDto: LastNameDto,
-  ): Promise<DoctorName[]> {
+  ): Promise<IDoctorName[]> {
     return this.doctorService.getNames(lastNameDto);
   }
 
@@ -58,7 +49,7 @@ export class DoctorController {
   @Get('/:id/clinics')
   async getDoctorWithClinics(
     @Param('id') doctorId: string,
-  ): Promise<DoctorClinic> {
+  ): Promise<IDoctorClinic> {
     return this.doctorService.getDoctorWithClinics(doctorId);
   }
 
@@ -69,7 +60,7 @@ export class DoctorController {
     @Param('id') doctorId: string,
     @Query('clinicBranches', new ParseJsonBranchesPipe())
     clinicBranches: string[],
-  ): Promise<AppointmentScheduleFromDoctor[]> {
+  ): Promise<IAppointmentScheduleFromDoctor[]> {
     return this.doctorService.getAppointmentSchedule(doctorId, clinicBranches);
   }
 }

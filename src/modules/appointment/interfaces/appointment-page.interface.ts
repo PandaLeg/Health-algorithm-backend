@@ -1,6 +1,6 @@
-import { AppointmentFull } from './appointment-full.interface';
+import { IAppointmentFull } from './appointment-full.interface';
 
-export interface AppointmentPage {
-  appointments: AppointmentFull[];
+export interface IAppointmentPage {
+  appointments: IAppointmentFull[];
   totalPages: number;
 }

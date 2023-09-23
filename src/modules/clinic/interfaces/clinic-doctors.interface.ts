@@ -1,6 +1,6 @@
 import { IDoctor } from '../../doctor/interfaces/doctor.interface';
 
-export interface ClinicDoctors {
+export interface IClinicDoctors {
   doctors: IDoctor[];
   totalPages: number;
 }

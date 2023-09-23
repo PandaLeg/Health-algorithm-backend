@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Clinic } from '../models/clinic.entity';
 import { CreateClinicDto } from '../dto/create-clinic.dto';
-import { ClinicInfo } from '../interfaces/clinic-info.interface';
+import { IClinicInfo } from '../interfaces/clinic-info.interface';
 import { ClinicLocationService } from './clinic-location.service';
 import { ClinicLocation } from '../models/clinic-location.entity';
 import { ClinicBranchService } from './clinic-branch.service';
@@ -9,18 +9,18 @@ import { ClinicBranch } from '../models/clinic-branch.entity';
 import { ClinicScheduleService } from './clinic-schedule.service';
 import { ClinicBranchDto } from '../dto/clinic-branch.dto';
 import { ClinicConvenienceService } from './clinic-convenience.service';
-import { ClinicSearch } from '../interfaces/clinic-search.interface';
+import { IClinicSearch } from '../interfaces/clinic-search.interface';
 import { ClinicType } from '../models/clinic-type.entity';
-import { ClinicSearchPage } from '../interfaces/clinic-search-page.interface';
-import { ClinicFullInfo } from '../interfaces/clinic-full-info.interface';
+import { IClinicSearchPage } from '../interfaces/clinic-search-page.interface';
+import { IClinicFullInfo } from '../interfaces/clinic-full-info.interface';
 import { ClinicSchedule } from '../models/clinic-schedule.entity';
-import { ScheduleClinic } from '../interfaces/schedule-clinic.interface';
-import { NotFoundException } from '../../../exceptions/not-found.exception';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
-import { ClinicBranchFullInfo } from '../interfaces/clinic-branch-full-info.interface';
+import { IScheduleClinic } from '../interfaces/schedule-clinic.interface';
+import { NotFoundException } from '../../../base/exceptions/not-found.exception';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
+import { IClinicBranchFullInfo } from '../interfaces/clinic-branch-full-info.interface';
 import { ClinicTypeService } from './clinic-type.service';
 import { IClinicRepository } from '../repos/clinic.repository.interface';
-import { PageDto } from '../../../dto/PageDto';
+import { PageDto } from '../../../base/dto/PageDto';
 import { IEntityPagination } from '../../../base/interfaces/entity-pagination.interface';
 import { CurrentClinicBranchDto } from '../dto/current-clinic-branch.dto';
 
@@ -42,21 +42,21 @@ export class ClinicService {
   async searchClinicsByCity(
     city: string,
     pageDto: PageDto,
-  ): Promise<ClinicSearchPage> {
+  ): Promise<IClinicSearchPage> {
     city = city.toLowerCase();
 
     const clinicPage: IEntityPagination<Clinic> =
       await this.clinicRepo.findAndCountAllByCity(city, pageDto);
 
     const totalPages = Math.ceil(clinicPage.count / pageDto.perPage);
-    const clinics: ClinicSearch[] = [];
+    const clinics: IClinicSearch[] = [];
 
     for (const el of clinicPage.rows) {
       const locationId: string = el.locations[0].id;
       const clinicBranch: ClinicBranch =
         await this.clinicBranchService.getFirstByLocation(locationId);
 
-      const clinic: ClinicSearch = {
+      const clinic: IClinicSearch = {
         clinicId: el.userId,
         name: el.name,
         description: el.description,
@@ -69,16 +69,20 @@ export class ClinicService {
       clinics.push(clinic);
     }
 
+    const countClinicBranches: number =
+      await this.clinicBranchService.totalClinicsNumberByCity(city);
+
     return {
       clinics,
       totalPages,
+      count: countClinicBranches,
     };
   }
 
   async searchClinicByIdAndCity(
     id: string,
     city: string,
-  ): Promise<ClinicSearch> {
+  ): Promise<IClinicSearch> {
     const clinicFromDb: Clinic = await this.clinicRepo.findOneById(id);
 
     const location: ClinicLocation =
@@ -89,7 +93,7 @@ export class ClinicService {
 
     const clinicBranchId: string = location.clinicBranches[0].id;
 
-    const clinic: ClinicSearch = {
+    const clinic: IClinicSearch = {
       clinicId: clinicFromDb.userId,
       name: clinicFromDb.name,
       description: clinicFromDb.description,
@@ -151,7 +155,10 @@ export class ClinicService {
     }
   }
 
-  async getAllByCityAndName(city: string, name: string): Promise<ClinicInfo[]> {
+  async getAllByCityAndName(
+    city: string,
+    name: string,
+  ): Promise<IClinicInfo[]> {
     return await this.clinicRepo.findAllByCityAndName(city, name);
   }
 
@@ -159,7 +166,7 @@ export class ClinicService {
     id: string,
     city: string,
     clinicBranchId: string,
-  ): Promise<ClinicFullInfo> {
+  ): Promise<IClinicFullInfo> {
     const clinicFromDb: Clinic = await this.clinicRepo.findOneById(id);
 
     if (!clinicFromDb) {
@@ -175,12 +182,12 @@ export class ClinicService {
     const clinicBranch: ClinicBranch =
       await this.clinicBranchService.getByIdWithSchedule(clinicBranchId);
 
-    const newSchedules: ScheduleClinic[] = await this.formScheduleForClinic(
+    const newSchedules: IScheduleClinic[] = await this.formScheduleForClinic(
       clinicBranch.schedules,
       clinicBranchId,
     );
 
-    const clinic: ClinicFullInfo = {
+    const clinic: IClinicFullInfo = {
       clinicId: clinicFromDb.userId,
       name: clinicFromDb.name,
       description: clinicFromDb.description,
@@ -238,15 +245,15 @@ export class ClinicService {
   }
 
   async formClinicBranches(clinicBranches: ClinicBranch[]) {
-    const clinics: ClinicBranchFullInfo[] = [];
+    const clinics: IClinicBranchFullInfo[] = [];
 
     for (const clinicBranch of clinicBranches) {
-      const schedule: ScheduleClinic[] = await this.formScheduleForClinic(
+      const schedule: IScheduleClinic[] = await this.formScheduleForClinic(
         clinicBranch.schedules,
         clinicBranch.id,
       );
 
-      const clinicInfo: ClinicBranchFullInfo = {
+      const clinicInfo: IClinicBranchFullInfo = {
         clinicBranchId: clinicBranch.id,
         address: clinicBranch.address,
         conveniences: clinicBranch.conveniences.map((el) => ({
@@ -265,8 +272,8 @@ export class ClinicService {
   async formScheduleForClinic(
     clinicSchedule: ClinicSchedule[],
     clinicBranchId: string,
-  ): Promise<ScheduleClinic[]> {
-    const newClinicSchedule: ScheduleClinic[] = [];
+  ): Promise<IScheduleClinic[]> {
+    const newClinicSchedule: IScheduleClinic[] = [];
 
     for (let i = 0; i < clinicSchedule.length; i++) {
       const schedule = clinicSchedule[i];
@@ -284,7 +291,7 @@ export class ClinicService {
       const from = schedule.from.substring(0, lastColonFrom);
       const to = schedule.to.substring(0, lastColonTo);
 
-      const newSchedule: ScheduleClinic = {
+      const newSchedule: IScheduleClinic = {
         from: schedule.from,
         to: schedule.to,
         time: from + '-' + to,
@@ -302,7 +309,10 @@ export class ClinicService {
 
       for (let j = 0; j < scheduleFromDb.length; j++) {
         const clinicSchedule = scheduleFromDb[j];
-        const weekDay = clinicSchedule.weekDay.name;
+        const weekDay = {
+          id: clinicSchedule.weekDay.id,
+          name: clinicSchedule.weekDay.name,
+        };
 
         newSchedule.weekDays.push(weekDay);
       }

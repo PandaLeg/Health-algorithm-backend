@@ -1,6 +1,6 @@
-import { IBaseRepository } from '../../../base/repos/base.repository.interface';
+import { IBaseRepository } from '../../../db/repos/base.repository.interface';
 import { User } from '../models/user.entity';
-import { MultipleUserProps, UserProp } from '../../../types/user.type';
+import { MultipleUserProps, UserProp } from '../../../base/types/user.type';
 import { CreateUserDto } from '../../auth/dto/create-user.dto';
 
 export interface IUserRepository extends IBaseRepository<User> {

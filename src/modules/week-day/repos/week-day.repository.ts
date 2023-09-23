@@ -1,4 +1,4 @@
-import { BaseRepository } from '../../../base/repos/base.repository';
+import { BaseRepository } from '../../../db/repos/base.repository';
 import { WeekDay } from '../models/week-day.entity';
 import { IWeekDayRepository } from './week-day.repository.interface';
 import { Inject, Injectable } from '@nestjs/common';

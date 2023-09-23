@@ -1,6 +1,6 @@
-import { ClinicBranchFullInfo } from '../../clinic/interfaces/clinic-branch-full-info.interface';
+import { IClinicBranchFullInfo } from '../../clinic/interfaces/clinic-branch-full-info.interface';
 
-export interface DoctorClinicBranch extends ClinicBranchFullInfo {
+export interface IDoctorClinicBranch extends IClinicBranchFullInfo {
   clinicId: string;
   city: string;
   type: string;

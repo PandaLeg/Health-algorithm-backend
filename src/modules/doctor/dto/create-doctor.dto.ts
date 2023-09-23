@@ -1,9 +1,10 @@
 import {
-  IsArray,
   IsDateString,
   IsInt,
   IsNotEmpty,
+  IsPositive,
   IsString,
+  Min,
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
@@ -14,7 +15,7 @@ import { DoctorWorkPlaceDto } from './doctor-work-place.dto';
 export class CreateDoctorDto {
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => value?.trim())
+  @Transform(({ value }: TransformFnParams) => value.trim())
   readonly firstName: string;
 
   @IsString()
@@ -34,6 +35,12 @@ export class CreateDoctorDto {
 
   @IsInt()
   @IsNotEmpty()
+  @Min(10)
+  readonly price: number;
+
+  @IsInt()
+  @IsNotEmpty()
+  @IsPositive()
   readonly experience: number;
 
   @IsInt()
@@ -48,13 +55,13 @@ export class CreateDoctorDto {
   @IsNotEmpty()
   readonly specialties: number[];
 
-  @IsArray()
   @IsNotEmpty()
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => DoctorWorkPlaceDto)
-  readonly doctorWorkPlaces: DoctorWorkPlaceDto[];
+  readonly workPlace: DoctorWorkPlaceDto;
 
-  @IsArray()
+  @IsString()
   @IsNotEmpty()
-  readonly cities: string[];
+  @Transform(({ value }: TransformFnParams) => value?.trim())
+  readonly city: string;
 }

@@ -6,13 +6,13 @@ import { PatientService } from '../../patient/services/patient.service';
 import { RoleType } from '../enums/role-type.enum';
 import { Role } from '../models/role.entity';
 import { DoctorService } from '../../doctor/services/doctor.service';
-import { SpecialtyCategory } from '../../doctor/interfaces/specialty-category.interface';
+import { ISpecialtyCategory } from '../../doctor/interfaces/specialty-category.interface';
 import { Doctor } from '../../doctor/models/doctor.entity';
 import { ClinicService } from '../../clinic/services/clinic.service';
-import { MultipleUserProps, UserProp } from '../../../types/user.type';
+import { MultipleUserProps, UserProp } from '../../../base/types/user.type';
 import { FileService } from '../../file/file.service';
-import { BadRequestException } from '../../../exceptions/bad-request.exception';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { BadRequestException } from '../../../base/exceptions/bad-request.exception';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
 import { Clinic } from '../../clinic/models/clinic.entity';
 import { ClinicDoctorService } from '../../clinic-doctor/services/clinic-doctor.service';
 import { DoctorWorkPlaceDto } from '../../doctor/dto/doctor-work-place.dto';
@@ -55,19 +55,18 @@ export class UserService {
     const user: User = this.userRepo.buildUser(userDto);
 
     let role: Role;
-
+    user.confirmed = true;
     switch (userDto.type.trim()) {
       case 'patient':
         role = await this.roleService.getRoleByValue(RoleType.PATIENT_ROLE);
 
-        user.confirmed = true;
         await user.save();
         await this.patientService.createPatient(user.id, userDto.patient);
         break;
       case 'doctor':
         role = await this.roleService.getRoleByValue(RoleType.DOCTOR_ROLE);
         const doctor: Doctor = this.doctorService.buildDoctor(userDto.doctor);
-        const specialtyCategoryDoctor: SpecialtyCategory =
+        const specialtyCategoryDoctor: ISpecialtyCategory =
           await this.doctorService.findSpecialtiesAndCategory(
             userDto.doctor.categoryId,
             userDto.doctor.specialties,
@@ -85,19 +84,16 @@ export class UserService {
           userDto.doctor,
         );
 
-        const workPlaces: DoctorWorkPlaceDto[] =
-          userDto.doctor.doctorWorkPlaces;
+        const workPlace: DoctorWorkPlaceDto = userDto.doctor.workPlace;
 
-        for (const workPlace of workPlaces) {
-          await this.clinicDoctorService.create(workPlace.id, user.id);
+        await this.clinicDoctorService.create(workPlace.id, user.id);
 
-          for (const schedule of workPlace.schedule) {
-            await this.doctorScheduleService.create(
-              workPlace.id,
-              user.id,
-              schedule,
-            );
-          }
+        for (const schedule of workPlace.schedule) {
+          await this.doctorScheduleService.create(
+            workPlace.id,
+            user.id,
+            schedule,
+          );
         }
 
         break;
