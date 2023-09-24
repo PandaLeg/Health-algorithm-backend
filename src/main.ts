@@ -11,6 +11,7 @@ async function start() {
     credentials: true,
     origin: true,
   });
+  app.setGlobalPrefix('api/v1');
   await app.listen(port, () => console.log(`Server started on ${port}`));
 }
 

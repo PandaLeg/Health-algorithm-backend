@@ -4,7 +4,7 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
 
 @Injectable()
 export class ParseIntDoctorPipe implements PipeTransform {
@@ -24,7 +24,7 @@ export class ParseIntDoctorPipe implements PipeTransform {
 
       experience = parseInt(experience, 10);
       categoryId = parseInt(categoryId, 10);
-      const specialties = value.doctor.specialties.split(',').map((value) => {
+      const specialties = value.doctor.specialties.map((value) => {
         if (!this.isNumeric(value)) {
           throw new BadRequestException({
             message: 'Validation failed',

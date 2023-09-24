@@ -1,4 +1,4 @@
-export interface SpecialtyCategory {
+export interface ISpecialtyCategory {
   specialties: number[];
   categoryId: number;
 }

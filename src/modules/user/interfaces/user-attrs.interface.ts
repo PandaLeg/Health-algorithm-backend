@@ -1,4 +1,4 @@
-export interface UserAttrs {
+export interface IUserAttrs {
   id?: string;
   phone?: string;
   password?: string;

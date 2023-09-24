@@ -3,7 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { UserType } from '../../../types/user.type';
+import { UserType } from '../../../base/types/user.type';
 
 @ValidatorConstraint({ name: 'type', async: false })
 export class ContainType implements ValidatorConstraintInterface {

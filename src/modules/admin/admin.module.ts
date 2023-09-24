@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ClinicAppealModule } from './modules/clinic-appeal/clinic-appeal.module';
-import { AdminAppealModule } from './modules/appeal/admin-appeal.module';
+import { AppealModule } from './modules/appeal/appeal.module';
 
 @Module({
-  imports: [ClinicAppealModule, AdminAppealModule],
+  imports: [AppealModule],
   controllers: [],
   providers: [],
 })

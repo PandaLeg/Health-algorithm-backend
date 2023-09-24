@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
-import { DatabaseModule } from './db-init/database.module';
+import { DatabaseModule } from './db/database.module';
 import { UserModule } from './modules/user/user.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { RouterModule } from '@nestjs/core';
-import { AdminAppealModule } from './modules/admin/modules/appeal/admin-appeal.module';
+import { AppealModule } from './modules/admin/modules/appeal/appeal.module';
 import * as path from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { WeekDayModule } from './modules/week-day/week-day.module';
+import { AppointmentModule } from './modules/appointment/appointment.module';
 
 @Module({
   imports: [
@@ -17,11 +19,13 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     DatabaseModule,
     UserModule,
     AdminModule,
+    WeekDayModule,
+    AppointmentModule,
     RouterModule.register([
       {
         path: 'admin',
         module: AdminModule,
-        children: [AdminAppealModule],
+        children: [AppealModule],
       },
     ]),
     ServeStaticModule.forRoot({

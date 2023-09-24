@@ -1,29 +1,66 @@
 import {
   Controller,
   Get,
-  ParseIntPipe,
+  Param,
   Query,
   UseFilters,
+  UseGuards,
 } from '@nestjs/common';
 import { DoctorService } from '../services/doctor.service';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
 import { IDoctorResponse } from '../interfaces/doctor-response.interface';
+import { LastNameDto } from '../dto/last-name.dto';
+import { GeneralValidationPipe } from '../../../base/pipes/general-validation.pipe';
+import { DoctorSearchDto } from '../dto/doctor-search.dto';
+import { IDoctorName } from '../interfaces/doctor-name.interface';
+import { IDoctorClinic } from '../interfaces/doctor-clinic.interface';
+import { ParseJsonBranchesPipe } from '../pipes/parse-json-branches.pipe';
+import { IAppointmentScheduleFromDoctor } from '../interfaces/appointment-schedule.interface';
+import { AuthAccessGuard } from '../../auth/guards/auth-access.guard';
 
 @Controller('doctors')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
+  @UseFilters(new HttpExceptionFilter())
   @Get('/categories-specialties')
-  async getAllCategoriesSpecialties() {
-    return this.doctorService.findAllCategoriesSpecialties();
+  async getCategoriesSpecialties() {
+    return this.doctorService.findCategoriesSpecialties();
   }
 
   @UseFilters(new HttpExceptionFilter())
-  @Get()
-  async getAllDoctors(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
+  @Get('/names')
+  async getNames(
+    @Query(new GeneralValidationPipe()) lastNameDto: LastNameDto,
+  ): Promise<IDoctorName[]> {
+    return this.doctorService.getNames(lastNameDto);
+  }
+
+  @UseFilters(new HttpExceptionFilter())
+  @Get('/search')
+  async searchDoctors(
+    @Query(new GeneralValidationPipe())
+    searchDto: DoctorSearchDto,
   ): Promise<IDoctorResponse> {
-    return this.doctorService.getAllDoctors(page, perPage);
+    return this.doctorService.searchDoctors(searchDto);
+  }
+
+  @UseFilters(new HttpExceptionFilter())
+  @Get('/:id/clinics')
+  async getDoctorWithClinics(
+    @Param('id') doctorId: string,
+  ): Promise<IDoctorClinic> {
+    return this.doctorService.getDoctorWithClinics(doctorId);
+  }
+
+  @UseGuards(AuthAccessGuard)
+  @UseFilters(new HttpExceptionFilter())
+  @Get('/:id/schedule')
+  async getAppointmentSchedule(
+    @Param('id') doctorId: string,
+    @Query('clinicBranches', new ParseJsonBranchesPipe())
+    clinicBranches: string[],
+  ): Promise<IAppointmentScheduleFromDoctor[]> {
+    return this.doctorService.getAppointmentSchedule(doctorId, clinicBranches);
   }
 }

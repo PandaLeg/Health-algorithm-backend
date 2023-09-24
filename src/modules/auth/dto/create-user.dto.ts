@@ -1,4 +1,4 @@
-import { UserType } from '../../../types/user.type';
+import { UserType } from '../../../base/types/user.type';
 import { CreatePatientDto } from '../../patient/dto/create-patient.dto';
 import { CreateDoctorDto } from '../../doctor/dto/create-doctor.dto';
 import { CreateClinicDto } from '../../clinic/dto/create-clinic.dto';
@@ -13,47 +13,42 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { Transform, TransformFnParams, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { ContainType } from '../validators/contain-type.validator';
 
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @IsPhoneNumber('UA')
-  phone: string;
+  readonly phone: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
   @MaxLength(20)
-  password: string;
+  readonly password: string;
 
   @IsNotEmpty()
   @IsEmail()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Transform(({ value }: TransformFnParams) => value?.trim())
-  city: string;
+  readonly email: string;
 
   @IsString()
   @IsNotEmpty()
   @Validate(ContainType)
-  type: UserType;
+  readonly type: UserType;
 
   @ValidateIf((o) => !!o.patient)
   @ValidateNested()
   @Type(() => CreatePatientDto)
-  patient?: CreatePatientDto;
+  readonly patient?: CreatePatientDto;
 
   @ValidateIf((o) => !!o.doctor)
   @ValidateNested()
   @Type(() => CreateDoctorDto)
-  doctor?: CreateDoctorDto;
+  readonly doctor?: CreateDoctorDto;
 
   @ValidateIf((o) => !!o.clinic)
   @ValidateNested()
   @Type(() => CreateClinicDto)
-  clinic?: CreateClinicDto;
+  readonly clinic?: CreateClinicDto;
 }

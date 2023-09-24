@@ -1,7 +1,7 @@
-import { UserPayload } from './user-payload.interface';
-import { TokenInfo } from './token-info.interface';
+import { IUserPayload } from './user-payload.interface';
+import { ITokenInfo } from './token-info.interface';
 
-export interface AuthResponse {
-  user: UserPayload;
-  tokens: TokenInfo;
+export interface IAuthResponse {
+  user: IUserPayload;
+  tokens: ITokenInfo;
 }

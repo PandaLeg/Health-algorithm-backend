@@ -14,9 +14,9 @@ module.exports = {
         phone: '+380669182530',
         password: hashedPassword,
         email: 'kurtlansfer@gmail.com',
-        city: 'Slovyanks',
         activationCode: null,
         isActivated: false,
+        confirmed: true,
         ...date,
       },
     ]);

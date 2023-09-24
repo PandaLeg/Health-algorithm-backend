@@ -21,24 +21,25 @@ import {
 import { CreateUserDto } from '../dto/create-user.dto';
 import { AuthService } from '../services/auth.service';
 import { ValidationCreateUserPipe } from '../pipes/validation-create-user.pipe';
-import { HttpExceptionFilter } from '../../../exceptions/http-exception.filter';
+import { HttpExceptionFilter } from '../../../base/exceptions/http-exception.filter';
 import { UserCredentialsDto } from '../dto/user-credentials.dto';
-import { ValidationCredentialsUserPipe } from '../pipes/validation-credentials-user.pipe';
-import { AuthResponse } from '../interfaces/auth-response.interface';
+import { GeneralValidationPipe } from '../../../base/pipes/general-validation.pipe';
+import { IAuthResponse } from '../interfaces/auth-response.interface';
 import { Request, Response } from 'express';
 import { AuthRefreshGuard } from '../guards/auth-refresh.guard';
-import { UserPayload } from '../interfaces/user-payload.interface';
+import { IUserPayload } from '../interfaces/user-payload.interface';
 import { Token } from '../models/token.entity';
 import { AuthAccessGuard } from '../guards/auth-access.guard';
-import { NotFoundException } from '../../../exceptions/not-found.exception';
-import { ErrorCodes } from '../../../exceptions/error-codes.enum';
+import { NotFoundException } from '../../../base/exceptions/not-found.exception';
+import { ErrorCodes } from '../../../base/exceptions/error-codes.enum';
 import * as process from 'process';
-import { Activation } from '../interfaces/activation.interface';
+import { IActivation } from '../interfaces/activation.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseIntDoctorPipe } from '../pipes/parse-int-doctor.pipe';
-import { BadRequestException } from '../../../exceptions/bad-request.exception';
+import { BadRequestException } from '../../../base/exceptions/bad-request.exception';
 import { UserEmailDto } from '../dto/user-email.dto';
 import { UserResetDto } from '../dto/user-reset.dto';
+import { ParseJsonUserPipe } from '../pipes/parse-json-user.pipe';
 
 @Controller('auth')
 export class AuthController {
@@ -48,11 +49,15 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   @UseInterceptors(FileInterceptor('image'))
   async registration(
-    @Body(new ValidationCreateUserPipe(), new ParseIntDoctorPipe())
+    @Body(
+      new ParseJsonUserPipe(),
+      new ValidationCreateUserPipe(),
+      new ParseIntDoctorPipe(),
+    )
     userDto: CreateUserDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({ fileType: 'image/jpeg' })
+        .addFileTypeValidator({ fileType: new RegExp('image/jpeg|image/png') })
         .addMaxSizeValidator({ maxSize: 5242880 })
         .build({
           fileIsRequired: false,
@@ -74,10 +79,10 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   async login(
     @Res() res: Response,
-    @Body(new ValidationCredentialsUserPipe())
+    @Body(new GeneralValidationPipe())
     userCredentials: UserCredentialsDto,
   ) {
-    const authInfo: AuthResponse = await this.authService.login(
+    const authInfo: IAuthResponse = await this.authService.login(
       userCredentials,
     );
     const ageCookie: number = 30 * 24 * 60 * 60 * 1000;
@@ -97,10 +102,10 @@ export class AuthController {
   @UseFilters(new HttpExceptionFilter())
   @Put('/refresh')
   async refresh(@Req() req: Request, @Res() res: Response) {
-    const user: UserPayload = req.body.user;
+    const user: IUserPayload = req.body.user;
     const tokenFromDb: Token = req.body.tokenFromDb;
 
-    const authInfo: AuthResponse = await this.authService.refresh(
+    const authInfo: IAuthResponse = await this.authService.refresh(
       user,
       tokenFromDb,
     );
@@ -134,7 +139,7 @@ export class AuthController {
   @Get('/activate/:code')
   @Redirect()
   async activate(@Param('code') code: string) {
-    const info: Activation = await this.authService.activate(code);
+    const info: IActivation = await this.authService.activate(code);
 
     const path = info.isActivated
       ? '/verify-email'
@@ -148,24 +153,20 @@ export class AuthController {
   @Patch('/send-confirmation-by-email')
   @UseFilters(new HttpExceptionFilter())
   async sendConfirmationByEmail(
-    @Body('email', new ValidationCredentialsUserPipe()) email: UserEmailDto,
+    @Body('email', new GeneralValidationPipe()) email: UserEmailDto,
   ) {
     return this.authService.sendConfirmationByEmail(email);
   }
 
   @Patch('/send-reset-code')
   @UseFilters(new HttpExceptionFilter())
-  async sendResetCode(
-    @Body(new ValidationCredentialsUserPipe()) user: UserEmailDto,
-  ) {
+  async sendResetCode(@Body(new GeneralValidationPipe()) user: UserEmailDto) {
     return this.authService.sendResetCode(user);
   }
 
   @Patch('/reset-password')
   @UseFilters(new HttpExceptionFilter())
-  async resetPassword(
-    @Body(new ValidationCredentialsUserPipe()) user: UserResetDto,
-  ) {
+  async resetPassword(@Body(new GeneralValidationPipe()) user: UserResetDto) {
     return this.authService.resetPassword(user);
   }
 }
