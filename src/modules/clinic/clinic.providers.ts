@@ -10,7 +10,6 @@ import { ClinicLocationRepository } from './repos/clinic-location.repository';
 import { ClinicBranchRepository } from './repos/clinic-branch.repository';
 import { ClinicConvenienceRepository } from './repos/clinic-convenience.repository';
 import { ClinicScheduleRepository } from './repos/clinic-schedule.repository';
-import { IClinicTypeRepository } from './repos/clinic-type.repository.interface';
 import { ClinicTypeRepository } from './repos/clinic-type.repository';
 import { ConvenienceRepository } from './repos/convenience.repository';
 
